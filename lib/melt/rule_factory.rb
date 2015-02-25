@@ -2,7 +2,7 @@ module Melt
   # Rule factory
   class RuleFactory
     # Return an Array of Rule for the provided +options+.
-    def self.build(options = {})
+    def build(options = {})
       return [] if options == {}
 
       options = { action: nil, dir: nil, af: nil, proto: nil, iface: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil } }.merge(options)
