@@ -17,7 +17,7 @@ module Melt
           parts << "to #{emit_address(rule.dst[:host])}"
           parts << "port #{rule.dst[:port]}" if rule.dst
         end
-        if rule.src.nil? and rule.dst.nil? then
+        if rule.src.nil? && rule.dst.nil? then
           parts << 'all'
         end
         parts.join(' ')

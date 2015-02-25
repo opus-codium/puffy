@@ -5,7 +5,7 @@ module Melt
     def self.build(options = {})
       return [] if options == {}
 
-      options = { dir: nil, af: nil, proto: nil, iface: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil } }.merge(options)
+      options = { action: nil, dir: nil, af: nil, proto: nil, iface: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil } }.merge(options)
       result = []
 
       options[:dir].to_array.each do |dir|
@@ -18,7 +18,7 @@ module Melt
                     options[:dst].to_array.each do |dst|
                       dst[:host].to_array.resolve(src_af) do |dst_host|
                         dst[:port].to_array.each do |dst_port|
-                          result << Rule.new(dir: dir, af: af, proto: proto, iface: iface, src: { host: src_host, port: src_port }, dst: {host: dst_host, port: dst_port})
+                          result << Rule.new(action: options[:action], dir: dir, af: af, proto: proto, iface: iface, src: { host: src_host, port: src_port }, dst: {host: dst_host, port: dst_port})
                         end
                       end
                     end
