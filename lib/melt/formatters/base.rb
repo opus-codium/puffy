@@ -2,6 +2,10 @@ module Melt
   module Formatters
     # Base class for Melt Formatters.
     class Base
+      # Returns a String representation of the provided +rules+ Array of Rule.
+      def emit_ruleset(rules)
+        rules.collect { |rule| emit_rule(rule) }.join("\n")
+      end
     protected
       # Return a string representation of the +host+ IPAddress as a host or network.
       def emit_address(host)

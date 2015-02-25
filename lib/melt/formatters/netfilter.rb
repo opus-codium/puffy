@@ -22,6 +22,15 @@ module Melt
         parts.join(' ')
       end
 
+      # Returns a Netfilter String representation of the provided +rules+ Array of Rule.
+      def emit_ruleset(rules)
+        parts = []
+        parts << '*filter'
+        parts << super
+        parts << 'COMMIT'
+        parts.join("\n")
+      end
+
     private
       def iptables_direction(direction)
         case direction
