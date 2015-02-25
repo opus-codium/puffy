@@ -1,3 +1,5 @@
+require 'core_ext'
+
 require 'melt/formatters/base'
 require 'melt/formatters/netfilter'
 require 'melt/formatters/pf'

@@ -1,6 +1,8 @@
 module Melt
   module Formatters
+    # Netfilter implementation of a Melt formatter.
     class Netfilter < Base
+      # Returns a Netfilter String representation of the provided +rule+ Rule.
       def emit_rule(rule)
         parts = []
         parts << "-A #{iptables_direction(rule.dir)}"

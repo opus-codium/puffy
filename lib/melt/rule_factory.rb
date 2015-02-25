@@ -1,36 +1,7 @@
-class Object
-  def to_array
-    if self.is_a?(Array) then
-      self
-    else
-      [self]
-    end
-  end
-end
-
-class NilClass
-  def each
-    yield(nil)
-  end
-end
-
-class Array
-  def resolve(address_family = nil)
-    resolver = Melt::Resolver.get_instance
-    collect do |name|
-      if name.nil? then
-        yield(nil)
-      else
-        resolver.resolv(name, address_family).each do |address, af|
-          yield(address, af)
-        end
-      end
-    end
-  end
-end
-
 module Melt
+  # Rule factory
   class RuleFactory
+    # Return an Array of Rule for the provided +options+.
     def self.build(options = {})
       return [] if options == {}
 

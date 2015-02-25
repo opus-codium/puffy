@@ -1,6 +1,8 @@
 module Melt
   module Formatters
+    # Pf implementation of a Melt formatter.
     class Pf < Base
+      # Returns a Pf String representation of the provided +rule+ Rule.
       def emit_rule(rule)
         parts = []
         parts << rule.action
