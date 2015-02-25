@@ -48,9 +48,12 @@ module Melt
 
   private
     def port_loockup(port)
+      return nil if port.nil?
+
       if port.is_a?(Fixnum) then
         port
       else
+        raise "unknown service \"#{port}\"" unless @services[port]
         @services[port]
       end
     end

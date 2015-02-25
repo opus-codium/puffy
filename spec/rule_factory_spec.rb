@@ -58,6 +58,8 @@ module Melt
       expect(result.count).to eq(2)
       expect(result[0].dst[:port]).to eq(80)
       expect(result[1].dst[:port]).to eq(443)
+
+      expect { @factory.build(dst: { port: 'invalid' }) }.to raise_error
     end
 
     it 'does not mix IPv4 and IPv6' do
