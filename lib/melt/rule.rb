@@ -33,10 +33,20 @@ module Melt
     # +options+ is a Hash of the Rule class attributes
     #
     #   Rule.new({ action: :accept, dir: :in, proto: :tcp, dst: { port: 80 } })
-    def initialize(options)
+    def initialize(options = {})
       options.each do |k, v|
         send("#{k}=", v)
       end
+    end
+
+    # Return true if the rule is valid in an IPv4 context.
+    def ipv4?
+      ! (src && src[:host] && src[:host].ipv6? || dst && dst[:host] && dst[:host].ipv6?)
+    end
+
+    # Return true if the rule is valid in an IPv6 context.
+    def ipv6?
+      ! (src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
     end
   end
 end
