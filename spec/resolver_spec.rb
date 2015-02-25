@@ -16,5 +16,9 @@ module Melt
     it 'resolves IPv6 only' do
       expect(Melt::Resolver.get_instance.resolv('localhost.', :inet6).collect { |x| x.to_s }).to eq(['::1'])
     end
+
+    it 'raises exceptions with unknown hosts' do
+      expect { Melt::Resolver.get_instance.resolv('host.invalid.') }.to raise_error
+    end
   end
 end

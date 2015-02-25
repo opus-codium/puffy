@@ -23,6 +23,7 @@ module Melt
       result = []
       result += @dns.getresources(hostname, Resolv::DNS::Resource::IN::AAAA).collect { |r| IPAddress.parse(r.address.to_s) } if address_family.nil? || address_family == :inet6
       result += @dns.getresources(hostname, Resolv::DNS::Resource::IN::A).collect { |r| IPAddress.parse(r.address.to_s) } if address_family.nil? || address_family == :inet
+      raise "\"#{hostname}\" does not resolve to any valid IP#{ case address_family when :inet then 'v4' when :inet6 then 'v6' end } address." if result.empty?
       result
     end
 
