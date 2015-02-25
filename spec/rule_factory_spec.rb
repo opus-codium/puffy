@@ -50,6 +50,16 @@ module Melt
       expect(result[1].dst[:host]).to eq('192.0.2.1')
     end
 
+    it 'accepts service names' do
+      expect(Rule).to receive(:new).twice.and_call_original
+
+      result = @factory.build(dst: { port: ['http', 'https'] })
+
+      expect(result.count).to eq(2)
+      expect(result[0].dst[:port]).to eq(80)
+      expect(result[1].dst[:port]).to eq(443)
+    end
+
     it 'does not mix IPv4 and IPv6' do
       expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.net', nil).and_return([['2001:DB8::FFFF:FFFF:FFFF', :inet6], ['198.51.100.1', :inet]])
       expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet6).and_return([['2001:DB8::1', :inet6]])

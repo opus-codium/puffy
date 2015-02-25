@@ -1,6 +1,19 @@
+require 'scanf'
+
 module Melt
   # Rule factory
   class RuleFactory
+    def initialize
+      @services = {}
+      File.open('/etc/services') do |f|
+        while line = f.gets do
+          pieces = line.scanf("%s\t%d/%s")
+          next unless pieces.count == 3
+          @services[pieces[0]] = pieces[1]
+        end
+      end
+    end
+
     # Return an Array of Rule for the provided +options+.
     def build(options = {})
       return [] if options == {}
@@ -18,7 +31,7 @@ module Melt
                     options[:dst].to_array.each do |dst|
                       dst[:host].to_array.resolve(src_af) do |dst_host|
                         dst[:port].to_array.each do |dst_port|
-                          result << Rule.new(action: options[:action], dir: dir, af: af, proto: proto, iface: iface, src: { host: src_host, port: src_port }, dst: {host: dst_host, port: dst_port})
+                          result << Rule.new(action: options[:action], dir: dir, af: af, proto: proto, iface: iface, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)})
                         end
                       end
                     end
@@ -31,6 +44,15 @@ module Melt
       end
 
       result
+    end
+
+  private
+    def port_loockup(port)
+      if port.is_a?(Fixnum) then
+        port
+      else
+        @services[port]
+      end
     end
   end
 end
