@@ -25,7 +25,7 @@ module Melt
       options[:dir].to_array.each do |dir|
         options[:af].to_array.each do |af|
           options[:proto].to_array.each do |proto|
-            options[:iface].each do |iface|
+            options[:iface].to_array.each do |iface|
               options[:src].to_array.each do |src|
                 host_loockup(src[:host].to_array, af) do |src_host, src_af|
                   src[:port].to_array.each do |src_port|
