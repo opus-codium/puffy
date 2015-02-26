@@ -6,11 +6,11 @@ module Melt
       def emit_rule(rule)
         parts = []
         parts << "-A #{iptables_direction(rule.dir)}"
-        if rule.iface then
-          if rule.iface =~ /!(.*)/ then
+        if rule.on then
+          if rule.on =~ /!(.*)/ then
             parts << "! -i #{$1}"
           else
-            parts << "-i #{rule.iface}"
+            parts << "-i #{rule.on}"
           end
         end
         parts << "-p #{rule.proto}" if rule.proto

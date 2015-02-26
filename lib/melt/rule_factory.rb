@@ -34,20 +34,20 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = { action: nil, dir: nil, af: nil, proto: nil, iface: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil } }.merge(options)
+      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil } }.merge(options)
       result = []
 
       options[:dir].to_array.each do |dir|
         filter_af(options[:af]) do |af|
           options[:proto].to_array.each do |proto|
-            options[:iface].to_array.each do |iface|
+            options[:on].to_array.each do |on|
               options[:src].to_array.each do |src|
                 host_loockup(src[:host].to_array, af) do |src_host, src_af|
                   src[:port].to_array.each do |src_port|
                     options[:dst].to_array.each do |dst|
                       host_loockup(dst[:host].to_array, src_af) do |dst_host, final_af|
                         dst[:port].to_array.each do |dst_port|
-                          result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, iface: iface, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)})
+                          result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)})
                         end
                       end
                     end

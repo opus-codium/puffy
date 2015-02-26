@@ -14,7 +14,7 @@ module Melt
     attr_accessor :af
 
     # Interface
-    attr_accessor :iface
+    attr_accessor :on
 
     # Packet source as a Hash
     #
