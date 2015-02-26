@@ -77,5 +77,21 @@ module Melt
       expect(result[1].src[:host]).to eq(IPAddress.parse('198.51.100.1'))
       expect(result[1].dst[:host]).to eq(IPAddress.parse('192.0.2.1'))
     end
+
+    it 'limits scope to IP version' do
+      result = []
+
+      @factory.ipv4 do
+        result = @factory.build(dst: { host: 'localhost.' })
+      end
+      expect(result.count).to eq(1)
+      expect(result[0].dst[:host]).to eq(IPAddress.parse('127.0.0.1'))
+
+      @factory.ipv6 do
+        result = @factory.build(dst: { host: 'localhost.' })
+      end
+      expect(result.count).to eq(1)
+      expect(result[0].dst[:host]).to eq(IPAddress.parse('::1'))
+    end
   end
 end

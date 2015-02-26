@@ -5,6 +5,7 @@ module Melt
   class RuleFactory
     # Initialize a Rule factory.
     def initialize
+      @af = nil
       @services = {}
       File.open('/etc/services') do |f|
         while line = f.gets do
@@ -15,6 +16,20 @@ module Melt
       end
     end
 
+    def ipv4
+      old_af = @af
+      @af = :inet
+      yield
+      @af = old_af
+    end
+
+    def ipv6
+      old_af = @af
+      @af = :inet6
+      yield
+      @af = old_af
+    end
+
     # Return an Array of Rule for the provided +options+.
     def build(options = {})
       return [] if options == {}
@@ -23,7 +38,7 @@ module Melt
       result = []
 
       options[:dir].to_array.each do |dir|
-        options[:af].to_array.each do |af|
+        filter_af(options[:af]) do |af|
           options[:proto].to_array.each do |proto|
             options[:iface].to_array.each do |iface|
               options[:src].to_array.each do |src|
@@ -48,13 +63,19 @@ module Melt
     end
 
   private
+    def filter_af(af)
+      if af.nil? || @af == af then
+        yield(@af || af)
+      end
+    end
+
     def host_loockup(host, address_family = nil)
       return nil if host.nil?
 
       resolver = Melt::Resolver.get_instance
       host.collect do |name|
         if name.nil? then
-          yield(nil)
+          yield(nil, address_family)
         else
           resolver.resolv(name, address_family).each do |address|
             yield(address, address.ipv6? ? :inet6 : :inet)
