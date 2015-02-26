@@ -41,13 +41,13 @@ module Melt
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', nil).and_return([['2001:DB8::1', :inet6], ['192.0.2.1', :inet]])
+      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', nil).and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
 
       result = @factory.build(dst: { host: 'example.com' })
 
       expect(result.count).to eq(2)
-      expect(result[0].dst[:host]).to eq('2001:DB8::1')
-      expect(result[1].dst[:host]).to eq('192.0.2.1')
+      expect(result[0].dst[:host]).to eq(IPAddress.parse('2001:DB8::1'))
+      expect(result[1].dst[:host]).to eq(IPAddress.parse('192.0.2.1'))
     end
 
     it 'accepts service names' do
@@ -63,19 +63,19 @@ module Melt
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.net', nil).and_return([['2001:DB8::FFFF:FFFF:FFFF', :inet6], ['198.51.100.1', :inet]])
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet6).and_return([['2001:DB8::1', :inet6]])
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet).and_return([['192.0.2.1', :inet]])
+      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.net', nil).and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
+      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet6).and_return([IPAddress.parse('2001:DB8::1')])
+      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet).and_return([IPAddress.parse('192.0.2.1')])
 
       expect(Rule).to receive(:new).twice.and_call_original
 
       result = @factory.build(src: { host: 'example.net' }, dst: { host: 'example.com' })
 
       expect(result.count).to eq(2)
-      expect(result[0].src[:host]).to eq('2001:DB8::FFFF:FFFF:FFFF')
-      expect(result[0].dst[:host]).to eq('2001:DB8::1')
-      expect(result[1].src[:host]).to eq('198.51.100.1')
-      expect(result[1].dst[:host]).to eq('192.0.2.1')
+      expect(result[0].src[:host]).to eq(IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'))
+      expect(result[0].dst[:host]).to eq(IPAddress.parse('2001:DB8::1'))
+      expect(result[1].src[:host]).to eq(IPAddress.parse('198.51.100.1'))
+      expect(result[1].dst[:host]).to eq(IPAddress.parse('192.0.2.1'))
     end
   end
 end
