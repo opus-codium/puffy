@@ -66,7 +66,7 @@ module Melt
     def port_loockup(port)
       return nil if port.nil?
 
-      if port.is_a?(Fixnum) then
+      if port.is_a?(Fixnum) || port =~ /^\d+:\d+$/ then
         port
       else
         raise "unknown service \"#{port}\"" unless @services[port]
