@@ -28,6 +28,9 @@ module Melt
     # :port:: destination port the rule apply to
     attr_accessor :dst
 
+    # Destination for redirection.
+    attr_accessor :to
+
     # Instanciate a firewall Rule.
     #
     # +options+ is a Hash of the Rule class attributes
