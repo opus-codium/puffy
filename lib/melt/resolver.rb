@@ -9,7 +9,7 @@ module Melt
       @@instance ||= new
     end
 
-    # Resolve hostname and return an Array of IPAddress.
+    # Resolve +hostname+ and return an Array of IPAddress.
     #
     # Valid +address_family+ values are:
     #

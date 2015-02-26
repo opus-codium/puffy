@@ -1,4 +1,4 @@
-class NilClass
+class NilClass # :nodoc:
   # Allow nil to yield with no value.
   #
   #   foo = [1, 2, 3]
@@ -16,7 +16,7 @@ class NilClass
   end
 end
 
-class Object
+class Object # :nodoc:
   # Return self packed in an array unless self itself is an Array.
   #
   #   1.to_array         #=> [1]

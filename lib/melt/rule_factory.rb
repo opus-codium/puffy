@@ -3,6 +3,7 @@ require 'scanf'
 module Melt
   # Rule factory
   class RuleFactory
+    # Initialize a Rule factory.
     def initialize
       @services = {}
       File.open('/etc/services') do |f|

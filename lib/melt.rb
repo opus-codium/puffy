@@ -8,3 +8,6 @@ require 'melt/formatters/pf'
 require 'melt/resolver'
 require 'melt/rule'
 require 'melt/rule_factory'
+
+module Melt # :nodoc:
+end

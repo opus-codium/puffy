@@ -1,5 +1,5 @@
 module Melt
-  module Formatters
+  module Formatters # :nodoc:
     # Base class for Melt Formatters.
     class Base
       # Returns a String representation of the provided +rules+ Array of Rule.

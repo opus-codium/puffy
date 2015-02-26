@@ -24,6 +24,7 @@ module Melt
       end
 
     protected
+      # Return a valid PF representation of +host+.
       def emit_address(host)
         if host then
           super
