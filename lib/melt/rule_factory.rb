@@ -16,6 +16,7 @@ module Melt
       end
     end
 
+    # Limit the scope of a set of rules to IPv4 only.
     def ipv4
       old_af = @af
       @af = :inet
@@ -23,6 +24,7 @@ module Melt
       @af = old_af
     end
 
+    # Limit the scope of a set of rules to IPv6 only.
     def ipv6
       old_af = @af
       @af = :inet6
