@@ -2,8 +2,8 @@ module Melt
   module Formatters # :nodoc:
     # Base class for Melt Formatters.
     class Base
-      # Returns a String representation of the provided +rules+ Array of Rule.
-      def emit_ruleset(rules)
+      # Returns a String representation of the provided +rules+ Array of Rule with the +policy+ policy.
+      def emit_ruleset(rules, policy = nil)
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end
     protected

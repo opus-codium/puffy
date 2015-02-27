@@ -23,8 +23,8 @@ module Melt
         parts.join(' ')
       end
 
-      # Returns a Netfilter String representation of the provided +rules+ Array of Rule.
-      def emit_ruleset(rules)
+      # Returns a Netfilter String representation of the provided +rules+ Array of Rule with the +policy+ policy.
+      def emit_ruleset(rules, policy = :block)
         parts = []
         parts << '*filter'
         parts << super
