@@ -6,13 +6,13 @@ module Melt
       it 'formats simple rules' do
         formatter = Netfilter.new
 
-        rule = Rule.new(action: :pass, dir: :in, proto: :tcp, dst: { host: nil, port: 80 })
+        rule = Rule.new(action: :pass, dir: :in, proto: :tcp, to: { host: nil, port: 80 })
         expect(formatter.emit_rule(rule)).to eq('-A INPUT -p tcp --dport 80 -j ACCEPT')
 
         rule = Rule.new(action: :pass, dir: :in, on: 'lo')
         expect(formatter.emit_rule(rule)).to eq('-A INPUT -i lo -j ACCEPT')
 
-        rule = Rule.new(action: :block, dir: :in, on: '!lo', dst: { host: IPAddress.parse('127.0.0.0/8') })
+        rule = Rule.new(action: :block, dir: :in, on: '!lo', to: { host: IPAddress.parse('127.0.0.0/8') })
         expect(formatter.emit_rule(rule)).to eq('-A INPUT ! -i lo -d 127.0.0.0/8 -j DROP')
 
         rule = Rule.new(action: :pass, dir: :out)

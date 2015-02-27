@@ -10,15 +10,15 @@ module Melt
         parts << 'quick' unless rule.no_quick
         parts << rule.af if rule.af
         parts << "proto #{rule.proto}" if rule.proto
-        if rule.src then
-          parts << "from #{emit_address(rule.src[:host])}"
+        if rule.from then
+          parts << "from #{emit_address(rule.from[:host])}"
           parts << "port #{rule.src_port}" if rule.src_port
         end
-        if rule.dst then
-          parts << "to #{emit_address(rule.dst[:host])}"
+        if rule.to then
+          parts << "to #{emit_address(rule.to[:host])}"
           parts << "port #{rule.dst_port}" if rule.dst_port
         end
-        if rule.src.nil? && rule.dst.nil? then
+        if rule.from.nil? && rule.to.nil? then
           parts << 'all'
         end
         parts.join(' ')

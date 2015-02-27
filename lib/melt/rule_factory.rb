@@ -36,24 +36,24 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
+      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
       result = []
 
       options[:dir].to_array.each do |dir|
         filter_af(options[:af]) do |af|
           options[:proto].to_array.each do |proto|
             options[:on].to_array.each do |on|
-              options[:src].to_array.each do |src|
-                host_loockup(src[:host].to_array, af) do |src_host, src_af|
-                  src[:port].to_array.each do |src_port|
-                    options[:dst].to_array.each do |dst|
-                      host_loockup(dst[:host].to_array, src_af) do |dst_host, final_af|
-                        dst[:port].to_array.each do |dst_port|
+              options[:from].to_array.each do |from|
+                host_loockup(from[:host].to_array, af) do |from_host, src_af|
+                  from[:port].to_array.each do |from_port|
+                    options[:to].to_array.each do |to|
+                      host_loockup(to[:host].to_array, src_af) do |to_host, final_af|
+                        to[:port].to_array.each do |to_port|
                           host_loockup(options[:nat_to].to_array, final_af) do |nat_to|
                             options[:rdr_to].to_array.each do |rdr_to|
                               host_loockup(rdr_to[:host].to_array, final_af) do |rdr_to_host|
                                 rdr_to[:port].to_array.each do |rdr_to_port|
-                                  result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
+                                  result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
                                 end
                               end
                             end

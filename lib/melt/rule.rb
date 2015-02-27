@@ -20,13 +20,13 @@ module Melt
     #
     # :host:: address of the source host or network the rule apply to
     # :port:: source port the rule apply to
-    attr_accessor :src
+    attr_accessor :from
 
     # Packet destination as a Hash
     #
     # :host:: address of the destination host or network the rule apply to
     # :port:: destination port the rule apply to
-    attr_accessor :dst
+    attr_accessor :to
 
     # Destination for NAT.
     attr_accessor :nat_to
@@ -41,7 +41,7 @@ module Melt
     #
     # +options+ is a Hash of the Rule class attributes
     #
-    #   Rule.new({ action: :accept, dir: :in, proto: :tcp, dst: { port: 80 } })
+    #   Rule.new({ action: :accept, dir: :in, proto: :tcp, to: { port: 80 } })
     def initialize(options = {})
       options.each do |k, v|
         send("#{k}=", v)
@@ -52,12 +52,12 @@ module Melt
 
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
-      ! (af == :inet6 || src && src[:host] && src[:host].ipv6? || dst && dst[:host] && dst[:host].ipv6?)
+      ! (af == :inet6 || from && from[:host] && from[:host].ipv6? || to && to[:host] && to[:host].ipv6?)
     end
 
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
-      ! (af == :inet || src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
+      ! (af == :inet || from && from[:host] && from[:host].ipv4? || to && to[:host] && to[:host].ipv4?)
     end
 
     # Return true if the rule is a filter rule.
@@ -77,12 +77,12 @@ module Melt
 
     # Return the source port of the Rule.
     def src_port
-      src and src[:port]
+      from and from[:port]
     end
 
     # Return the destination port of the Rule.
     def dst_port
-      dst and dst[:port]
+      to and to[:port]
     end
 
     # Return the redirect destination port of the Rule.

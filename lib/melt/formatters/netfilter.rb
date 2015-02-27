@@ -15,10 +15,10 @@ module Melt
           end
         end
         parts << "-p #{rule.proto}" if rule.proto
-        parts << "-s #{emit_address(rule.src[:host])}" if rule.src && rule.src[:host]
-        parts << "--sport #{rule.src[:port]}" if rule.src && rule.src[:port]
-        parts << "-d #{emit_address(rule.dst[:host])}" if rule.dst && rule.dst[:host]
-        parts << "--dport #{rule.dst[:port]}" if rule.dst && rule.dst[:port]
+        parts << "-s #{emit_address(rule.from[:host])}" if rule.from && rule.from[:host]
+        parts << "--sport #{rule.src_port}" if rule.from && rule.src_port
+        parts << "-d #{emit_address(rule.to[:host])}" if rule.to && rule.to[:host]
+        parts << "--dport #{rule.dst_port}" if rule.to && rule.dst_port
         parts << "-j #{iptables_action(rule.action)}"
         parts.join(' ')
       end
