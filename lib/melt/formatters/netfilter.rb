@@ -43,7 +43,7 @@ module Melt
         case action
         when :pass then 'ACCEPT'
         when :log then 'LOG'
-        when :block then 'REJECT'
+        when :block then 'DROP'
         end
       end
     end

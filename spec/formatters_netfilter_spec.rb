@@ -13,7 +13,7 @@ module Melt
         expect(formatter.emit_rule(rule)).to eq('-A INPUT -i lo -j ACCEPT')
 
         rule = Rule.new(action: :block, dir: :in, on: '!lo', dst: { host: IPAddress.parse('127.0.0.0/8') })
-        expect(formatter.emit_rule(rule)).to eq('-A INPUT ! -i lo -d 127.0.0.0/8 -j REJECT')
+        expect(formatter.emit_rule(rule)).to eq('-A INPUT ! -i lo -d 127.0.0.0/8 -j DROP')
 
         rule = Rule.new(action: :pass, dir: :out)
         expect(formatter.emit_rule(rule)).to eq('-A OUTPUT -j ACCEPT')
