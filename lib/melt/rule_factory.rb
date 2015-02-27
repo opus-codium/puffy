@@ -50,7 +50,7 @@ module Melt
                       host_loockup(dst[:host].to_array, src_af) do |dst_host, final_af|
                         dst[:port].to_array.each do |dst_port|
                           host_loockup(options[:to].to_array, final_af) do |to|
-                          result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)}, to: to)
+                            result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)}, to: to)
                           end
                         end
                       end
