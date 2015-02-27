@@ -11,11 +11,11 @@ module Melt
         parts << "proto #{rule.proto}" if rule.proto
         if rule.src then
           parts << "from #{emit_address(rule.src[:host])}"
-          parts << "port #{rule.src[:port]}" if rule.src
+          parts << "port #{rule.src_port}" if rule.src_port
         end
         if rule.dst then
           parts << "to #{emit_address(rule.dst[:host])}"
-          parts << "port #{rule.dst[:port]}" if rule.dst
+          parts << "port #{rule.dst_port}" if rule.dst_port
         end
         if rule.src.nil? && rule.dst.nil? then
           parts << 'all'

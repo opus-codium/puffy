@@ -40,6 +40,8 @@ module Melt
       options.each do |k, v|
         send("#{k}=", v)
       end
+
+      raise "if src_port or dst_port is specified, the protocol must also be given" if (src_port || dst_port) && proto.nil?
     end
 
     # Return true if the rule is valid in an IPv4 context.
@@ -50,6 +52,16 @@ module Melt
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
       ! (af == :inet || src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
+    end
+
+    # Return the source port of the Rule.
+    def src_port
+      src and src[:port]
+    end
+
+    # Return the destination port of the Rule.
+    def dst_port
+      dst and dst[:port]
     end
   end
 end

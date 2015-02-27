@@ -53,10 +53,12 @@ module Melt
     it 'accepts service names' do
       expect(Rule).to receive(:new).twice.and_call_original
 
-      result = @factory.build(dst: { port: ['http', 'https'] })
+      result = @factory.build(proto: :tcp, dst: { port: ['http', 'https'] })
 
       expect(result.count).to eq(2)
+      expect(result[0].proto).to eq(:tcp)
       expect(result[0].dst[:port]).to eq(80)
+      expect(result[1].proto).to eq(:tcp)
       expect(result[1].dst[:port]).to eq(443)
 
       expect { @factory.build(dst: { port: 'invalid' }) }.to raise_error
