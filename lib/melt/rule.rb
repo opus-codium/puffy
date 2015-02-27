@@ -44,12 +44,12 @@ module Melt
 
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
-      ! (src && src[:host] && src[:host].ipv6? || dst && dst[:host] && dst[:host].ipv6?)
+      ! (af == :inet6 || src && src[:host] && src[:host].ipv6? || dst && dst[:host] && dst[:host].ipv6?)
     end
 
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
-      ! (src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
+      ! (af == :inet || src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
     end
   end
 end
