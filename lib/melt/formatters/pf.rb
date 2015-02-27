@@ -7,6 +7,7 @@ module Melt
         parts = []
         parts << rule.action
         parts << rule.dir if rule.dir
+        parts << 'quick' unless rule.no_quick
         parts << rule.af if rule.af
         parts << "proto #{rule.proto}" if rule.proto
         if rule.src then

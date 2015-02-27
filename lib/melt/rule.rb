@@ -31,6 +31,9 @@ module Melt
     # Destination for redirection.
     attr_accessor :to
 
+    # Prevent the rule from being a quick one.
+    attr_accessor :no_quick
+
     # Instanciate a firewall Rule.
     #
     # +options+ is a Hash of the Rule class attributes
