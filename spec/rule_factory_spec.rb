@@ -78,6 +78,14 @@ module Melt
       expect(result[1].dst[:host]).to eq(IPAddress.parse('192.0.2.1'))
     end
 
+    it 'filters address family' do
+      result = @factory.build(af: :inet, proto: :icmp)
+      expect(result.count).to eq(1)
+
+      result = @factory.build(af: :inet6, proto: :icmpv6)
+      expect(result.count).to eq(1)
+    end
+
     it 'limits scope to IP version' do
       result = []
 
