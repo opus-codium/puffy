@@ -28,8 +28,11 @@ module Melt
     # :port:: destination port the rule apply to
     attr_accessor :dst
 
-    # Destination for redirection.
-    attr_accessor :to
+    # Destination for NAT.
+    attr_accessor :nat_to
+
+    # Destination for redirections.
+    attr_accessor :rdr_to
 
     # Prevent the rule from being a quick one.
     attr_accessor :no_quick
@@ -57,6 +60,21 @@ module Melt
       ! (af == :inet || src && src[:host] && src[:host].ipv4? || dst && dst[:host] && dst[:host].ipv4?)
     end
 
+    # Return true if the rule is a filter rule.
+    def filter?
+      ! nat? && ! rdr?
+    end
+
+    # Return true if the rule is a redirection.
+    def nat?
+      !! nat_to
+    end
+
+    # Return true if the rule is a redirection.
+    def rdr?
+      !! rdr_to && rdr_to[:host]
+    end
+
     # Return the source port of the Rule.
     def src_port
       src and src[:port]
@@ -65,6 +83,11 @@ module Melt
     # Return the destination port of the Rule.
     def dst_port
       dst and dst[:port]
+    end
+
+    # Return the redirect destination port of the Rule.
+    def rdr_to_port
+      rdr_to and rdr_to[:port]
     end
   end
 end

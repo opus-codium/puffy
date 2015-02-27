@@ -36,7 +36,7 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil }, to: nil }.merge(options)
+      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, src: { host: nil, port: nil }, dst: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
       result = []
 
       options[:dir].to_array.each do |dir|
@@ -49,8 +49,14 @@ module Melt
                     options[:dst].to_array.each do |dst|
                       host_loockup(dst[:host].to_array, src_af) do |dst_host, final_af|
                         dst[:port].to_array.each do |dst_port|
-                          host_loockup(options[:to].to_array, final_af) do |to|
-                            result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)}, to: to)
+                          host_loockup(options[:nat_to].to_array, final_af) do |nat_to|
+                            options[:rdr_to].to_array.each do |rdr_to|
+                              host_loockup(rdr_to[:host].to_array, final_af) do |rdr_to_host|
+                                rdr_to[:port].to_array.each do |rdr_to_port|
+                                  result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, src: { host: src_host, port: port_loockup(src_port) }, dst: {host: dst_host, port: port_loockup(dst_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
+                                end
+                              end
+                            end
                           end
                         end
                       end
