@@ -5,12 +5,13 @@ module Melt
       # Returns a Netfilter String representation of the provided +rule+ Rule.
       def emit_rule(rule)
         parts = []
+        on_direction_flag = { in: '-i', out: '-o', }
         parts << "-A #{iptables_direction(rule.dir)}"
         if rule.on then
           if rule.on =~ /!(.*)/ then
-            parts << "! -i #{$1}"
+            parts << "! #{on_direction_flag[rule.dir]} #{$1}"
           else
-            parts << "-i #{rule.on}"
+            parts << "#{on_direction_flag[rule.dir]} #{rule.on}"
           end
         end
         parts << "-p #{rule.proto}" if rule.proto
