@@ -13,6 +13,13 @@ module Melt
           else
             parts << "#{on_direction_flag[rule.dir]} #{rule.on}"
           end
+        else
+          if rule.in then
+            parts << "-i #{rule.in}"
+          end
+          if rule.out then
+            parts << "-o #{rule.out}"
+          end
         end
         parts << "-p #{rule.proto}" if rule.proto
         parts << "-s #{emit_address(rule.from[:host])}" if rule.from && rule.from[:host]
@@ -37,6 +44,7 @@ module Melt
         case direction
         when :in then 'INPUT'
         when :out then 'OUTPUT'
+        when :fwd then 'FORWARD'
         end
       end
 

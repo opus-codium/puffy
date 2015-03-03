@@ -42,7 +42,9 @@ module Melt
       options[:dir].to_array.each do |dir|
         filter_af(options[:af]) do |af|
           options[:proto].to_array.each do |proto|
-            options[:on].to_array.each do |on|
+            options[:on].to_array.each do |on_if|
+            options[:in].to_array.each do |in_if|
+            options[:out].to_array.each do |out_if|
               options[:from].to_array.each do |from|
                 host_loockup(from[:host].to_array, af) do |from_host, src_af|
                   from[:port].to_array.each do |from_port|
@@ -53,7 +55,7 @@ module Melt
                             options[:rdr_to].to_array.each do |rdr_to|
                               host_loockup(rdr_to[:host].to_array, final_af) do |rdr_to_host|
                                 rdr_to[:port].to_array.each do |rdr_to_port|
-                                  result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
+                                  result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on_if, in: in_if, out: out_if, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
                                 end
                               end
                             end
@@ -64,6 +66,8 @@ module Melt
                   end
                 end
               end
+            end
+            end
             end
           end
         end

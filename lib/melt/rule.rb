@@ -16,6 +16,12 @@ module Melt
     # Interface
     attr_accessor :on
 
+    # In interface (forwarding)
+    attr_accessor :in
+
+    # Out interface (forwarding context)
+    attr_accessor :out
+
     # Packet source as a Hash
     #
     # :host:: address of the source host or network the rule apply to
@@ -65,7 +71,7 @@ module Melt
       ! nat? && ! rdr?
     end
 
-    # Return true if the rule is a redirection.
+    # Return true if the rule performs Network Address Translation.
     def nat?
       !! nat_to
     end
@@ -73,6 +79,10 @@ module Melt
     # Return true if the rule is a redirection.
     def rdr?
       !! rdr_to && rdr_to[:host]
+    end
+
+    def fwd?
+      dir == :fwd
     end
 
     # Return the source port of the Rule.
