@@ -41,5 +41,19 @@ module Melt
       expect(Rule.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: '192.0.2.1' }).fwd?).to be_falsy
       expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').fwd?).to be_truthy
     end
+
+    it 'detects in rules' do
+      expect(Rule.new.in?).to be_truthy
+      expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).in?).to be_truthy
+      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: '198.51.100.72').in?).to be_falsy
+      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').in?).to be_falsy
+    end
+
+    it 'detects out rules' do
+      expect(Rule.new.out?).to be_truthy
+      expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).out?).to be_falsy
+      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: '198.51.100.72').out?).to be_truthy
+      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').out?).to be_falsy
+    end
   end
 end

@@ -71,6 +71,14 @@ module Melt
       ! nat? && ! rdr?
     end
 
+    def in?
+      dir.nil? || dir == :in
+    end
+
+    def out?
+      dir.nil? || dir == :out
+    end
+
     # Return true if the rule performs Network Address Translation.
     def nat?
       !! nat_to
