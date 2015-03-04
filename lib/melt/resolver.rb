@@ -18,6 +18,12 @@ module Melt
     # :inet6::  Return only IPv6 addresses;
     def resolv(hostname, address_family = nil)
       addr = IPAddress.parse(hostname)
+      if address_family then
+        if addr.ipv6? && address_family == :inet ||
+          addr.ipv4? && address_family == :inet6 then
+          return []
+        end
+      end
       return[addr]
     rescue
       result = []
