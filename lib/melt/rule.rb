@@ -4,6 +4,9 @@ module Melt
     # Action to perform (+accept+ or +block+)
     attr_accessor :action
 
+    # Return block packets
+    attr_accessor :return
+
     # Direction (+in+ or +out+).
     attr_accessor :dir
 

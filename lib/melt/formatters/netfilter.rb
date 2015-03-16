@@ -48,11 +48,21 @@ module Melt
         end
       end
 
-      def iptables_action(action)
+      def iptables_action(rule_or_action)
+        action, ret = if rule_or_action.is_a?(Symbol) then
+          [rule_or_action, nil]
+        else
+          [rule_or_action.action, rule_or_action.return]
+        end
         case action
         when :pass then 'ACCEPT'
         when :log then 'LOG'
-        when :block then 'DROP'
+        when :block then
+          if ret then
+            'RETURN'
+          else
+            'DROP'
+          end
         end
       end
     end

@@ -6,6 +6,9 @@ module Melt
       def emit_rule(rule)
         parts = []
         parts << rule.action
+        if rule.action == :block && rule.return then
+          parts << 'return'
+        end
         parts << rule.dir if rule.dir
         parts << 'quick' unless rule.no_quick
         parts << rule.af if rule.af

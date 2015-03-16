@@ -36,7 +36,7 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = { action: nil, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
+      options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
       result = []
 
       options[:dir].to_array.each do |dir|
@@ -55,7 +55,7 @@ module Melt
                                 options[:rdr_to].to_array.each do |rdr_to|
                                   host_loockup(rdr_to[:host].to_array, final_af) do |rdr_to_host|
                                     rdr_to[:port].to_array.each do |rdr_to_port|
-                                      result << Rule.new(action: options[:action], dir: dir, af: final_af, proto: proto, on: on_if, in: in_if, out: out_if, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
+                                      result << Rule.new(action: options[:action], return: options[:return], dir: dir, af: final_af, proto: proto, on: on_if, in: in_if, out: out_if, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
                                     end
                                   end
                                 end
