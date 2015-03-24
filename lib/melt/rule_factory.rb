@@ -9,9 +9,12 @@ module Melt
       @services = {}
       File.open('/etc/services') do |f|
         while line = f.gets do
-          pieces = line.scanf("%s\t%d/%s")
-          next unless pieces.count == 3
-          @services[pieces[0]] = pieces[1]
+          pieces = line.split
+          next if pieces.count < 2
+          port = pieces.delete_at(1).to_i
+          pieces.each do |piece|
+            @services[piece] = port
+          end
         end
       end
     end

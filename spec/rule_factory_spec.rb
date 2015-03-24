@@ -64,6 +64,20 @@ module Melt
       expect { @factory.build(to: { port: 'invalid' }) }.to raise_error
     end
 
+    it 'accepts service alt-names' do
+      expect(Rule).to receive(:new).exactly(3).times.and_call_original
+
+      result = @factory.build(proto: :tcp, to: { port: ['http', 'www', 'www-http'] })
+
+      expect(result.count).to eq(3)
+      expect(result[0].proto).to eq(:tcp)
+      expect(result[0].to[:port]).to eq(80)
+      expect(result[1].proto).to eq(:tcp)
+      expect(result[1].to[:port]).to eq(80)
+      expect(result[2].proto).to eq(:tcp)
+      expect(result[2].to[:port]).to eq(80)
+    end
+
     it 'does not mix IPv4 and IPv6' do
       expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.net', nil).and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
       expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet6).and_return([IPAddress.parse('2001:DB8::1')])
