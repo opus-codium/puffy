@@ -12,7 +12,7 @@ module Melt
           parts << '-j MASQUERADE'
         elsif rule.rdr? then
           parts << '-A PREROUTING'
-          parts << "-i #{rule.on}"
+          parts << "-i #{rule.on}" if rule.on
           parts << "-p #{rule.proto}" if rule.proto
           parts << "-s #{emit_address(rule.from[:host])}" if rule.from && rule.from[:host]
           parts << "--sport #{rule.src_port}" if rule.from && rule.src_port
