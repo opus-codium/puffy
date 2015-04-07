@@ -117,10 +117,12 @@ module Melt
 
       def iptables_action(rule_or_action)
         action, ret = if rule_or_action.is_a?(Symbol) then
-          [rule_or_action, nil]
-        else
-          [rule_or_action.action, rule_or_action.return]
-        end
+                        [rule_or_action, nil]
+                      elsif rule_or_action.is_a?(Rule) then
+                        [rule_or_action.action, rule_or_action.return]
+                      else
+                        raise "Unexpected #{rule_or_action.class.name}"
+                      end
         case action
         when :pass then 'ACCEPT'
         when :log then 'LOG'
