@@ -89,7 +89,7 @@ module Melt
 
     # Return true if the rule is a redirection.
     def rdr?
-      !! rdr_to && rdr_to[:host]
+      !! rdr_to && (rdr_to[:host] || rdr_to[:port])
     end
 
     def fwd?

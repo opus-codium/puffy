@@ -18,8 +18,13 @@ module Melt
           parts << "--sport #{rule.src_port}" if rule.from && rule.src_port
           parts << "-d #{emit_address(rule.to[:host])}" if rule.to && rule.to[:host]
           parts << "--dport #{rule.dst_port}" if rule.to && rule.dst_port
-          parts << '-j DNAT'
-          parts << "--to-destination #{rule.rdr_to[:host]}"
+          if @loopback_addresses.include?(rule.rdr_to[:host])
+            parts << '-j REDIRECT'
+            parts << "--to-port #{rule.rdr_to[:port]}"
+          else
+            parts << '-j DNAT'
+            parts << "--to-destination #{rule.rdr_to[:host]}"
+          end
         else
         parts << "-A #{iptables_direction(rule.dir)}"
         if rule.on then
@@ -73,7 +78,7 @@ module Melt
         parts << super(filter_rules.select { |r| r.filter? && r.in? })
         parts << '-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT'
         parts << super(filter_rules.select { |r| r.fwd? })
-        parts << super(filter_rules.select { |r| r.rdr? }.collect { |r| if r.dir == :in then r.in ||= r.on else r.out ||= r.on end; r.to.merge!(r.rdr_to.reject { |k,v| v.nil? }); r.rdr_to = nil; r.dir = :fwd; r.on = nil; r })
+        parts << super(filter_rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to[:host]) }.collect { |r| if r.dir == :in then r.in ||= r.on else r.out ||= r.on end; r.to.merge!(r.rdr_to.reject { |k,v| v.nil? }); r.rdr_to = nil; r.dir = :fwd; r.on = nil; r })
         parts << '-A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT'
         parts << super(filter_rules.select { |r| r.filter? && r.out? })
         parts << 'COMMIT'

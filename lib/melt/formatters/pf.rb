@@ -24,9 +24,14 @@ module Melt
           parts << emit_address(rule.to[:host]) if rule.to[:host]
           parts << "port #{rule.dst_port}" if rule.dst_port
         end
-        if rule.rdr_to && rule.rdr_to[:host] then
-          parts << "rdr-to #{emit_address(rule.rdr_to[:host])}"
-          parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
+        if rule.rdr? then
+          if @loopback_addresses.include?(rule.rdr_to[:host]) then
+            parts << "divert-to #{emit_address(rule.rdr_to[:host], loopback_address(rule.af))}"
+            parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
+          else
+            parts << "rdr-to #{emit_address(rule.rdr_to[:host])}"
+            parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
+          end
         end
         if rule.nat_to then
           parts << "nat-to #{emit_address(rule.nat_to)}"

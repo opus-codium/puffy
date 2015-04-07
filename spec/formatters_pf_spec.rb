@@ -28,6 +28,11 @@ module Melt
         rule = Rule.new(action: :block, return: true, dir: :in, proto: :icmp)
         expect(formatter.emit_rule(rule)).to eq('block return in quick proto icmp')
       end
+
+      it 'formats redirect rules' do
+        rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('127.0.0.1/32'), port: 3128 })
+        expect(formatter.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to port 80 divert-to 127.0.0.1 port 3128')
+      end
     end
   end
 end
