@@ -79,7 +79,8 @@ module Melt
       result
     end
 
-  private
+    private
+
     def filter_af(af)
       if @af.nil? || af.nil? || af == @af then
         yield(af || @af)

@@ -111,7 +111,8 @@ module Melt
         [ "-j #{iptables_action(rule)}" ]
       end
 
-    private
+      private
+
       def iptables_direction(direction)
         case direction
         when :in then 'INPUT'

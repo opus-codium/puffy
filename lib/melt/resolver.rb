@@ -33,7 +33,8 @@ module Melt
       result
     end
 
-  private
+    private
+
     def initialize # :nodoc:
       @dns = Resolv::DNS.open
     end
