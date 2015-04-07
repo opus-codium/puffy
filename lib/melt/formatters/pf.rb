@@ -53,11 +53,11 @@ module Melt
 
     protected
       # Return a valid PF representation of +host+.
-      def emit_address(host)
+      def emit_address(host, if_unspecified = 'any')
         if host then
-          super
+          super(host)
         else
-          'any'
+          if_unspecified
         end
       end
     end
