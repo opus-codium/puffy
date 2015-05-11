@@ -7,11 +7,16 @@ module Melt
       end
 
       # Returns a String representation of the provided +rules+ Array of Rule with the +policy+ policy.
+      # @param rules [Array] array of Melt::Rule.
+      # @param policy [Symbol] ruleset policy.
+      # @return [String] Ruleset
       def emit_ruleset(rules, policy = nil)
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end
 
       # Returns a loopback address in the specified address family.
+      # @param address_family [Symbol] the address family, `:inet` or `:inet6`
+      # @return [IPAddress] Loopback address.
       def loopback_address(address_family)
         case address_family
           when :inet then IPAddress.parse('127.0.0.1')
@@ -22,6 +27,8 @@ module Melt
       end
     protected
       # Return a string representation of the +host+ IPAddress as a host or network.
+      # @param host [IPAddress]
+      # @return [String] IP address
       def emit_address(host)
         if host.ipv4? && host.prefix.to_i == 32 ||
           host.ipv6? && host.prefix.to_i == 128 then

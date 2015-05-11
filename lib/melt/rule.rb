@@ -1,46 +1,49 @@
 module Melt
   # Abstract firewall rule.
   class Rule
-    # Action to perform (+accept+ or +block+)
+    # The action to perform when the rule apply (+accept+ or +block+).
     attr_accessor :action
 
-    # Return block packets
+    # Whether blocked packets must be returned to sender instead of being silently dropped.
     attr_accessor :return
 
-    # Direction (+in+ or +out+).
+    # The direction of the rule (+in+ or +out+).
     attr_accessor :dir
 
-    # Prototype (+tcp+, +udp+, ...)
+    # The protocol the Rule applies to (+tcp+, +udp+, etc).
     attr_accessor :proto
 
-    # Address family (+inet6+ or +inet+)
+    # The address family of the rule (+inet6+ or +inet+)
     attr_accessor :af
 
-    # Interface
+    # The interface the rule applies to.
     attr_accessor :on
 
-    # In interface (forwarding)
+    # The interface packets must arrive on for the rule to apply in a forwarding context.
     attr_accessor :in
 
-    # Out interface (forwarding context)
+    # The interface packets must be sent to for the rule to apply in a forwarding context.
     attr_accessor :out
 
-    # Packet source as a Hash
+    # The packet source as a Hash for the rule to apply.
     #
     # :host:: address of the source host or network the rule apply to
     # :port:: source port the rule apply to
     attr_accessor :from
 
-    # Packet destination as a Hash
+    # The packet destination as a Hash for the rule to apply.
     #
     # :host:: address of the destination host or network the rule apply to
     # :port:: destination port the rule apply to
     attr_accessor :to
 
-    # Destination for NAT.
+    # The packet destination when peforming NAT.
     attr_accessor :nat_to
 
-    # Destination for redirections.
+    # The destination as a Hash for redirections.
+    #
+    # :host:: address of the destination host or network the rule apply to
+    # :port:: destination port the rule apply to
     attr_accessor :rdr_to
 
     # Prevent the rule from being a quick one.
@@ -74,39 +77,42 @@ module Melt
       ! nat? && ! rdr?
     end
 
+    # Returns whether the rule applies to incomming packets.
     def in?
       dir.nil? || dir == :in
     end
 
+    # Returns whether the rule applies to outgoing packets.
     def out?
       dir.nil? || dir == :out
     end
 
-    # Return true if the rule performs Network Address Translation.
+    # Returns whether the rule performs Network Address Translation.
     def nat?
       !! nat_to
     end
 
-    # Return true if the rule is a redirection.
+    # Returns whether the rule is a redirection.
     def rdr?
       !! rdr_to && (rdr_to[:host] || rdr_to[:port])
     end
 
+    # Returns whether the rule performs forwarding.
     def fwd?
       dir == :fwd
     end
 
-    # Return the source port of the Rule.
+    # Returns the source port of the Rule.
     def src_port
       from and from[:port]
     end
 
-    # Return the destination port of the Rule.
+    # Returns the destination port of the Rule.
     def dst_port
       to and to[:port]
     end
 
-    # Return the redirect destination port of the Rule.
+    # Returns the redirect destination port of the Rule.
     def rdr_to_port
       rdr_to and rdr_to[:port]
     end
