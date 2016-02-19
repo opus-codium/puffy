@@ -1,5 +1,3 @@
-require 'scanf'
-
 module Melt
   # Rule factory
   class RuleFactory
