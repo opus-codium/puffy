@@ -6,36 +6,31 @@ module Melt
       def emit_rule(rule)
         parts = []
         parts << rule.action
-        if rule.action == :block && rule.return then
-          parts << 'return'
-        end
+        parts << 'return' if rule.action == :block && rule.return
         parts << rule.dir if rule.dir
         parts << 'quick' unless rule.no_quick
         parts << "on #{rule.on.gsub('!', '! ')}" if rule.on
         parts << rule.af if rule.af
         parts << "proto #{rule.proto}" if rule.proto
-        if rule.from && (rule.from[:host] || rule.from[:port]) then
+        if rule.from && (rule.from[:host] || rule.from[:port])
           parts << 'from'
           parts << emit_address(rule.from[:host]) if rule.from[:host]
           parts << "port #{rule.src_port}" if rule.src_port
         end
-        if rule.to && (rule.to[:host] || rule.to[:port]) then
+        if rule.to && (rule.to[:host] || rule.to[:port])
           parts << 'to'
           parts << emit_address(rule.to[:host]) if rule.to[:host]
           parts << "port #{rule.dst_port}" if rule.dst_port
         end
-        if rule.rdr? then
-          if @loopback_addresses.include?(rule.rdr_to[:host]) then
-            parts << "divert-to #{emit_address(rule.rdr_to[:host], loopback_address(rule.af))}"
-            parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
-          else
-            parts << "rdr-to #{emit_address(rule.rdr_to[:host])}"
-            parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
-          end
+        if rule.rdr?
+          parts << if @loopback_addresses.include?(rule.rdr_to[:host])
+                     "divert-to #{emit_address(rule.rdr_to[:host], loopback_address(rule.af))}"
+                   else
+                     "rdr-to #{emit_address(rule.rdr_to[:host])}"
+                   end
+          parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
         end
-        if rule.nat_to then
-          parts << "nat-to #{emit_address(rule.nat_to)}"
-        end
+        parts << "nat-to #{emit_address(rule.nat_to)}" if rule.nat_to
         parts.join(' ')
       end
 
@@ -49,17 +44,18 @@ module Melt
 
         parts << super([Rule.new(action: :block, return: true, dir: :in, on: '!lo0', proto: :tcp, to: { port: '6000:6010' }, no_quick: true)])
 
-        parts << super(rules.select { |r| r.nat? })
-        parts << super(rules.select { |r| r.rdr? })
-        parts << super(rules.select { |r| r.filter? })
+        parts << super(rules.select(&:nat?))
+        parts << super(rules.select(&:rdr?))
+        parts << super(rules.select(&:filter?))
 
-        parts.reject { |s| s.empty? }.join("\n")
+        parts.reject(&:empty?).join("\n")
       end
 
-    protected
+      protected
+
       # Return a valid PF representation of +host+.
       def emit_address(host, if_unspecified = 'any')
-        if host then
+        if host
           super(host)
         else
           if_unspecified

@@ -41,7 +41,7 @@ module Melt
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', nil).and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', nil).and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
 
       result = @factory.build(to: { host: 'example.com' })
 
@@ -53,7 +53,7 @@ module Melt
     it 'accepts service names' do
       expect(Rule).to receive(:new).twice.and_call_original
 
-      result = @factory.build(proto: :tcp, to: { port: ['http', 'https'] })
+      result = @factory.build(proto: :tcp, to: { port: %w(http https) })
 
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
@@ -61,13 +61,13 @@ module Melt
       expect(result[1].proto).to eq(:tcp)
       expect(result[1].to[:port]).to eq(443)
 
-      expect { @factory.build(to: { port: 'invalid' }) }.to raise_error
+      expect { @factory.build(to: { port: 'invalid' }) }.to raise_error('unknown service "invalid"')
     end
 
     it 'accepts service alt-names' do
       expect(Rule).to receive(:new).exactly(3).times.and_call_original
 
-      result = @factory.build(proto: :tcp, to: { port: ['http', 'www', 'www-http'] })
+      result = @factory.build(proto: :tcp, to: { port: %w(http www www-http) })
 
       expect(result.count).to eq(3)
       expect(result[0].proto).to eq(:tcp)
@@ -79,9 +79,9 @@ module Melt
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.net', nil).and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet6).and_return([IPAddress.parse('2001:DB8::1')])
-      expect(Melt::Resolver.get_instance).to receive(:resolv).with('example.com', :inet).and_return([IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net', nil).and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', :inet6).and_return([IPAddress.parse('2001:DB8::1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', :inet).and_return([IPAddress.parse('192.0.2.1')])
 
       expect(Rule).to receive(:new).twice.and_call_original
 

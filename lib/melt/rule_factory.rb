@@ -6,17 +6,7 @@ module Melt
     # Initialize a Rule factory.
     def initialize
       @af = nil
-      @services = {}
-      File.open('/etc/services') do |f|
-        while line = f.gets do
-          pieces = line.split
-          next if pieces.count < 2
-          port = pieces.delete_at(1).to_i
-          pieces.each do |piece|
-            @services[piece] = port
-          end
-        end
-      end
+      load_services
     end
 
     # Limit the scope of a set of rules to IPv4 only.
@@ -58,7 +48,7 @@ module Melt
                                 options[:rdr_to].to_array.each do |rdr_to|
                                   host_loockup(rdr_to[:host].to_array, final_af) do |rdr_to_host|
                                     rdr_to[:port].to_array.each do |rdr_to_port|
-                                      result << Rule.new(action: options[:action], return: options[:return], dir: dir, af: final_af, proto: proto, on: on_if, in: in_if, out: out_if, from: { host: from_host, port: port_loockup(from_port) }, to: {host: to_host, port: port_loockup(to_port)}, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
+                                      result << Rule.new(action: options[:action], return: options[:return], dir: dir, af: final_af, proto: proto, on: on_if, in: in_if, out: out_if, from: { host: from_host, port: port_loockup(from_port) }, to: { host: to_host, port: port_loockup(to_port) }, rdr_to: { host: rdr_to_host, port: rdr_to_port }, nat_to: nat_to)
                                     end
                                   end
                                 end
@@ -81,21 +71,34 @@ module Melt
 
     private
 
-    def filter_af(af)
-      if @af.nil? || af.nil? || af == @af then
-        yield(af || @af)
+    def load_services
+      @services = {}
+      File.readlines('/etc/services').each do |line|
+        pieces = line.split
+        next if pieces.count < 2
+        port = pieces.delete_at(1).to_i
+        pieces.each do |piece|
+          @services[piece] = port
+        end
       end
+    end
+
+    def af_match_policy?(af)
+      @af.nil? || af.nil? || af == @af
+    end
+
+    def filter_af(af)
+      yield(af || @af) if af_match_policy?(af)
     end
 
     def host_loockup(host, address_family = nil)
       return nil if host.nil?
 
-      resolver = Melt::Resolver.get_instance
       host.collect do |name|
-        if name.nil? then
+        if name.nil?
           yield(nil, address_family)
         else
-          resolver.resolv(name, address_family).each do |address|
+          Melt::Resolver.instance.resolv(name, address_family).each do |address|
             yield(address, address.ipv6? ? :inet6 : :inet)
           end
         end
@@ -105,10 +108,10 @@ module Melt
     def port_loockup(port)
       return nil if port.nil?
 
-      if port.is_a?(Fixnum) || port =~ /^\d+:\d+$/ then
+      if port.is_a?(Fixnum) || port =~ /^\d+:\d+$/
         port
       else
-        raise "unknown service \"#{port}\"" unless @services[port]
+        fail "unknown service \"#{port}\"" unless @services[port]
         @services[port]
       end
     end

@@ -10,7 +10,7 @@ module Melt
       # @param rules [Array] array of Melt::Rule.
       # @param policy [Symbol] ruleset policy.
       # @return [String] Ruleset
-      def emit_ruleset(rules, policy = nil)
+      def emit_ruleset(rules, _policy = nil)
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end
 
@@ -19,19 +19,20 @@ module Melt
       # @return [IPAddress] Loopback address.
       def loopback_address(address_family)
         case address_family
-          when :inet then IPAddress.parse('127.0.0.1')
-          when :inet6 then IPAddress::IPv6::Loopback.new
-          when nil then nil
-          else raise "Unsupported address family #{address_family.inspect}"
+        when :inet then IPAddress.parse('127.0.0.1')
+        when :inet6 then IPAddress::IPv6::Loopback.new
+        when nil then nil
+        else fail "Unsupported address family #{address_family.inspect}"
         end
       end
-    protected
+
+      protected
+
       # Return a string representation of the +host+ IPAddress as a host or network.
       # @param host [IPAddress]
       # @return [String] IP address
       def emit_address(host)
-        if host.ipv4? && host.prefix.to_i == 32 ||
-          host.ipv6? && host.prefix.to_i == 128 then
+        if host.ipv4? && host.prefix.to_i == 32 || host.ipv6? && host.prefix.to_i == 128
           host.to_s
         else
           host.to_string

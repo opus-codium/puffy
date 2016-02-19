@@ -59,22 +59,22 @@ module Melt
         send("#{k}=", v)
       end
 
-      raise "if src_port or dst_port is specified, the protocol must also be given" if (src_port || dst_port) && proto.nil?
+      fail 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
     end
 
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
-      ! (af == :inet6 || from && from[:host] && from[:host].ipv6? || to && to[:host] && to[:host].ipv6?)
+      ! (af == :inet6 || from_ipv6? || to_ipv6?)
     end
 
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
-      ! (af == :inet || from && from[:host] && from[:host].ipv4? || to && to[:host] && to[:host].ipv4?)
+      ! (af == :inet || from_ipv4? || to_ipv4?)
     end
 
     # Return true if the rule is a filter rule.
     def filter?
-      ! nat? && ! rdr?
+      !nat? && !rdr?
     end
 
     # Returns whether the rule applies to incomming packets.
@@ -89,12 +89,12 @@ module Melt
 
     # Returns whether the rule performs Network Address Translation.
     def nat?
-      !! nat_to
+      nat_to
     end
 
     # Returns whether the rule is a redirection.
     def rdr?
-      !! rdr_to && (rdr_to[:host] || rdr_to[:port])
+      rdr_to && (rdr_to[:host] || rdr_to[:port])
     end
 
     # Returns whether the rule performs forwarding.
@@ -104,17 +104,35 @@ module Melt
 
     # Returns the source port of the Rule.
     def src_port
-      from and from[:port]
+      from && from[:port]
     end
 
     # Returns the destination port of the Rule.
     def dst_port
-      to and to[:port]
+      to && to[:port]
     end
 
     # Returns the redirect destination port of the Rule.
     def rdr_to_port
-      rdr_to and rdr_to[:port]
+      rdr_to && rdr_to[:port]
+    end
+
+    private
+
+    def from_ipv6?
+      from && from[:host] && from[:host].ipv6?
+    end
+
+    def from_ipv4?
+      from && from[:host] && from[:host].ipv4?
+    end
+
+    def to_ipv6?
+      to && to[:host] && to[:host].ipv6?
+    end
+
+    def to_ipv4?
+      to && to[:host] && to[:host].ipv4?
     end
   end
 end
