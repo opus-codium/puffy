@@ -31,6 +31,18 @@ module Melt
         end
       EOT
     end
+    let(:hosting_network) do
+      <<-EOT
+      host(/db\\d+.example.com/) do
+        pass :in, proto: :tcp, from: { host: '192.168.0.0/24' }, to: { port: 'postgresql' }
+      end
+
+      host 'db1.example.com' do
+        pass :in, proto: :tcp, from: { host: '192.168.0.0/24' }, to: { port: 'postgresql' }
+        block :in, proto: :tcp, to: { port: 'mysql' }
+      end
+      EOT
+    end
     let(:ip_restrictions) do
       <<-EOT
         server = [ '192.0.2.1', '2001:DB8::1' ]
@@ -60,6 +72,16 @@ module Melt
       EOT
     end
 
+    it 'reports missing services' do
+      dsl.eval_network 'incompatible_ip_restrictions.rb', <<-EOT
+      host 'localhost' do
+        service 'missing'
+      end
+      EOT
+
+      expect { dsl.ruleset_for('localhost') }.to raise_error('Undefined service "missing"')
+    end
+
     it 'detects services and hosts' do
       dsl.eval_network('trivial_network.rb', trivial_network)
       expect(dsl.hosts).to eq(['localhost'])
@@ -70,10 +92,18 @@ module Melt
       expect(dsl.services).to eq([:dns])
     end
 
-    it 'moin' do
+    it 'generates ruleset for host' do
       dsl.eval_network('trivial_network.rb', trivial_network)
 
       expect(dsl.ruleset_for('localhost').count).to eq(2)
+    end
+
+    it 'matches hosts using Regexp' do
+      dsl.eval_network('hosting_network.rb', hosting_network)
+
+      expect(dsl.ruleset_for('db1.example.com').count).to eq(2)
+      expect(dsl.ruleset_for('db2.example.com').count).to eq(1)
+      expect(dsl.ruleset_for('db3.example.com').count).to eq(1)
     end
 
     it 'performs ip restrictions' do
