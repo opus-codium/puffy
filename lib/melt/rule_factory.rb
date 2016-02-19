@@ -11,18 +11,18 @@ module Melt
 
     # Limit the scope of a set of rules to IPv4 only.
     def ipv4
-      old_af = @af
+      fail 'Address familly already scopped' if @af
       @af = :inet
       yield
-      @af = old_af
+      @af = nil
     end
 
     # Limit the scope of a set of rules to IPv6 only.
     def ipv6
-      old_af = @af
+      fail 'Address familly already scopped' if @af
       @af = :inet6
       yield
-      @af = old_af
+      @af = nil
     end
 
     # Return an Array of Rule for the provided +options+.
