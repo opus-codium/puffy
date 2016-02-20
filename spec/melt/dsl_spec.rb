@@ -2,103 +2,30 @@ require 'melt'
 
 module Melt
   RSpec.describe Dsl do
-    let(:trivial_network) do
-      <<-EOT
-        host 'localhost' do
-          pass :out, proto: :udp, to: { host: ['192.0.2.27'], port: 'domain' }
-          pass :in, proto: :tcp, to: { port: 'ssh' }
-        end
-      EOT
-    end
-    let(:simple_lan_network) do
-      <<-EOT
-        dns_servers = ['ns1', 'ns2']
-
-        service :dns do
-          pass :out, proto: :udp, to: { host: dns_servers, port: 'domain' }
-        end
-
-        host 'gw' do
-          service :dns
-          nat on: 'ppp0'
-          pass on: 'ppp0', proto: :tcp, to: { port: 'http' }, rdr_to: { host: 'www' }
-        end
-
-        host 'www' do
-          service :dns
-          pass :in, proto: :tcp, to: { port: 'http' }
-        end
-      EOT
-    end
-    let(:hosting_network) do
-      <<-EOT
-      host(/db\\d+.example.com/) do
-        pass :in, proto: :tcp, from: { host: '192.168.0.0/24' }, to: { port: 'postgresql' }
-      end
-
-      host 'db1.example.com' do
-        pass :in, proto: :tcp, from: { host: '192.168.0.0/24' }, to: { port: 'postgresql' }
-        block :in, proto: :tcp, to: { port: 'mysql' }
-      end
-      EOT
-    end
-    let(:ip_restrictions) do
-      <<-EOT
-        server = [ '192.0.2.1', '2001:DB8::1' ]
-
-        host 'client' do
-          pass :out, on: 'eth0', proto: :tcp, to: { host: server, port: 3000 }
-          ipv4 do
-            pass :out, on: 'eth0', proto: :tcp, to: { host: server, port: 3001 }
-          end
-          ipv6 do
-            pass :out, on: 'eth0', proto: :tcp, to: { host: server, port: 3002 }
-          end
-        end
-      EOT
-    end
-    let(:incompatible_ip_restrictions) do
-      <<-EOT
-        server = [ '192.0.2.1', '2001:DB8::1' ]
-
-        host 'client' do
-          ipv4 do
-            ipv6 do
-              pass :out, on: 'eth0', proto: :tcp, to: { host: server, port: 3000 }
-            end
-          end
-        end
-      EOT
-    end
-
     it 'reports missing services' do
-      subject.eval_network 'incompatible_ip_restrictions.rb', <<-EOT
-      host 'localhost' do
-        service 'missing'
-      end
-      EOT
+      subject.eval_network(File.join('spec', 'fixtures', 'undefined_service.rb'))
 
-      expect { subject.ruleset_for('localhost') }.to raise_error('Undefined service "missing"')
+      expect { subject.ruleset_for('localhost') }.to raise_error('Undefined service "unknown"')
     end
 
     it 'detects services and hosts' do
-      subject.eval_network('trivial_network.rb', trivial_network)
+      subject.eval_network(File.join('spec', 'fixtures', 'trivial_network.rb'))
       expect(subject.hosts).to eq(['localhost'])
       expect(subject.services).to eq([])
 
-      subject.eval_network('simple_lan_network.rb', simple_lan_network)
+      subject.eval_network(File.join('spec', 'fixtures', 'simple_lan_network.rb'))
       expect(subject.hosts).to eq(%w(gw www))
       expect(subject.services).to eq([:dns])
     end
 
     it 'generates ruleset for host' do
-      subject.eval_network('trivial_network.rb', trivial_network)
+      subject.eval_network(File.join('spec', 'fixtures', 'trivial_network.rb'))
 
       expect(subject.ruleset_for('localhost').count).to eq(2)
     end
 
     it 'matches hosts using Regexp' do
-      subject.eval_network('hosting_network.rb', hosting_network)
+      subject.eval_network(File.join('spec', 'fixtures', 'hosting_network.rb'))
 
       expect(subject.ruleset_for('db1.example.com').count).to eq(2)
       expect(subject.ruleset_for('db2.example.com').count).to eq(1)
@@ -106,7 +33,7 @@ module Melt
     end
 
     it 'performs ip restrictions' do
-      subject.eval_network('ip_restrictions.rb', ip_restrictions)
+      subject.eval_network(File.join('spec', 'fixtures', 'ip_restrictions.rb'))
       rules = subject.ruleset_for('client')
       expect(rules.count).to eq(4)
       expect(rules.count { |r| r.ipv4? && r.dst_port == 3000 }).to eq(1)
@@ -120,7 +47,7 @@ module Melt
     end
 
     it 'detects incompatible ip restrictions' do
-      subject.eval_network('incompatible_ip_restrictions.rb', incompatible_ip_restrictions)
+      subject.eval_network(File.join('spec', 'fixtures', 'incompatible_ip_restrictions.rb'))
       expect { subject.ruleset_for('client') }.to raise_error(RuntimeError)
     end
   end
