@@ -6,10 +6,11 @@ module Melt
         @loopback_addresses = [nil, loopback_address(:inet), loopback_address(:inet6)]
       end
 
-      # Returns a String representation of the provided +rules+ Array of Rule with the +policy+ policy.
-      # @param rules [Array] array of Melt::Rule.
+      # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
+      #
+      # @param rules [Array<Melt::Rule>] array of Melt::Rule.
       # @param policy [Symbol] ruleset policy.
-      # @return [String] Ruleset
+      # @return [String]
       def emit_ruleset(rules, _policy = nil)
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end

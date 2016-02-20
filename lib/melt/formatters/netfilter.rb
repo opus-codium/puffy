@@ -1,8 +1,8 @@
 module Melt
   module Formatters
     # Netfilter implementation of a Melt formatter.
-    class Netfilter < Base
-      # Returns a Netfilter String representation of the provided +rule+ Rule.
+    class Netfilter < Base # :nodoc:
+      # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
       def emit_rule(rule)
         parts = []
         on_direction_flag = { in: '-i', out: '-o' }
@@ -47,7 +47,7 @@ module Melt
         parts.join(' ')
       end
 
-      # Returns a Netfilter String representation of the provided +rules+ Array of Rule with the +policy+ policy.
+      # Returns a Netfilter String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
       def emit_ruleset(rules, policy = :block)
         nat_rules    = rules.select { |r| r.nat? || r.rdr? }
         filter_rules = rules.select { |r| [:pass, :block, :log].include?(r.action) }

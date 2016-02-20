@@ -10,7 +10,7 @@ module Melt
     # The direction of the rule (+in+ or +out+).
     attr_accessor :dir
 
-    # The protocol the Rule applies to (+tcp+, +udp+, etc).
+    # The protocol the Melt::Rule applies to (+tcp+, +udp+, etc).
     attr_accessor :proto
 
     # The address family of the rule (+inet6+ or +inet+)
@@ -49,9 +49,9 @@ module Melt
     # Prevent the rule from being a quick one.
     attr_accessor :no_quick
 
-    # Instanciate a firewall Rule.
+    # Instanciate a firewall Melt::Rule.
     #
-    # +options+ is a Hash of the Rule class attributes
+    # +options+ is a Hash of the Melt::Rule class attributes
     #
     #   Rule.new({ action: :accept, dir: :in, proto: :tcp, to: { port: 80 } })
     def initialize(options = {})
@@ -102,17 +102,17 @@ module Melt
       dir == :fwd
     end
 
-    # Returns the source port of the Rule.
+    # Returns the source port of the Melt::Rule.
     def src_port
       from && from[:port]
     end
 
-    # Returns the destination port of the Rule.
+    # Returns the destination port of the Melt::Rule.
     def dst_port
       to && to[:port]
     end
 
-    # Returns the redirect destination port of the Rule.
+    # Returns the redirect destination port of the Melt::Rule.
     def rdr_to_port
       rdr_to && rdr_to[:port]
     end

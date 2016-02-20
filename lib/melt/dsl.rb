@@ -27,7 +27,11 @@ module Melt
 
     # Evaluates a network configuration.
     #
-    # @return [Boolean]
+    # Configuration is read form +filename+ unless +contents+ is also provided.
+    #
+    # @param filename [String] Path to the network description file
+    # @param contents [String,nil] Contents of the network description file
+    # @return [void]
     def eval_network(filename, contents = nil)
       reset_network
       contents ||= File.read(filename)
@@ -50,7 +54,8 @@ module Melt
 
     # Returns the ruleset for +hostname+.
     #
-    # @return [Array]
+    # @param hostname [String]
+    # @return [Array<Melt::Rule>]
     def ruleset_for(hostname)
       @rules = []
       @policy = :block
@@ -73,13 +78,16 @@ module Melt
     end
 
     # Changes the default policy.
+    #
+    # @param policy [Symbol]
+    # @return [void]
     def default_policy(policy)
       @policy = policy
     end
 
     # Emits a pass rule with the given +direction+ and +options+.
     #
-    # @return [Rule]
+    # @return [void]
     def pass(*args)
       direction = args.first
       options = if args.last.is_a?(Hash)
@@ -93,7 +101,7 @@ module Melt
 
     # Emits a block rule with the given +direction+ and +options+.
     #
-    # @return [Rule]
+    # @return [void]
     def block(*args)
       direction = args.first
       options = if args.last.is_a?(Hash)
@@ -107,7 +115,7 @@ module Melt
 
     # Emits a log rule with the given +direction+ and +options+.
     #
-    # @return [Rule]
+    # @return [void]
     def log(direction, options = {})
       options = options.merge(action: :log, dir: direction)
       @rules += @factory.build(options)

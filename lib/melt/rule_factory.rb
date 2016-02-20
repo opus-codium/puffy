@@ -1,7 +1,7 @@
 module Melt
-  # Rule factory
+  # Melt::Rule factory
   class RuleFactory
-    # Initialize a Rule factory.
+    # Initialize a Melt::Rule factory.
     def initialize
       @af = nil
       load_services
@@ -23,7 +23,9 @@ module Melt
       @af = nil
     end
 
-    # Return an Array of Rule for the provided +options+.
+    # Return an Array of Melt::Rule for the provided +options+.
+    # @param [Hash] options
+    # @return [Array<Melt::Rule>]
     def build(options = {})
       return [] if options == {}
 

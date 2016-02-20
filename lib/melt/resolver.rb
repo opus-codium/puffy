@@ -11,11 +11,17 @@ module Melt
 
     # Resolve +hostname+ and return an Array of IPAddress.
     #
-    # Valid +address_family+ values are:
+    # @example
+    #   Resolver.instance.resolv('localhost')
+    #   #=> [#<IPAddress:[::1]>, #<IPAddress:127.0.0.1>]
+    #   Resolver.instance.resolv('localhost', :inet)
+    #   #=> [#<IPAddress:127.0.0.1>]
+    #   Resolver.instance.resolv('localhost', :inet6)
+    #   #=> [#<IPAddress:[::1]>]
     #
-    # :inet::   Return only IPv4 addresses;
-    #
-    # :inet6::  Return only IPv6 addresses;
+    # @param hostname [String] The hostname to resolve
+    # @param address_family [Symbol] if set, limit search to +address_family+, +:inet+ or +:inet6+
+    # @return [Array<IPAddress>]
     def resolv(hostname, address_family = nil)
       resolv_ipaddress(hostname, address_family) || resolv_hostname(hostname, address_family)
     end

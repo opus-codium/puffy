@@ -2,7 +2,7 @@ module Melt
   module Formatters
     # Pf implementation of a Melt formatter.
     class Pf < Base
-      # Returns a Pf String representation of the provided +rule+ Rule.
+      # Returns a Pf String representation of the provided +rule+ Melt::Rule.
       def emit_rule(rule)
         parts = []
         parts << rule.action
@@ -34,7 +34,7 @@ module Melt
         parts.join(' ')
       end
 
-      # Returns a Pf String representation of the provided +rules+ Array of Rule.
+      # Returns a Pf String representation of the provided +rules+ Array of Melt::Rule.
       def emit_ruleset(rules, policy = :block)
         parts = []
 
