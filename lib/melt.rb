@@ -12,5 +12,5 @@ require 'melt/rule_factory'
 
 module Melt # :nodoc:
   # Melt version String
-  VERSION = '1.0.0'
+  VERSION = '1.0.0'.freeze
 end
