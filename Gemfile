@@ -1,3 +1,5 @@
+source 'https://rubygems.org'
+
 gem 'ipaddress'
 
 group :test do
