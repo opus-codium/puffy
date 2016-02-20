@@ -2,7 +2,6 @@ require 'melt'
 
 module Melt
   RSpec.describe Dsl do
-    let(:dsl) { Dsl.new }
     let(:trivial_network) do
       <<-EOT
         host 'localhost' do
@@ -73,42 +72,42 @@ module Melt
     end
 
     it 'reports missing services' do
-      dsl.eval_network 'incompatible_ip_restrictions.rb', <<-EOT
+      subject.eval_network 'incompatible_ip_restrictions.rb', <<-EOT
       host 'localhost' do
         service 'missing'
       end
       EOT
 
-      expect { dsl.ruleset_for('localhost') }.to raise_error('Undefined service "missing"')
+      expect { subject.ruleset_for('localhost') }.to raise_error('Undefined service "missing"')
     end
 
     it 'detects services and hosts' do
-      dsl.eval_network('trivial_network.rb', trivial_network)
-      expect(dsl.hosts).to eq(['localhost'])
-      expect(dsl.services).to eq([])
+      subject.eval_network('trivial_network.rb', trivial_network)
+      expect(subject.hosts).to eq(['localhost'])
+      expect(subject.services).to eq([])
 
-      dsl.eval_network('simple_lan_network.rb', simple_lan_network)
-      expect(dsl.hosts).to eq(%w(gw www))
-      expect(dsl.services).to eq([:dns])
+      subject.eval_network('simple_lan_network.rb', simple_lan_network)
+      expect(subject.hosts).to eq(%w(gw www))
+      expect(subject.services).to eq([:dns])
     end
 
     it 'generates ruleset for host' do
-      dsl.eval_network('trivial_network.rb', trivial_network)
+      subject.eval_network('trivial_network.rb', trivial_network)
 
-      expect(dsl.ruleset_for('localhost').count).to eq(2)
+      expect(subject.ruleset_for('localhost').count).to eq(2)
     end
 
     it 'matches hosts using Regexp' do
-      dsl.eval_network('hosting_network.rb', hosting_network)
+      subject.eval_network('hosting_network.rb', hosting_network)
 
-      expect(dsl.ruleset_for('db1.example.com').count).to eq(2)
-      expect(dsl.ruleset_for('db2.example.com').count).to eq(1)
-      expect(dsl.ruleset_for('db3.example.com').count).to eq(1)
+      expect(subject.ruleset_for('db1.example.com').count).to eq(2)
+      expect(subject.ruleset_for('db2.example.com').count).to eq(1)
+      expect(subject.ruleset_for('db3.example.com').count).to eq(1)
     end
 
     it 'performs ip restrictions' do
-      dsl.eval_network('ip_restrictions.rb', ip_restrictions)
-      rules = dsl.ruleset_for('client')
+      subject.eval_network('ip_restrictions.rb', ip_restrictions)
+      rules = subject.ruleset_for('client')
       expect(rules.count).to eq(4)
       expect(rules.count { |r| r.ipv4? && r.dst_port == 3000 }).to eq(1)
       expect(rules.count { |r| r.ipv6? && r.dst_port == 3000 }).to eq(1)
@@ -121,8 +120,8 @@ module Melt
     end
 
     it 'detects incompatible ip restrictions' do
-      dsl.eval_network('incompatible_ip_restrictions.rb', incompatible_ip_restrictions)
-      expect { dsl.ruleset_for('client') }.to raise_error(RuntimeError)
+      subject.eval_network('incompatible_ip_restrictions.rb', incompatible_ip_restrictions)
+      expect { subject.ruleset_for('client') }.to raise_error(RuntimeError)
     end
   end
 end
