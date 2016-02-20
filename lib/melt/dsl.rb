@@ -64,13 +64,11 @@ module Melt
         found = true
         @hosts[hostname].call
       else
-        @hosts.each do |k, v|
-          next unless k.is_a?(Regexp)
-          if k.match(hostname)
-            fail "Multiple host definition match \"#{hostname}\"" if found
-            found = true
-            v.call
-          end
+        @hosts.each do |host, block|
+          next unless host.is_a?(Regexp) && host.match(hostname)
+          fail "Multiple host definition match \"#{hostname}\"" if found
+          found = true
+          block.call
         end
       end
       fail "No host definition match \"#{hostname}\"" unless found
@@ -88,13 +86,7 @@ module Melt
     # Emits a pass rule with the given +direction+ and +options+.
     #
     # @return [void]
-    def pass(*args)
-      direction = args.first
-      options = if args.last.is_a?(Hash)
-                  args.last
-                else
-                  {}
-                end
+    def pass(direction, options = {})
       options = options.merge(action: :pass, dir: direction)
       @rules += @factory.build(options)
     end
@@ -102,13 +94,7 @@ module Melt
     # Emits a block rule with the given +direction+ and +options+.
     #
     # @return [void]
-    def block(*args)
-      direction = args.first
-      options = if args.last.is_a?(Hash)
-                  args.last
-                else
-                  {}
-                end
+    def block(direction, options = {})
       options = options.merge(action: :block, dir: direction)
       @rules += @factory.build(options)
     end
