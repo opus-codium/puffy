@@ -74,6 +74,7 @@ module Melt
     def load_services
       @services = {}
       File.readlines('/etc/services').each do |line|
+        line.sub!(/#.*/, '')
         pieces = line.split
         next if pieces.count < 2
         port = pieces.delete_at(1).to_i
