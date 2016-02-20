@@ -102,14 +102,29 @@ module Melt
       dir == :fwd
     end
 
+    # Returns the source host of the Melt::Rule.
+    def src_host
+      from && from[:host]
+    end
+
     # Returns the source port of the Melt::Rule.
     def src_port
       from && from[:port]
     end
 
+    # Returns the destination host of the Melt::Rule.
+    def dst_host
+      to && to[:host]
+    end
+
     # Returns the destination port of the Melt::Rule.
     def dst_port
       to && to[:port]
+    end
+
+    # Returns the redirect destination host of the Melt::Rule.
+    def rdr_to_host
+      rdr_to && rdr_to[:host]
     end
 
     # Returns the redirect destination port of the Melt::Rule.

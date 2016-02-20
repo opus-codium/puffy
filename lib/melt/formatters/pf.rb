@@ -12,21 +12,21 @@ module Melt
         parts << "on #{rule.on.gsub('!', '! ')}" if rule.on
         parts << rule.af if rule.af
         parts << "proto #{rule.proto}" if rule.proto
-        if rule.from && (rule.from[:host] || rule.from[:port])
+        if rule.src_host || rule.src_port
           parts << 'from'
-          parts << emit_address(rule.from[:host]) if rule.from[:host]
+          parts << emit_address(rule.src_host) if rule.src_host
           parts << "port #{rule.src_port}" if rule.src_port
         end
-        if rule.to && (rule.to[:host] || rule.to[:port])
+        if rule.dst_host || rule.dst_port
           parts << 'to'
-          parts << emit_address(rule.to[:host]) if rule.to[:host]
+          parts << emit_address(rule.dst_host) if rule.dst_host
           parts << "port #{rule.dst_port}" if rule.dst_port
         end
         if rule.rdr?
-          parts << if @loopback_addresses.include?(rule.rdr_to[:host])
-                     "divert-to #{emit_address(rule.rdr_to[:host], loopback_address(rule.af))}"
+          parts << if @loopback_addresses.include?(rule.rdr_to_host)
+                     "divert-to #{emit_address(rule.rdr_to_host, loopback_address(rule.af))}"
                    else
-                     "rdr-to #{emit_address(rule.rdr_to[:host])}"
+                     "rdr-to #{emit_address(rule.rdr_to_host)}"
                    end
           parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
         end

@@ -4,47 +4,13 @@ module Melt
     class Netfilter < Base # :nodoc:
       # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
       def emit_rule(rule)
-        parts = []
-        on_direction_flag = { in: '-i', out: '-o' }
         if rule.nat?
-          parts << '-A POSTROUTING'
-          parts << "-o #{rule.on}"
-          parts << '-j MASQUERADE'
+          emit_postrouting_rule(rule)
         elsif rule.rdr?
-          parts << '-A PREROUTING'
-          parts << "-i #{rule.on}" if rule.on
-          parts << "-p #{rule.proto}" if rule.proto
-          parts << "-s #{emit_address(rule.from[:host])}" if rule.from && rule.from[:host]
-          parts << "--sport #{rule.src_port}" if rule.from && rule.src_port
-          parts << "-d #{emit_address(rule.to[:host])}" if rule.to && rule.to[:host]
-          parts << "--dport #{rule.dst_port}" if rule.to && rule.dst_port
-          if @loopback_addresses.include?(rule.rdr_to[:host])
-            parts << '-j REDIRECT'
-            parts << "--to-port #{rule.rdr_to[:port]}"
-          else
-            parts << '-j DNAT'
-            parts << "--to-destination #{rule.rdr_to[:host]}"
-          end
+          emit_prerouting_rule(rule)
         else
-          parts << "-A #{iptables_direction(rule.dir)}"
-          if rule.on
-            parts << if rule.on =~ /!(.*)/
-                       "! #{on_direction_flag[rule.dir]} #{$1}"
-                     else
-                       "#{on_direction_flag[rule.dir]} #{rule.on}"
-                     end
-          else
-            parts << "-i #{rule.in}" if rule.in
-            parts << "-o #{rule.out}" if rule.out
-          end
-          parts << "-p #{rule.proto}" if rule.proto
-          parts << "-s #{emit_address(rule.from[:host])}" if rule.from && rule.from[:host]
-          parts << "--sport #{rule.src_port}" if rule.src_port
-          parts << "-d #{emit_address(rule.to[:host])}" if rule.to && rule.to[:host]
-          parts << "--dport #{rule.dst_port}" if rule.dst_port
-          parts << "-j #{iptables_action(rule)}"
+          emit_filter_rule(rule)
         end
-        parts.join(' ')
       end
 
       # Returns a Netfilter String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
@@ -74,7 +40,7 @@ module Melt
         parts << super(filter_rules.select { |r| r.filter? && r.in? })
         parts << '-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT'
         parts << super(filter_rules.select(&:fwd?))
-        parts << super(filter_rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to[:host]) }.collect do |r|
+        parts << super(filter_rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to_host) }.collect do |r|
           if r.dir == :in
             r.in ||= r.on
           else
@@ -95,58 +61,113 @@ module Melt
 
       protected
 
-      def emit_forward_rule(rule)
-        parts = []
-        parts << '-A FORWARD'
-        parts += emit_on(rule)
-        parts += emit_jump(rule)
-        parts
+      def emit_postrouting_rule(rule)
+        "-A POSTROUTING -o #{rule.on} -j MASQUERADE"
       end
 
-      def emit_on(rule)
-        if rule.on && rule.dir
-          on_direction_flag = { in: '-i', out: '-o' }
-          ["#{on_direction_flag[rule.dir]} #{rule.on}"]
+      def emit_prerouting_rule(rule)
+        parts = ['-A PREROUTING']
+        parts << emit_on(rule)
+        parts << emit_proto(rule)
+        parts << emit_src(rule)
+        parts << emit_dst(rule)
+        parts << emit_redirect_or_dnat(rule)
+        pp_rule(parts)
+      end
+
+      def emit_forward_rule(rule)
+        parts = ['-A FORWARD']
+        parts << emit_on(rule)
+        parts << emit_jump(rule)
+        pp_rule(parts)
+      end
+
+      def emit_filter_rule(rule)
+        iptables_direction = { in: 'INPUT', out: 'OUTPUT', fwd: 'FORWARD' }
+        parts = ["-A #{iptables_direction[rule.dir]}"]
+        parts << emit_if(rule)
+        parts << emit_proto(rule)
+        parts << emit_src(rule)
+        parts << emit_dst(rule)
+        parts << emit_jump(rule)
+        pp_rule(parts)
+      end
+
+      def emit_if(rule)
+        if rule.on
+          emit_on(rule)
         else
-          []
+          emit_in_out(rule)
         end
       end
 
+      def emit_on(rule)
+        on_direction_flag = { in: '-i', out: '-o' }
+
+        if rule.on && rule.dir
+          matches = /(!)?(.*)/.match(rule.on)
+          [matches[1], on_direction_flag[rule.dir], matches[2]].compact
+        end
+      end
+
+      def emit_in_out(rule)
+        parts = []
+        parts << "-i #{rule.in}" if rule.in
+        parts << "-o #{rule.out}" if rule.out
+        parts
+      end
+
+      def emit_proto(rule)
+        "-p #{rule.proto}" if rule.proto
+      end
+
       def emit_src(rule)
-        ["-s #{rule.src[:host]}"]
+        parts = []
+        parts << "-s #{emit_address(rule.src_host)}" if rule.src_host
+        parts << "--sport #{rule.src_port}" if rule.src_port
+        parts
+      end
+
+      def emit_dst(rule)
+        parts = []
+        parts << "-d #{emit_address(rule.dst_host)}" if rule.dst_host
+        parts << "--dport #{rule.dst_port}" if rule.dst_port
+        parts
+      end
+
+      def emit_redirect_or_dnat(rule)
+        if @loopback_addresses.include?(rule.rdr_to_host)
+          emit_redirect(rule)
+        else
+          emit_dnat(rule)
+        end
+      end
+
+      def emit_redirect(rule)
+        "-j REDIRECT --to-port #{rule.rdr_to_port}"
+      end
+
+      def emit_dnat(rule)
+        "-j DNAT --to-destination #{rule.rdr_to_host}"
       end
 
       def emit_jump(rule)
-        ["-j #{iptables_action(rule)}"]
+        "-j #{iptables_action(rule)}"
       end
 
       private
 
-      def iptables_direction(direction)
-        case direction
-        when :in then 'INPUT'
-        when :out then 'OUTPUT'
-        when :fwd then 'FORWARD'
-        end
+      def pp_rule(parts)
+        parts.flatten.compact.join(' ')
       end
 
-      def iptables_action(rule_or_action)
-        action, ret = if rule_or_action.is_a?(Symbol)
-                        [rule_or_action, nil]
-                      elsif rule_or_action.is_a?(Rule)
-                        [rule_or_action.action, rule_or_action.return]
-                      else
-                        fail "Unexpected #{rule_or_action.class.name}"
-                      end
-        case action
+      def iptables_action(rule_or_action, ret = false)
+        case rule_or_action
         when :pass then 'ACCEPT'
         when :log then 'LOG'
         when :block then
-          if ret
-            'RETURN'
-          else
-            'DROP'
-          end
+          ret ? 'RETURN' : 'DROP'
+        when Rule then iptables_action(rule_or_action.action, rule_or_action.return)
         end
       end
     end
