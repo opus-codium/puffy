@@ -63,15 +63,15 @@ module Melt
     it 'accepts service alt-names' do
       expect(Rule).to receive(:new).exactly(3).times.and_call_original
 
-      result = subject.build(proto: :tcp, to: { port: %w(http www www-http) })
+      result = subject.build(proto: :tcp, to: { port: %w(auth tap ident) })
 
       expect(result.count).to eq(3)
       expect(result[0].proto).to eq(:tcp)
-      expect(result[0].to[:port]).to eq(80)
+      expect(result[0].to[:port]).to eq(113)
       expect(result[1].proto).to eq(:tcp)
-      expect(result[1].to[:port]).to eq(80)
+      expect(result[1].to[:port]).to eq(113)
       expect(result[2].proto).to eq(:tcp)
-      expect(result[2].to[:port]).to eq(80)
+      expect(result[2].to[:port]).to eq(113)
     end
 
     it 'does not mix IPv4 and IPv6' do
