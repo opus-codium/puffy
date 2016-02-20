@@ -1,5 +1,7 @@
 # Melt
 
+[![Build Status](https://travis-ci.org/smortex/melt.svg?branch=master)](https://travis-ci.org/smortex/melt)
+
 ## Features
 
 * Generate rules for [Netfilter](http://www.netfilter.org/) and [PF](http://www.openbsd.org/faq/pf/) (extensible);
