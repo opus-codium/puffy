@@ -3,7 +3,7 @@ module Melt
     # Base class for Melt Formatters.
     class Base
       def initialize
-        @loopback_addresses = [nil, loopback_address(:inet), loopback_address(:inet6)]
+        @loopback_addresses = [nil, loopback_ipv4, loopback_ipv6]
       end
 
       # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
@@ -15,19 +15,34 @@ module Melt
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end
 
-      # Returns a loopback address in the specified address family.
-      # @param address_family [Symbol] the address family, `:inet` or `:inet6`
-      # @return [IPAddress] Loopback address.
+      protected
+
+      # Returns the loopback IPAddress of the given +address_family+
+      #
+      # @param address_family [Symbol] the address family, +:inet+ or +:inet6+
+      # @return [IPAddress,nil]
       def loopback_address(address_family)
         case address_family
-        when :inet then IPAddress.parse('127.0.0.1')
-        when :inet6 then IPAddress::IPv6::Loopback.new
+        when :inet then loopback_ipv4
+        when :inet6 then loopback_ipv6
         when nil then nil
         else fail "Unsupported address family #{address_family.inspect}"
         end
       end
 
-      protected
+      # Returns the loopback IPv4 IPAddress
+      #
+      # @return [IPAddress]
+      def loopback_ipv4
+        IPAddress.parse('127.0.0.1')
+      end
+
+      # Returns the loopback IPv6 IPAddress
+      #
+      # @return [IPAddress]
+      def loopback_ipv6
+        IPAddress::IPv6::Loopback.new
+      end
 
       # Return a string representation of the +host+ IPAddress as a host or network.
       # @param host [IPAddress]
