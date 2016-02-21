@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/smortex/melt.svg?branch=master)](https://travis-ci.org/smortex/melt)
 [![Coverage Status](https://coveralls.io/repos/github/smortex/melt/badge.svg?branch=master)](https://coveralls.io/github/smortex/melt?branch=master)
 [![Code Climate](https://codeclimate.com/github/smortex/melt/badges/gpa.svg)](https://codeclimate.com/github/smortex/melt)
+[![Inline docs](http://inch-ci.org/github/smortex/melt.svg?branch=master)](http://inch-ci.org/github/smortex/melt)
 
 ## Features
 
