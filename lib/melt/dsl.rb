@@ -18,9 +18,11 @@ module Melt
   #     pass :out
   #   end
   class Dsl
-    attr_reader :policy
+    # Changes the default policy.
+    attr_reader :default_policy
 
     def initialize
+      @default_policy = :block
       @factory = RuleFactory.new
       reset_network
     end
@@ -58,7 +60,7 @@ module Melt
     # @return [Array<Melt::Rule>]
     def ruleset_for(hostname)
       @rules = []
-      @policy = :block
+      @policy = @default_policy
       found = false
       if @hosts[hostname]
         found = true
@@ -73,14 +75,6 @@ module Melt
       end
       fail "No host definition match \"#{hostname}\"" unless found
       @rules
-    end
-
-    # Changes the default policy.
-    #
-    # @param policy [Symbol]
-    # @return [void]
-    def default_policy(policy)
-      @policy = policy
     end
 
     # Emits a pass rule with the given +direction+ and +options+.
