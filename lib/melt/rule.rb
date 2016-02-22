@@ -132,6 +132,24 @@ module Melt
       rdr_to && rdr_to[:port]
     end
 
+    def as_fwd_rule
+      res = dup
+      res.on_to_in_out!
+      res.to.merge!(res.rdr_to.reject { |_k, v| v.nil? })
+      res.rdr_to = nil
+      res.dir = :fwd
+      res
+    end
+
+    def on_to_in_out!
+      if dir == :in
+        self.in ||= on
+      else
+        self.out ||= on
+      end
+      self.on = nil
+    end
+
     private
 
     def from_ipv6?
