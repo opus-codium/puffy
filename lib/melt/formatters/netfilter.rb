@@ -59,7 +59,7 @@ module Melt
       def forward_filter_ruleset(rules)
         parts = ['-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT']
         parts << rules.select(&:fwd?).map { |rule| emit_rule(rule) }
-        parts << rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to_host) }.map { |rule| emit_rule(rule.as_fwd_rule) }
+        parts << rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to_host) }.map { |rule| emit_rule(Rule.fwd_rule(rule)) }
       end
 
       def output_filter_rulset(rules)

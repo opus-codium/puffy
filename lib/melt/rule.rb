@@ -62,6 +62,15 @@ module Melt
       fail 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
     end
 
+    def self.fwd_rule(rule)
+      res = rule.dup
+      res.on_to_in_out!
+      res.to.merge!(res.rdr_to.reject { |_k, v| v.nil? })
+      res.rdr_to = nil
+      res.dir = :fwd
+      res
+    end
+
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
       ! (af == :inet6 || from_ipv6? || to_ipv6? || rdr_to_ipv6?)
@@ -140,15 +149,6 @@ module Melt
     # Returns the redirect destination port of the Melt::Rule.
     def rdr_to_port
       rdr_to && rdr_to[:port]
-    end
-
-    def as_fwd_rule
-      res = dup
-      res.on_to_in_out!
-      res.to.merge!(res.rdr_to.reject { |_k, v| v.nil? })
-      res.rdr_to = nil
-      res.dir = :fwd
-      res
     end
 
     def on_to_in_out!
