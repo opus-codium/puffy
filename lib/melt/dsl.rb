@@ -87,24 +87,21 @@ module Melt
     #
     # @return [void]
     def pass(direction, options = {})
-      options = options.merge(action: :pass, dir: direction)
-      @rules += @factory.build(options)
+      build_rules(:pass, direction, options)
     end
 
     # Emits a block rule with the given +direction+ and +options+.
     #
     # @return [void]
     def block(direction, options = {})
-      options = options.merge(action: :block, dir: direction)
-      @rules += @factory.build(options)
+      build_rules(:block, direction, options)
     end
 
     # Emits a log rule with the given +direction+ and +options+.
     #
     # @return [void]
     def log(direction, options = {})
-      options = options.merge(action: :log, dir: direction)
-      @rules += @factory.build(options)
+      build_rules(:log, direction, options)
     end
 
     # Limits the scope of a set of rules to IPv4 only.
@@ -174,6 +171,11 @@ module Melt
     end
 
     private
+
+    def build_rules(action, direction, options)
+      options = options.merge(action: action, dir: direction)
+      @rules += @factory.build(options)
+    end
 
     def reset_network
       @services = {}
