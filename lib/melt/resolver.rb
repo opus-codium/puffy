@@ -52,11 +52,15 @@ module Melt
     end
 
     def resolv_hostname_ipv6(hostname)
-      @dns.getresources(hostname, Resolv::DNS::Resource::IN::AAAA).collect { |r| IPAddress.parse(r.address.to_s) }
+      resolv_hostname_record(hostname, Resolv::DNS::Resource::IN::AAAA)
     end
 
     def resolv_hostname_ipv4(hostname)
-      @dns.getresources(hostname, Resolv::DNS::Resource::IN::A).collect { |r| IPAddress.parse(r.address.to_s) }
+      resolv_hostname_record(hostname, Resolv::DNS::Resource::IN::A)
+    end
+
+    def resolv_hostname_record(hostname, record)
+      @dns.getresources(hostname, record).collect { |r| IPAddress.parse(r.address.to_s) }
     end
 
     def initialize # :nodoc:
