@@ -75,13 +75,6 @@ module Melt
         pp_rule(parts)
       end
 
-      def emit_forward_rule(rule)
-        parts = ['-A FORWARD']
-        parts << emit_on(rule)
-        parts << emit_jump(rule)
-        pp_rule(parts)
-      end
-
       def emit_filter_rule(rule)
         iptables_direction = { in: 'INPUT', out: 'OUTPUT', fwd: 'FORWARD' }
         parts = ["-A #{iptables_direction[rule.dir]}"]
