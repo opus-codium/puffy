@@ -9,7 +9,7 @@ module Melt
       # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
       #
       # @param rules [Array<Melt::Rule>] array of Melt::Rule.
-      # @param policy [Symbol] ruleset policy.
+      # @param _policy [Symbol] ruleset policy.
       # @return [String]
       def emit_ruleset(rules, _policy = nil)
         rules.collect { |rule| emit_rule(rule) }.join("\n")
