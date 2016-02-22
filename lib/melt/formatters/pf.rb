@@ -26,7 +26,7 @@ module Melt
         parts.reject(&:empty?).join("\n") + "\n"
       end
 
-      protected
+      private
 
       def emit_header(policy)
         parts = ['match in all scrub (no-df)']

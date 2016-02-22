@@ -62,6 +62,11 @@ module Melt
       fail 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
     end
 
+    # Instanciate a forward Melt::Rule.
+    #
+    # @param rule [Melt::Rule] a NAT rule
+    #
+    # @return [Melt::Rule]
     def self.fwd_rule(rule)
       res = rule.dup
       res.on_to_in_out!
@@ -151,6 +156,9 @@ module Melt
       rdr_to && rdr_to[:port]
     end
 
+    # Setsthe #in / #out to #on depending on #dir.
+    #
+    # @return [void]
     def on_to_in_out!
       if dir == :in
         self.in ||= on

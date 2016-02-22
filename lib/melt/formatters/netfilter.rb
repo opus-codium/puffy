@@ -1,7 +1,7 @@
 module Melt
   module Formatters
     # Netfilter implementation of a Melt formatter.
-    class Netfilter < Base # :nodoc:
+    class Netfilter < Base
       # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
       def emit_rule(rule)
         if rule.nat?
@@ -22,7 +22,7 @@ module Melt
         parts.flatten.compact.join("\n") + "\n"
       end
 
-      protected
+      private
 
       def nat_ruleset(rules)
         return unless rules.any?
@@ -155,8 +155,6 @@ module Melt
       def emit_jump(rule)
         "-j #{iptables_action(rule)}"
       end
-
-      private
 
       def nat_rules(rules)
         rules.select { |r| r.nat? || r.rdr? }
