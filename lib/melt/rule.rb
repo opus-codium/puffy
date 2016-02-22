@@ -94,7 +94,7 @@ module Melt
 
     # Returns whether the rule is a redirection.
     def rdr?
-      rdr_to && (rdr_to[:host] || rdr_to[:port])
+      rdr_to_host || rdr_to_port
     end
 
     # Returns whether the rule performs forwarding.
@@ -135,19 +135,19 @@ module Melt
     private
 
     def from_ipv6?
-      from && from[:host] && from[:host].ipv6?
+      src_host && src_host.ipv6?
     end
 
     def from_ipv4?
-      from && from[:host] && from[:host].ipv4?
+      src_host && src_host.ipv4?
     end
 
     def to_ipv6?
-      to && to[:host] && to[:host].ipv6?
+      dst_host && dst_host.ipv6?
     end
 
     def to_ipv4?
-      to && to[:host] && to[:host].ipv4?
+      dst_host && dst_host.ipv4?
     end
   end
 end
