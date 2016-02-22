@@ -122,16 +122,18 @@ module Melt
       end
 
       def emit_src(rule)
-        parts = []
-        parts << "-s #{emit_address(rule.src_host)}" if rule.src_host
-        parts << "--sport #{rule.src_port}" if rule.src_port
-        parts
+        emit_endpoint_specification(:in, rule.src_host, rule.src_port)
       end
 
       def emit_dst(rule)
+        emit_endpoint_specification(:out, rule.dst_host, rule.dst_port)
+      end
+
+      def emit_endpoint_specification(direction, host, port)
+        flag = { in: 's', out: 'd' }[direction]
         parts = []
-        parts << "-d #{emit_address(rule.dst_host)}" if rule.dst_host
-        parts << "--dport #{rule.dst_port}" if rule.dst_port
+        parts << "-#{flag} #{emit_address(host)}" if host
+        parts << "--#{flag}port #{port}" if port
         parts
       end
 
