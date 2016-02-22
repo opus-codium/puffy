@@ -12,16 +12,8 @@ module Melt
         parts << "on #{rule.on.gsub('!', '! ')}" if rule.on
         parts << rule.af if rule.af
         parts << "proto #{rule.proto}" if rule.proto
-        if rule.src_host || rule.src_port
-          parts << 'from'
-          parts << emit_address(rule.src_host) if rule.src_host
-          parts << "port #{rule.src_port}" if rule.src_port
-        end
-        if rule.dst_host || rule.dst_port
-          parts << 'to'
-          parts << emit_address(rule.dst_host) if rule.dst_host
-          parts << "port #{rule.dst_port}" if rule.dst_port
-        end
+        parts << emit_from(rule)
+        parts << emit_to(rule)
         if rule.rdr?
           parts << if @loopback_addresses.include?(rule.rdr_to_host)
                      "divert-to #{emit_address(rule.rdr_to_host, loopback_address(rule.af))}"
@@ -31,7 +23,7 @@ module Melt
           parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
         end
         parts << "nat-to #{emit_address(rule.nat_to)}" if rule.nat_to
-        parts.join(' ')
+        parts.flatten.compact.join(' ')
       end
 
       # Returns a Pf String representation of the provided +rules+ Array of Melt::Rule.
@@ -52,6 +44,21 @@ module Melt
       end
 
       protected
+
+      def emit_from(rule)
+        emit_endpoint_specification('from', rule.src_host, rule.src_port) if rule.src_host || rule.src_port
+      end
+
+      def emit_to(rule)
+        emit_endpoint_specification('to', rule.dst_host, rule.dst_port) if rule.dst_host || rule.dst_port
+      end
+
+      def emit_endpoint_specification(keyword, host, port)
+        parts = [keyword]
+        parts << emit_address(host)
+        parts << "port #{port}" if port
+        parts
+      end
 
       # Return a valid PF representation of +host+.
       def emit_address(host, if_unspecified = 'any')
