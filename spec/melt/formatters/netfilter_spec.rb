@@ -42,7 +42,7 @@ module Melt
         expect(subject.emit_rule(rule)).to eq('-A POSTROUTING -o ppp0 -j MASQUERADE')
       end
 
-      context 'moin' do
+      context 'ruleset' do
         before do
           class ::Time
             alias old_strftime strftime
