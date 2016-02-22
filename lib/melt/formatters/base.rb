@@ -25,7 +25,6 @@ module Melt
         case address_family
         when :inet then loopback_ipv4
         when :inet6 then loopback_ipv6
-        when nil then nil
         else fail "Unsupported address family #{address_family.inspect}"
         end
       end

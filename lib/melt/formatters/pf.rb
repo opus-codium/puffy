@@ -5,24 +5,11 @@ module Melt
       # Returns a Pf String representation of the provided +rule+ Melt::Rule.
       def emit_rule(rule)
         parts = []
-        parts << rule.action
-        parts << 'return' if rule.action == :block && rule.return
-        parts << rule.dir if rule.dir
-        parts << 'quick' unless rule.no_quick
-        parts << "on #{rule.on.gsub('!', '! ')}" if rule.on
-        parts << rule.af if rule.af
-        parts << "proto #{rule.proto}" if rule.proto
-        parts << emit_from(rule)
-        parts << emit_to(rule)
-        if rule.rdr?
-          parts << if @loopback_addresses.include?(rule.rdr_to_host)
-                     "divert-to #{emit_address(rule.rdr_to_host, loopback_address(rule.af))}"
-                   else
-                     "rdr-to #{emit_address(rule.rdr_to_host)}"
-                   end
-          parts << "port #{rule.rdr_to_port}" if rule.rdr_to_port
-        end
-        parts << "nat-to #{emit_address(rule.nat_to)}" if rule.nat_to
+        parts << emit_action(rule)
+        parts << emit_direction(rule)
+        parts << emit_quick(rule)
+        parts << emit_on(rule)
+        parts << emit_what(rule)
         parts.flatten.compact.join(' ')
       end
 
@@ -30,20 +17,65 @@ module Melt
       def emit_ruleset(rules, policy = :block)
         parts = []
 
-        parts << 'match in all scrub (no-df)'
-        parts << 'set skip on lo'
-        parts << super([Rule.new(action: policy, return: true, no_quick: true)])
-
-        parts << super([Rule.new(action: :block, return: true, dir: :in, on: '!lo0', proto: :tcp, to: { port: '6000:6010' }, no_quick: true)])
+        parts << emit_header(policy)
 
         parts << super(rules.select(&:nat?))
         parts << super(rules.select(&:rdr?))
         parts << super(rules.select(&:filter?))
 
-        parts.reject(&:empty?).join("\n")
+        parts.reject(&:empty?).join("\n") + "\n"
       end
 
       protected
+
+      def emit_header(policy)
+        parts = ['match in all scrub (no-df)']
+        parts << 'set skip on lo'
+        parts << emit_rule(Rule.new(action: policy, dir: :in, no_quick: true))
+        parts << emit_rule(Rule.new(action: policy, dir: :out, no_quick: true))
+        parts
+      end
+
+      def emit_action(rule)
+        parts = [rule.action]
+        parts << 'return' if rule.action == :block && rule.return
+        parts
+      end
+
+      def emit_direction(rule)
+        rule.dir if rule.dir
+      end
+
+      def emit_quick(rule)
+        'quick' unless rule.no_quick
+      end
+
+      def emit_on(rule)
+        "on #{rule.on.gsub('!', '! ')}" if rule.on
+      end
+
+      def emit_what(rule)
+        parts = [emit_af(rule)]
+        parts << emit_proto(rule)
+        parts << emit_from(rule)
+        parts << emit_to(rule)
+        parts << emit_rdr_to(rule)
+        parts << emit_nat_to(rule)
+
+        parts.flatten.compact.empty? ? 'all' : parts
+      end
+
+      def emit_af(rule)
+        if rule.implicit_ipv4? || rule.implicit_ipv6?
+          nil
+        elsif rule.ipv4? || rule.ipv6?
+          rule.af
+        end
+      end
+
+      def emit_proto(rule)
+        "proto #{rule.proto}" if rule.proto
+      end
 
       def emit_from(rule)
         emit_endpoint_specification('from', rule.src_host, rule.src_port) if rule.src_host || rule.src_port
@@ -67,6 +99,17 @@ module Melt
         else
           if_unspecified
         end
+      end
+
+      def emit_rdr_to(rule)
+        if rule.rdr?
+          keyword = @loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
+          emit_endpoint_specification(keyword, rule.rdr_to_host || loopback_address(rule.af), rule.rdr_to_port)
+        end
+      end
+
+      def emit_nat_to(rule)
+        "nat-to #{emit_address(rule.nat_to)}" if rule.nat_to
       end
     end
   end
