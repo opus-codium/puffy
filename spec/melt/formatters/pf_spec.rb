@@ -27,9 +27,26 @@ module Melt
         expect(subject.emit_rule(rule)).to eq('block return in quick proto icmp')
       end
 
-      it 'formats redirect rules' do
-        rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('127.0.0.1/32'), port: 3128 })
-        expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
+      context 'redirect rules' do
+        it 'formats redirect rules' do
+          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('127.0.0.1/32'), port: 3128 })
+          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
+        end
+
+        it 'fails on ambiguous redirect rule' do
+          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
+          expect { subject.emit_rule(rule) }.to raise_exception('Unspecified address family')
+        end
+
+        it 'formats implicit IPv4 destination' do
+          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', af: :inet, proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
+          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
+        end
+
+        it 'formats implicit IPv6 destination' do
+          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', af: :inet6, proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
+          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to ::1 port 3128')
+        end
       end
 
       context 'implicit address family' do

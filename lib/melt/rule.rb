@@ -64,22 +64,22 @@ module Melt
 
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
-      ! (af == :inet6 || from_ipv6? || to_ipv6?)
+      ! (af == :inet6 || from_ipv6? || to_ipv6? || rdr_to_ipv6?)
     end
 
     # Return true if the rule has an IPv4 source or destination.
     def implicit_ipv4?
-      from_ipv4? || to_ipv4?
+      from_ipv4? || to_ipv4? || rdr_to_ipv4? || rdr_to && af == :inet
     end
 
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
-      ! (af == :inet || from_ipv4? || to_ipv4?)
+      ! (af == :inet || from_ipv4? || to_ipv4? || rdr_to_ipv4?)
     end
 
     # Return true if the rule has an IPv6 source or destination.
     def implicit_ipv6?
-      from_ipv6? || to_ipv6?
+      from_ipv6? || to_ipv6? || rdr_to_ipv6? || rdr_to && af == :inet6
     end
 
     # Return true if the rule is a filter rule.
@@ -176,6 +176,14 @@ module Melt
 
     def to_ipv4?
       dst_host && dst_host.ipv4?
+    end
+
+    def rdr_to_ipv6?
+      rdr_to_host && rdr_to_host.ipv6?
+    end
+
+    def rdr_to_ipv4?
+      rdr_to_host && rdr_to_host.ipv4?
     end
   end
 end
