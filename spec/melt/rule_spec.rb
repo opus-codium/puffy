@@ -18,6 +18,22 @@ module Melt
       expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').ipv6?).to be_truthy
     end
 
+    it 'detects implicit IPv4 rules' do
+      expect(Rule.new.implicit_ipv4?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddress.parse('192.168.0.0/24') }).implicit_ipv4?).to be_truthy
+      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddress.parse('fe80::/16') }).implicit_ipv4?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 }).implicit_ipv4?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 }).implicit_ipv4?).to be_falsy
+    end
+
+    it 'detects implicit IPv6 rules' do
+      expect(Rule.new.implicit_ipv6?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddress.parse('192.168.0.0/24') }).implicit_ipv6?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddress.parse('fe80::/16') }).implicit_ipv6?).to be_truthy
+      expect(Rule.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 }).implicit_ipv6?).to be_falsy
+      expect(Rule.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 }).implicit_ipv6?).to be_falsy
+    end
+
     it 'detects redirect rules' do
       expect(Rule.new.rdr?).to be_falsy
       expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).rdr?).to be_falsy
