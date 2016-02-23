@@ -48,7 +48,7 @@ module Melt
 
     it 'detects incompatible ip restrictions' do
       subject.eval_network(File.join('spec', 'fixtures', 'incompatible_ip_restrictions.rb'))
-      expect { subject.ruleset_for('client') }.to raise_error(RuntimeError)
+      expect { subject.ruleset_for('client') }.to raise_error('Address familly already scopped')
     end
   end
 end
