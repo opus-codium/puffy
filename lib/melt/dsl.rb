@@ -61,19 +61,7 @@ module Melt
     def ruleset_for(hostname)
       @rules = []
       @policy = @default_policy
-      found = false
-      if @hosts[hostname]
-        found = true
-        @hosts[hostname].call
-      else
-        @hosts.each do |host, block|
-          next unless host.is_a?(Regexp) && host.match(hostname)
-          fail "Multiple host definition match \"#{hostname}\"" if found
-          found = true
-          block.call
-        end
-      end
-      fail "No host definition match \"#{hostname}\"" unless found
+      bloc_for(hostname).call
       @rules
     end
 
@@ -165,6 +153,24 @@ module Melt
     end
 
     private
+
+    def bloc_for(hostname)
+      if @hosts[hostname]
+        @hosts[hostname]
+      else
+        block_matching(hostname)
+      end
+    end
+
+    def block_matching(hostname)
+      found = nil
+      @hosts.select { |host, _block| host.is_a?(Regexp) }.each do |_host, block|
+        fail "Multiple host definition match \"#{hostname}\"" if found
+        found = block
+      end
+      fail "No host definition match \"#{hostname}\"" unless found
+      found
+    end
 
     def build_rules(action, direction, options)
       options = options.merge(action: action, dir: direction)
