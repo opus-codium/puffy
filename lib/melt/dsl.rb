@@ -22,7 +22,8 @@ module Melt
     attr_reader :default_policy
 
     def initialize
-      @default_policy = :block
+      @policy = :block
+      @saved_policies = {}
       @factory = RuleFactory.new
       reset_network
     end
@@ -38,6 +39,7 @@ module Melt
       reset_network
       contents ||= File.read(filename)
       instance_eval(contents, filename, 1)
+      @default_policy = @policy
     end
 
     # Returns the found hosts hostname.
@@ -62,7 +64,24 @@ module Melt
       @rules = []
       @policy = @default_policy
       bloc_for(hostname).call
+      @saved_policies[hostname] = @policy
       @rules
+    end
+
+    # Returns the policy for +hostname+.
+    #
+    # @param hostname [String]
+    # @return [Symbol]
+    def policy_for(hostname)
+      fail "Policy for #{hostname} unknown" unless @saved_policies[hostname]
+      @saved_policies[hostname]
+    end
+
+    # Sets the policy to +policy+
+    #
+    # @param policy [Symbol]
+    def policy(policy)
+      @policy = policy
     end
 
     # Emits a pass rule with the given +direction+ and +options+.

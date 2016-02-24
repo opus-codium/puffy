@@ -50,5 +50,35 @@ module Melt
       subject.eval_network(File.join('spec', 'fixtures', 'incompatible_ip_restrictions.rb'))
       expect { subject.ruleset_for('client') }.to raise_error('Address familly already scopped')
     end
+
+    context 'policies' do
+      before do
+        subject.eval_network(File.join('spec', 'fixtures', 'policies.rb'))
+      end
+
+      it 'has a correct default policy' do
+        expect(subject.default_policy).to eq(:log)
+        subject.ruleset_for('log')
+        expect(subject.policy_for('log')).to eq(:log)
+      end
+
+      it 'overrides policy for hostname' do
+        subject.ruleset_for('www1')
+        expect(subject.policy_for('www1')).to eq(:block)
+        subject.ruleset_for('www2')
+        expect(subject.policy_for('www2')).to eq(:pass)
+      end
+
+      it 'overrides policy on matched hostnames' do
+        subject.ruleset_for('db1')
+        expect(subject.policy_for('db1')).to eq(:block)
+        subject.ruleset_for('db2')
+        expect(subject.policy_for('db2')).to eq(:block)
+      end
+
+      it 'fails if the host as not evaluated' do
+        expect { subject.policy_for('db3') }.to raise_error('Policy for db3 unknown')
+      end
+    end
   end
 end

@@ -24,6 +24,7 @@ end
 config = Melt::Dsl.new
 config.eval_network(ARGV[0])
 rules = config.ruleset_for(ARGV[1])
+policy = config.policy_for(ARGV[1])
 
 formatter = options[:formatter].new
-puts formatter.emit_ruleset(rules, config.policy)
+puts formatter.emit_ruleset(rules, policy)
