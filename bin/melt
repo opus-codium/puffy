@@ -1,30 +1,7 @@
 #!/usr/bin/env ruby
-require 'melt'
-require 'optparse'
 
-options = { formatter: Melt::Formatters::Pf }
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
-optparse = OptionParser.new do |opts|
-  opts.banner += ' network.rb hostname'
-  opts.version = Melt::VERSION
-  opts.separator ''
-  opts.separator 'Options:'
-  opts.on('-f', '--formatter=NAME', Melt::Formatters.constants.collect(&:to_s), 'Use the NAME formatter') do |v|
-    options[:formatter] = Object.const_get("Melt::Formatters::#{v}")
-  end
-end
+require 'melt/cli'
 
-optparse.parse!
-
-if ARGV.count != 2
-  $stderr.puts optparse.help
-  exit 1
-end
-
-config = Melt::Dsl.new
-config.eval_network(ARGV[0])
-rules = config.ruleset_for(ARGV[1])
-policy = config.policy_for(ARGV[1])
-
-formatter = options[:formatter].new
-puts formatter.emit_ruleset(rules, policy)
+Melt::Cli.start
