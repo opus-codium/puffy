@@ -64,11 +64,11 @@ end
 
 ## Debugging rulesets
 
-Logging is handy for debugging missing rules in your firewall configuration.  An easy way to diagnose missing rules consists in setting a *pass* `default_policy`, and `log` both *in* and *out*:
+Logging is handy for debugging missing rules in your firewall configuration.  An easy way to diagnose missing rules consists in setting a *pass* `policy`, and `log` both *in* and *out*:
 
 ~~~ruby
 host 'debilglos' do
-  default_policy :pass
+  policy :pass
 
   # Existing rules
 
