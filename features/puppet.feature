@@ -1,4 +1,5 @@
 Feature: Puppet
+  @in-process
   Scenario: Generate firewall rules for a host
     Given a file named "network.rb" with:
     """
