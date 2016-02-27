@@ -15,6 +15,13 @@ module Melt
         rules.collect { |rule| emit_rule(rule) }.join("\n")
       end
 
+      # Filename for a firewall configuration fragment emitted by the formatter.
+      #
+      # @return [Array<String>]
+      def filename_fragment
+        fail 'Formatters#filename_fragment MUST be overriden'
+      end
+
       protected
 
       # Returns the loopback IPAddress of the given +address_family+

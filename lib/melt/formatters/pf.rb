@@ -26,6 +26,10 @@ module Melt
         parts.reject(&:empty?).join("\n") + "\n"
       end
 
+      def filename_fragment
+        ['pf', 'pf.conf']
+      end
+
       private
 
       def emit_header(policy)

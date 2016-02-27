@@ -6,6 +6,10 @@ module Melt
       def emit_ruleset(rules, policy = :block)
         super(rules.select(&:ipv6?), policy)
       end
+
+      def filename_fragment
+        ['netfilter', 'rules.v6']
+      end
     end
   end
 end
