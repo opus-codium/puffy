@@ -1,8 +1,12 @@
 require 'fileutils'
 
 module Melt
-  # Save host ruleset as a tree of rules to serve via Puppet
+  # Manage hosts rulesets as a tree of rules to serve via Puppet
   class Puppet
+    # Setup an environment to store firewall rules to disk
+    #
+    # @param path [String] Root directory of the tree of firewall rules
+    # @param dsl [Melt::Dsl] Description of hosts and rules as a Melt::Dsl
     def initialize(path, dsl)
       @path = path
       @dsl = dsl
@@ -14,6 +18,9 @@ module Melt
       ]
     end
 
+    # Saves rules to disk
+    #
+    # @return [void]
     def save
       each_fragment do |fragment_name, fragment_content|
         FileUtils.mkdir_p(File.dirname(fragment_name))
@@ -23,6 +30,9 @@ module Melt
       end
     end
 
+    # Show differences between saved and generated rules
+    #
+    # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
         IO.popen("diff -u -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} --from-file #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
