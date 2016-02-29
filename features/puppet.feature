@@ -30,6 +30,16 @@ Feature: Puppet
       pass :in, proto: :tcp, to: { port: %w(ssh http) }
     end
     """
+    And a file named "example.com/pf/pf.conf" with:
+    """
+    match in all scrub (no-df)
+    set skip on lo
+    block in all
+    block out all
+    pass in quick proto tcp to any port 80
+    pass in quick proto tcp to any port 443
+
+    """
     And a file named "example.com/netfilter/rules.v4" with:
     """
     *filter
@@ -61,6 +71,15 @@ Feature: Puppet
     When I successfully run `melt puppet diff network.rb`
     Then the stdout should contain:
     """
+    --- a/example.com/pf/pf.conf
+    +++ b/example.com/pf/pf.conf
+    @@ -2,5 +2,5 @@
+     set skip on lo
+     block in all
+     block out all
+    +pass in quick proto tcp to any port 22
+     pass in quick proto tcp to any port 80
+    -pass in quick proto tcp to any port 443
     --- a/example.com/netfilter/rules.v4
     +++ b/example.com/netfilter/rules.v4
     @@ -3,8 +4,8 @@
