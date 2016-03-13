@@ -1,13 +1,11 @@
 require 'ipaddress'
 require 'resolv'
+require 'singleton'
 
 module Melt
   # DNS resolution class.
   class Resolver
-    # Return the Resolver instance.
-    def self.instance
-      @@instance ||= new
-    end
+    include Singleton
 
     # Resolve +hostname+ and return an Array of IPAddress.
     #
