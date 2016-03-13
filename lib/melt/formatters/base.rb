@@ -19,7 +19,7 @@ module Melt
       #
       # @return [Array<String>]
       def filename_fragment
-        fail 'Formatters#filename_fragment MUST be overriden'
+        raise 'Formatters#filename_fragment MUST be overriden'
       end
 
       protected
@@ -33,7 +33,7 @@ module Melt
         when :inet then loopback_ipv4
         when :inet6 then loopback_ipv6
         when nil then nil
-        else fail "Unsupported address family #{address_family.inspect}"
+        else raise "Unsupported address family #{address_family.inspect}"
         end
       end
 

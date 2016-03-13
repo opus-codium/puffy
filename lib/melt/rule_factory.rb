@@ -9,7 +9,7 @@ module Melt
 
     # Limit the scope of a set of rules to IPv4 only.
     def ipv4
-      fail 'Address familly already scopped' if @af
+      raise 'Address familly already scopped' if @af
       @af = :inet
       yield
       @af = nil
@@ -17,7 +17,7 @@ module Melt
 
     # Limit the scope of a set of rules to IPv6 only.
     def ipv6
-      fail 'Address familly already scopped' if @af
+      raise 'Address familly already scopped' if @af
       @af = :inet6
       yield
       @af = nil
@@ -112,7 +112,7 @@ module Melt
       if port.is_a?(Fixnum) || port =~ /^\d+:\d+$/
         port
       else
-        fail "unknown service \"#{port}\"" unless @services[port]
+        raise "unknown service \"#{port}\"" unless @services[port]
         @services[port]
       end
     end

@@ -45,7 +45,7 @@ module Melt
       result = []
       result += resolv_hostname_ipv6(hostname) if address_family.nil? || address_family == :inet6
       result += resolv_hostname_ipv4(hostname) if address_family.nil? || address_family == :inet
-      fail "\"#{hostname}\" does not resolve to any valid IP#{@af_str[address_family]} address." if result.empty?
+      raise "\"#{hostname}\" does not resolve to any valid IP#{@af_str[address_family]} address." if result.empty?
       result
     end
 

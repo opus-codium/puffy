@@ -73,7 +73,7 @@ module Melt
     # @param hostname [String]
     # @return [Symbol]
     def policy_for(hostname)
-      fail "Policy for #{hostname} unknown" unless @saved_policies[hostname]
+      raise "Policy for #{hostname} unknown" unless @saved_policies[hostname]
       @saved_policies[hostname]
     end
 
@@ -153,7 +153,7 @@ module Melt
       if block_given?
         @services[name] = block
       else
-        fail "Undefined service \"#{name}\"" unless @services[name]
+        raise "Undefined service \"#{name}\"" unless @services[name]
         @services[name].call
       end
     end
@@ -184,10 +184,10 @@ module Melt
     def block_matching(hostname)
       found = nil
       @hosts.select { |host, _block| host.is_a?(Regexp) }.each do |_host, block|
-        fail "Multiple host definition match \"#{hostname}\"" if found
+        raise "Multiple host definition match \"#{hostname}\"" if found
         found = block
       end
-      fail "No host definition match \"#{hostname}\"" unless found
+      raise "No host definition match \"#{hostname}\"" unless found
       found
     end
 

@@ -109,7 +109,7 @@ module Melt
         if rule.rdr?
           keyword = @loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
           destination = rule.rdr_to_host || loopback_address(rule.af)
-          fail 'Unspecified address family' if destination.nil?
+          raise 'Unspecified address family' if destination.nil?
           emit_endpoint_specification(keyword, destination, rule.rdr_to_port)
         end
       end

@@ -59,7 +59,7 @@ module Melt
         send("#{k}=", v)
       end
 
-      fail 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
+      raise 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
     end
 
     # Instanciate a forward Melt::Rule.
