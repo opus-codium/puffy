@@ -149,7 +149,9 @@ module Melt
       end
 
       def emit_dnat(rule)
-        "-j DNAT --to-destination #{rule.rdr_to_host}"
+        res = "-j DNAT --to-destination #{rule.rdr_to_host}"
+        res += ":#{rule.rdr_to_port}" if rule.rdr_to_port && rule.rdr_to_port != rule.dst_port
+        res
       end
 
       def emit_jump(rule)

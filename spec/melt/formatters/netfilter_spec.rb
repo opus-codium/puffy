@@ -32,6 +32,16 @@ module Melt
         expect(subject.emit_rule(rule)).to eq('-A PREROUTING -i ppp0 -p tcp --dport 80 -j DNAT --to-destination 192.168.0.42')
       end
 
+      it 'formats dnat rules ignoring same port' do
+        rule = Rule.new(action: :pass, dir: :in, on: 'ppp0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('192.168.0.42'), port: 80 })
+        expect(subject.emit_rule(rule)).to eq('-A PREROUTING -i ppp0 -p tcp --dport 80 -j DNAT --to-destination 192.168.0.42')
+      end
+
+      it 'formats dnat rules with port' do
+        rule = Rule.new(action: :pass, dir: :in, on: 'ppp0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('192.168.0.42'), port: 8080 })
+        expect(subject.emit_rule(rule)).to eq('-A PREROUTING -i ppp0 -p tcp --dport 80 -j DNAT --to-destination 192.168.0.42:8080')
+      end
+
       it 'formats redirect rules' do
         rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('127.0.0.1/32'), port: 3128 })
         expect(subject.emit_rule(rule)).to eq('-A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 3128')
