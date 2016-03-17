@@ -75,10 +75,6 @@ module Melt
       @af.nil? || af.nil? || af == @af
     end
 
-    def filter_af(af)
-      yield(af || @af) if af_match_policy?(af)
-    end
-
     def host_lookup(host)
       case host
       when String
