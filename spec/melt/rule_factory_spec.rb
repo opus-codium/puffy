@@ -37,7 +37,7 @@ module Melt
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', nil).and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
 
       result = subject.build(to: { host: 'example.com' })
 
@@ -75,11 +75,10 @@ module Melt
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net', nil).and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', :inet6).and_return([IPAddress.parse('2001:DB8::1')])
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com', :inet).and_return([IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
 
-      expect(Rule).to receive(:new).twice.and_call_original
+      expect(Rule).to receive(:new).exactly(4).times.and_call_original
 
       result = subject.build(from: { host: 'example.net' }, to: { host: 'example.com' })
 

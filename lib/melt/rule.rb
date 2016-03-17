@@ -1,4 +1,7 @@
 module Melt
+  class AddressFamilyConflict < Exception
+  end
+
   # Abstract firewall rule.
   class Rule
     # The action to perform when the rule apply (+accept+ or +block+).
@@ -58,6 +61,8 @@ module Melt
       options.each do |k, v|
         send("#{k}=", v)
       end
+
+      @af = detect_af unless af
 
       raise 'if from_port or to_port is specified, the protocol must also be given' if (from_port || to_port) && proto.nil?
     end
@@ -169,6 +174,24 @@ module Melt
     end
 
     private
+
+    def detect_af
+      afs = collect_afs
+      return nil if afs.empty?
+      return afs.first if afs.one?
+      raise AddressFamilyConflict, "Incompatible address famlilies: #{afs}"
+    end
+
+    def collect_afs
+      [:from_host, :to_host, :rdr_to_host].map do |method|
+        res = send(method)
+        if res.nil? then nil
+        elsif res.ipv4? then :inet
+        elsif res.ipv6? then :inet6
+        else raise 'Fail'
+        end
+      end.uniq.compact
+    end
 
     def from_ipv6?
       from_host && from_host.ipv6?
