@@ -83,7 +83,7 @@ module Melt
 
     # Return true if the rule is valid in an IPv4 context.
     def ipv4?
-      ! (af == :inet6 || from_ipv6? || to_ipv6? || rdr_to_ipv6?)
+      af.nil? || af == :inet
     end
 
     # Return true if the rule has an IPv4 source or destination.
@@ -93,7 +93,7 @@ module Melt
 
     # Return true if the rule is valid in an IPv6 context.
     def ipv6?
-      ! (af == :inet || from_ipv4? || to_ipv4? || rdr_to_ipv4?)
+      af.nil? || af == :inet6
     end
 
     # Return true if the rule has an IPv6 source or destination.
