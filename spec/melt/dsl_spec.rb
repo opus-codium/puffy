@@ -36,14 +36,14 @@ module Melt
       subject.eval_network(File.join('spec', 'fixtures', 'ip_restrictions.rb'))
       rules = subject.ruleset_for('client')
       expect(rules.count).to eq(4)
-      expect(rules.count { |r| r.ipv4? && r.dst_port == 3000 }).to eq(1)
-      expect(rules.count { |r| r.ipv6? && r.dst_port == 3000 }).to eq(1)
-      expect(rules.count { |r| r.ipv4? && r.dst_port == 3001 }).to eq(1)
-      expect(rules.count { |r| r.ipv6? && r.dst_port == 3001 }).to eq(0)
-      expect(rules.count { |r| r.ipv4? && r.dst_port == 3002 }).to eq(0)
-      expect(rules.count { |r| r.ipv6? && r.dst_port == 3002 }).to eq(1)
-      expect(rules.count { |r| r.ipv4? && r.dst_port == 3003 }).to eq(0)
-      expect(rules.count { |r| r.ipv6? && r.dst_port == 3003 }).to eq(0)
+      expect(rules.count { |r| r.ipv4? && r.to_port == 3000 }).to eq(1)
+      expect(rules.count { |r| r.ipv6? && r.to_port == 3000 }).to eq(1)
+      expect(rules.count { |r| r.ipv4? && r.to_port == 3001 }).to eq(1)
+      expect(rules.count { |r| r.ipv6? && r.to_port == 3001 }).to eq(0)
+      expect(rules.count { |r| r.ipv4? && r.to_port == 3002 }).to eq(0)
+      expect(rules.count { |r| r.ipv6? && r.to_port == 3002 }).to eq(1)
+      expect(rules.count { |r| r.ipv4? && r.to_port == 3003 }).to eq(0)
+      expect(rules.count { |r| r.ipv6? && r.to_port == 3003 }).to eq(0)
     end
 
     it 'detects incompatible ip restrictions' do

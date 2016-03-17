@@ -82,11 +82,11 @@ module Melt
       end
 
       def emit_from(rule)
-        emit_endpoint_specification('from', rule.src_host, rule.src_port) if rule.src_host || rule.src_port
+        emit_endpoint_specification('from', rule.from_host, rule.from_port) if rule.from_host || rule.from_port
       end
 
       def emit_to(rule)
-        emit_endpoint_specification('to', rule.dst_host, rule.dst_port) if rule.dst_host || rule.dst_port
+        emit_endpoint_specification('to', rule.to_host, rule.to_port) if rule.to_host || rule.to_port
       end
 
       def emit_endpoint_specification(keyword, host, port)

@@ -121,11 +121,11 @@ module Melt
       end
 
       def emit_src(rule)
-        emit_endpoint_specification(:in, rule.src_host, rule.src_port)
+        emit_endpoint_specification(:in, rule.from_host, rule.from_port)
       end
 
       def emit_dst(rule)
-        emit_endpoint_specification(:out, rule.dst_host, rule.dst_port)
+        emit_endpoint_specification(:out, rule.to_host, rule.to_port)
       end
 
       def emit_endpoint_specification(direction, host, port)
@@ -150,7 +150,7 @@ module Melt
 
       def emit_dnat(rule)
         res = "-j DNAT --to-destination #{rule.rdr_to_host}"
-        res += ":#{rule.rdr_to_port}" if rule.rdr_to_port && rule.rdr_to_port != rule.dst_port
+        res += ":#{rule.rdr_to_port}" if rule.rdr_to_port && rule.rdr_to_port != rule.to_port
         res
       end
 

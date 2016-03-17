@@ -59,7 +59,7 @@ module Melt
         send("#{k}=", v)
       end
 
-      raise 'if src_port or dst_port is specified, the protocol must also be given' if (src_port || dst_port) && proto.nil?
+      raise 'if from_port or to_port is specified, the protocol must also be given' if (from_port || to_port) && proto.nil?
     end
 
     # Instanciate a forward Melt::Rule.
@@ -127,22 +127,22 @@ module Melt
     end
 
     # Returns the source host of the Melt::Rule.
-    def src_host
+    def from_host
       from && from[:host]
     end
 
     # Returns the source port of the Melt::Rule.
-    def src_port
+    def from_port
       from && from[:port]
     end
 
     # Returns the destination host of the Melt::Rule.
-    def dst_host
+    def to_host
       to && to[:host]
     end
 
     # Returns the destination port of the Melt::Rule.
-    def dst_port
+    def to_port
       to && to[:port]
     end
 
@@ -171,19 +171,19 @@ module Melt
     private
 
     def from_ipv6?
-      src_host && src_host.ipv6?
+      from_host && from_host.ipv6?
     end
 
     def from_ipv4?
-      src_host && src_host.ipv4?
+      from_host && from_host.ipv4?
     end
 
     def to_ipv6?
-      dst_host && dst_host.ipv6?
+      to_host && to_host.ipv6?
     end
 
     def to_ipv4?
-      dst_host && dst_host.ipv4?
+      to_host && to_host.ipv4?
     end
 
     def rdr_to_ipv6?
