@@ -11,7 +11,7 @@ module Expandable
   # Returns an array composed of all possible variation of the object by
   # combining all the items of it's array values.
   #
-  # @returns Array
+  # @return [Array]
   def expand
     @expand_res = [{}]
     each do |key, value|
