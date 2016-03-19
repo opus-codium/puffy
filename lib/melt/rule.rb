@@ -4,52 +4,78 @@ module Melt
 
   # Abstract firewall rule.
   class Rule
-    # The action to perform when the rule apply (+accept+ or +block+).
+    # @!attribute action
+    # The action to perform when the rule apply (+:accept+ or +:block+).
+    # @return [Symbol] Action
     attr_accessor :action
 
+    # @!attribute return
     # Whether blocked packets must be returned to sender instead of being silently dropped.
+    # @return [Boolean] Return flag
     attr_accessor :return
 
-    # The direction of the rule (+in+ or +out+).
+    # @!attribute dir
+    # The direction of the rule (+:in+ or +:out+).
+    # @return [Symbol] Direction
     attr_accessor :dir
 
-    # The protocol the Melt::Rule applies to (+tcp+, +udp+, etc).
+    # @!attribute proto
+    # The protocol the Melt::Rule applies to (+:tcp+, +:udp+, etc).
+    # @return [Symbol] Protocol
     attr_accessor :proto
 
-    # The address family of the rule (+inet6+ or +inet+)
+    # @!attribute af
+    # The address family of the rule (+:inet6+ or +:inet+)
+    # @return [Symbol] Address family
     attr_accessor :af
 
+    # @!attribute on
     # The interface the rule applies to.
+    # @return [String] Interface
     attr_accessor :on
 
+    # @!attribute in
     # The interface packets must arrive on for the rule to apply in a forwarding context.
+    # @return [String] Interface
     attr_accessor :in
 
+    # @!attribute out
     # The interface packets must be sent to for the rule to apply in a forwarding context.
+    # @return [String] Interface
     attr_accessor :out
 
+    # @!attribute from
     # The packet source as a Hash for the rule to apply.
     #
     # :host:: address of the source host or network the rule apply to
     # :port:: source port the rule apply to
+    # @return [Hash] Source
     attr_accessor :from
 
+    # @!attribute to
     # The packet destination as a Hash for the rule to apply.
     #
     # :host:: address of the destination host or network the rule apply to
     # :port:: destination port the rule apply to
+    # @return [Hash] Destination
     attr_accessor :to
 
+    # @!attribute nat_to
     # The packet destination when peforming NAT.
+    # @return [IPAddress] IP Adress
     attr_accessor :nat_to
 
+    # @!attribute rdr_to
     # The destination as a Hash for redirections.
     #
     # :host:: address of the destination host or network the rule apply to
     # :port:: destination port the rule apply to
+    # @return [Hash] Destination
     attr_accessor :rdr_to
 
+    # @!attribute no_quick
     # Prevent the rule from being a quick one.
+    # @return [Boolean] Quick flag
     attr_accessor :no_quick
 
     # Instanciate a firewall Melt::Rule.
