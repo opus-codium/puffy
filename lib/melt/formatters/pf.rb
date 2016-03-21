@@ -2,7 +2,7 @@ module Melt
   module Formatters
     module Pf # :nodoc:
       # Pf implementation of a Melt Ruleset formatter.
-      class Ruleset < Melt::Formatters::Base::Ruleset
+      class Ruleset < Melt::Formatters::Base::Ruleset # :nodoc:
         # Returns a Pf String representation of the provided +rules+ Array of Melt::Rule.
         def emit_ruleset(rules, policy = :block)
           parts = []
@@ -30,7 +30,7 @@ module Melt
       end
 
       # Pf implementation of a Melt Rule formatter.
-      class Rule < Melt::Formatters::Base::Rule
+      class Rule < Melt::Formatters::Base::Rule # :nodoc:
         # Returns a Pf String representation of the provided +rule+ Melt::Rule.
         def emit_rule(rule)
           parts = []
