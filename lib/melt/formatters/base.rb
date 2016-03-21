@@ -24,54 +24,54 @@ module Melt
 
       # Base class for Melt Formatter Rulesets
       class Ruleset
-      def initialize
-        @rule_formatter = Class.const_get(self.class.name.sub(/set$/, '')).new
-      end
+        def initialize
+          @rule_formatter = Class.const_get(self.class.name.sub(/set$/, '')).new
+        end
 
-      # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
-      #
-      # @param rules [Array<Melt::Rule>] array of Melt::Rule.
-      # @param _policy [Symbol] ruleset policy.
-      # @return [String]
-      def emit_ruleset(rules, _policy = nil)
-        rules.collect { |rule| @rule_formatter.emit_rule(rule) }.join("\n")
-      end
+        # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
+        #
+        # @param rules [Array<Melt::Rule>] array of Melt::Rule.
+        # @param _policy [Symbol] ruleset policy.
+        # @return [String]
+        def emit_ruleset(rules, _policy = nil)
+          rules.collect { |rule| @rule_formatter.emit_rule(rule) }.join("\n")
+        end
 
-      # Filename for a firewall configuration fragment emitted by the formatter.
-      #
-      # @return [Array<String>]
-      def filename_fragment
-        raise 'Formatters#filename_fragment MUST be overriden'
-      end
+        # Filename for a firewall configuration fragment emitted by the formatter.
+        #
+        # @return [Array<String>]
+        def filename_fragment
+          raise 'Formatters#filename_fragment MUST be overriden'
+        end
       end
 
       # Base class for Melt Formatter Rulesets
       class Rule
-      protected
+        protected
 
-      # Returns the loopback IPAddress of the given +address_family+
-      #
-      # @param address_family [Symbol] the address family, +:inet+ or +:inet6+
-      # @return [IPAddress,nil]
-      def loopback_address(address_family)
-        case address_family
-        when :inet then Melt::Formatters::Base.loopback_ipv4
-        when :inet6 then Melt::Formatters::Base.loopback_ipv6
-        when nil then nil
-        else raise "Unsupported address family #{address_family.inspect}"
+        # Returns the loopback IPAddress of the given +address_family+
+        #
+        # @param address_family [Symbol] the address family, +:inet+ or +:inet6+
+        # @return [IPAddress,nil]
+        def loopback_address(address_family)
+          case address_family
+          when :inet then Melt::Formatters::Base.loopback_ipv4
+          when :inet6 then Melt::Formatters::Base.loopback_ipv6
+          when nil then nil
+          else raise "Unsupported address family #{address_family.inspect}"
+          end
         end
-      end
 
-      # Return a string representation of the +host+ IPAddress as a host or network.
-      # @param host [IPAddress]
-      # @return [String] IP address
-      def emit_address(host)
-        if host.ipv4? && host.prefix.to_i == 32 || host.ipv6? && host.prefix.to_i == 128
-          host.to_s
-        else
-          host.to_string
+        # Return a string representation of the +host+ IPAddress as a host or network.
+        # @param host [IPAddress]
+        # @return [String] IP address
+        def emit_address(host)
+          if host.ipv4? && host.prefix.to_i == 32 || host.ipv6? && host.prefix.to_i == 128
+            host.to_s
+          else
+            host.to_string
+          end
         end
-      end
       end
     end
   end
