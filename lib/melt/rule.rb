@@ -5,78 +5,54 @@ module Melt
   # Abstract firewall rule.
   class Rule
     # @!attribute action
-    # The action to perform when the rule apply (+:accept+ or +:block+).
-    # @return [Symbol] Action
-    attr_accessor :action
-
+    #   The action to perform when the rule apply (+:accept+ or +:block+).
+    #   @return [Symbol] Action
     # @!attribute return
-    # Whether blocked packets must be returned to sender instead of being silently dropped.
-    # @return [Boolean] Return flag
-    attr_accessor :return
-
+    #   Whether blocked packets must be returned to sender instead of being silently dropped.
+    #   @return [Boolean] Return flag
     # @!attribute dir
-    # The direction of the rule (+:in+ or +:out+).
-    # @return [Symbol] Direction
-    attr_accessor :dir
-
+    #   The direction of the rule (+:in+ or +:out+).
+    #   @return [Symbol] Direction
     # @!attribute proto
-    # The protocol the Melt::Rule applies to (+:tcp+, +:udp+, etc).
-    # @return [Symbol] Protocol
-    attr_accessor :proto
-
+    #   The protocol the Melt::Rule applies to (+:tcp+, +:udp+, etc).
+    #   @return [Symbol] Protocol
     # @!attribute af
-    # The address family of the rule (+:inet6+ or +:inet+)
-    # @return [Symbol] Address family
-    attr_accessor :af
-
+    #   The address family of the rule (+:inet6+ or +:inet+)
+    #   @return [Symbol] Address family
     # @!attribute on
-    # The interface the rule applies to.
-    # @return [String] Interface
-    attr_accessor :on
-
+    #   The interface the rule applies to.
+    #   @return [String] Interface
     # @!attribute in
-    # The interface packets must arrive on for the rule to apply in a forwarding context.
-    # @return [String] Interface
-    attr_accessor :in
-
+    #   The interface packets must arrive on for the rule to apply in a forwarding context.
+    #   @return [String] Interface
     # @!attribute out
-    # The interface packets must be sent to for the rule to apply in a forwarding context.
-    # @return [String] Interface
-    attr_accessor :out
-
+    #   The interface packets must be sent to for the rule to apply in a forwarding context.
+    #   @return [String] Interface
     # @!attribute from
-    # The packet source as a Hash for the rule to apply.
+    #   The packet source as a Hash for the rule to apply.
     #
-    # :host:: address of the source host or network the rule apply to
-    # :port:: source port the rule apply to
-    # @return [Hash] Source
-    attr_accessor :from
-
+    #   :host:: address of the source host or network the rule apply to
+    #   :port:: source port the rule apply to
+    #   @return [Hash] Source
     # @!attribute to
-    # The packet destination as a Hash for the rule to apply.
+    #   The packet destination as a Hash for the rule to apply.
     #
-    # :host:: address of the destination host or network the rule apply to
-    # :port:: destination port the rule apply to
-    # @return [Hash] Destination
-    attr_accessor :to
-
+    #   :host:: address of the destination host or network the rule apply to
+    #   :port:: destination port the rule apply to
+    #   @return [Hash] Destination
     # @!attribute nat_to
-    # The packet destination when peforming NAT.
-    # @return [IPAddress] IP Adress
-    attr_accessor :nat_to
-
+    #   The packet destination when peforming NAT.
+    #   @return [IPAddress] IP Adress
     # @!attribute rdr_to
-    # The destination as a Hash for redirections.
+    #   The destination as a Hash for redirections.
     #
-    # :host:: address of the destination host or network the rule apply to
-    # :port:: destination port the rule apply to
-    # @return [Hash] Destination
-    attr_accessor :rdr_to
-
+    #   :host:: address of the destination host or network the rule apply to
+    #   :port:: destination port the rule apply to
+    #   @return [Hash] Destination
     # @!attribute no_quick
-    # Prevent the rule from being a quick one.
-    # @return [Boolean] Quick flag
-    attr_accessor :no_quick
+    #   Prevent the rule from being a quick one.
+    #   @return [Boolean] Quick flag
+    attr_accessor :action, :return, :dir, :proto, :af, :on, :in, :out, :from, :to, :nat_to, :rdr_to, :no_quick
 
     # Instanciate a firewall Melt::Rule.
     #
@@ -157,34 +133,25 @@ module Melt
       dir == :fwd
     end
 
-    # Returns the source host of the Melt::Rule.
-    def from_host
-      from && from[:host]
-    end
-
-    # Returns the source port of the Melt::Rule.
-    def from_port
-      from && from[:port]
-    end
-
-    # Returns the destination host of the Melt::Rule.
-    def to_host
-      to && to[:host]
-    end
-
-    # Returns the destination port of the Melt::Rule.
-    def to_port
-      to && to[:port]
-    end
-
-    # Returns the redirect destination host of the Melt::Rule.
-    def rdr_to_host
-      rdr_to && rdr_to[:host]
-    end
-
-    # Returns the redirect destination port of the Melt::Rule.
-    def rdr_to_port
-      rdr_to && rdr_to[:port]
+    # @!method from_host
+    #   Returns the source host of the Melt::Rule.
+    # @!method from_port
+    #   Returns the source port of the Melt::Rule.
+    # @!method to_host
+    #   Returns the destination host of the Melt::Rule.
+    # @!method to_port
+    #   Returns the destination port of the Melt::Rule.
+    # @!method rdr_to_host
+    #   Returns the redirect destination host of the Melt::Rule.
+    # @!method rdr_to_port
+    #   Returns the redirect destination port of the Melt::Rule.
+    [:from, :to, :rdr_to].each do |destination|
+      [:host, :port].each do |param|
+        define_method("#{destination}_#{param}") do
+          res = public_send(destination)
+          res && res[param]
+        end
+      end
     end
 
     # Setsthe #in / #out to #on depending on #dir.
@@ -219,28 +186,19 @@ module Melt
       end.uniq.compact
     end
 
-    def from_ipv6?
-      from_host && from_host.ipv6?
-    end
-
-    def from_ipv4?
-      from_host && from_host.ipv4?
-    end
-
-    def to_ipv6?
-      to_host && to_host.ipv6?
-    end
-
-    def to_ipv4?
-      to_host && to_host.ipv4?
-    end
-
-    def rdr_to_ipv6?
-      rdr_to_host && rdr_to_host.ipv6?
-    end
-
-    def rdr_to_ipv4?
-      rdr_to_host && rdr_to_host.ipv4?
+    # @!method from_ipv4?
+    # @!method from_ipv6?
+    # @!method to_ipv4?
+    # @!method to_ipv6?
+    # @!method rdr_to_ipv4?
+    # @!method rdr_to_ipv6?
+    [:from, :to, :rdr_to].each do |destination|
+      [:ipv4, :ipv6].each do |ip_version|
+        define_method("#{destination}_#{ip_version}?") do
+          res = public_send("#{destination}_host")
+          res && res.public_send("#{ip_version}?")
+        end
+      end
     end
   end
 end
