@@ -31,7 +31,7 @@ module Melt
         rules = config.ruleset_for(hostname)
         policy = config.policy_for(hostname)
 
-        formatter = Object.const_get("Melt::Formatters::#{options[:formatter]}").new
+        formatter = Object.const_get("Melt::Formatters::#{options[:formatter]}::Ruleset").new
         puts formatter.emit_ruleset(rules, policy)
       end
 

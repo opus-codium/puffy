@@ -2,7 +2,7 @@ require 'melt'
 
 module Melt
   module Formatters
-    RSpec.describe Netfilter do
+    RSpec.describe Netfilter::Rule do
       it 'formats simple rules' do
         rule = Rule.new(action: :pass, dir: :in, proto: :tcp, to: { host: nil, port: 80 })
         expect(subject.emit_rule(rule)).to eq('-A INPUT -p tcp --dport 80 -j ACCEPT')
@@ -51,7 +51,9 @@ module Melt
         rule = Rule.new(action: :pass, dir: :out, on: 'ppp0', nat_to: IPAddress.parse('198.51.100.72'))
         expect(subject.emit_rule(rule)).to eq('-A POSTROUTING -o ppp0 -j MASQUERADE')
       end
+    end
 
+    RSpec.describe Netfilter::Ruleset do
       context 'ruleset' do
         before do
           class ::Time

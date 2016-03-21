@@ -1,18 +1,21 @@
 module Melt
   module Formatters
-    # Netfilter implementation of a Melt formatter.
-    class Netfilter < Base
-      # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
-      def emit_rule(rule)
-        if rule.nat?
-          emit_postrouting_rule(rule)
-        elsif rule.rdr?
-          emit_prerouting_rule(rule)
-        else
-          emit_filter_rule(rule)
+    module Netfilter # :nodoc:
+      # Returns the target to jump to
+      #
+      # @return [String]
+      def self.iptables_action(rule_or_action, ret = false)
+        case rule_or_action
+        when :pass then 'ACCEPT'
+        when :log then 'LOG'
+        when :block then
+          ret ? 'RETURN' : 'DROP'
+        when Melt::Rule then iptables_action(rule_or_action.action, rule_or_action.return)
         end
       end
 
+      # Netfilter implementation of a Melt Ruleset formatter.
+      class Ruleset < Melt::Formatters::Base::Ruleset
       # Returns a Netfilter String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
       def emit_ruleset(rules, policy = :block)
         parts = []
@@ -29,8 +32,8 @@ module Melt
 
         parts = ['*nat']
         parts << emit_chain_policies(prerouting: :pass, input: :pass, output: :pass, postrouting: :pass)
-        parts << rules.select(&:rdr?).map { |rule| emit_rule(rule) }
-        parts << rules.select(&:nat?).map { |rule| emit_rule(rule) }
+        parts << rules.select(&:rdr?).map { |rule| @rule_formatter.emit_rule(rule) }
+        parts << rules.select(&:nat?).map { |rule| @rule_formatter.emit_rule(rule) }
         parts << 'COMMIT'
         parts
       end
@@ -48,23 +51,53 @@ module Melt
       end
 
       def emit_chain_policies(policies)
-        policies.map { |chain, action| ":#{chain.upcase} #{iptables_action(action)} [0:0]" }
+        policies.map { |chain, action| ":#{chain.upcase} #{Melt::Formatters::Netfilter.iptables_action(action)} [0:0]" }
       end
 
       def input_filter_ruleset(rules)
         parts = ['-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT']
-        parts << input_filter_rules(rules).map { |rule| emit_rule(rule) }
+        parts << input_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
       end
 
       def forward_filter_ruleset(rules)
         parts = ['-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT']
-        parts << rules.select(&:fwd?).map { |rule| emit_rule(rule) }
-        parts << rules.select { |r| r.rdr? && !@loopback_addresses.include?(r.rdr_to_host) }.map { |rule| emit_rule(Rule.fwd_rule(rule)) }
+        parts << rules.select(&:fwd?).map { |rule| @rule_formatter.emit_rule(rule) }
+        parts << rules.select { |r| r.rdr? && !Melt::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Melt::Rule.fwd_rule(rule)) }
       end
 
       def output_filter_rulset(rules)
         parts = ['-A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT']
-        parts << output_filter_rules(rules).map { |rule| emit_rule(rule) }
+        parts << output_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
+      end
+
+      def nat_rules(rules)
+        rules.select { |r| r.nat? || r.rdr? }
+      end
+
+      def filter_rules(rules)
+        rules.select { |r| [:pass, :block, :log].include?(r.action) }
+      end
+
+      def input_filter_rules(rules)
+        rules.select { |r| r.filter? && r.in? }
+      end
+
+      def output_filter_rules(rules)
+        rules.select { |r| r.filter? && r.out? }
+      end
+      end
+
+      # Netfilter implementation of a Melt Rule formatter.
+      class Rule < Melt::Formatters::Base::Rule
+      # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
+      def emit_rule(rule)
+        if rule.nat?
+          emit_postrouting_rule(rule)
+        elsif rule.rdr?
+          emit_prerouting_rule(rule)
+        else
+          emit_filter_rule(rule)
+        end
       end
 
       def emit_postrouting_rule(rule)
@@ -137,7 +170,7 @@ module Melt
       end
 
       def emit_redirect_or_dnat(rule)
-        if @loopback_addresses.include?(rule.rdr_to_host)
+        if Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host)
           emit_redirect(rule)
         else
           emit_dnat(rule)
@@ -155,37 +188,12 @@ module Melt
       end
 
       def emit_jump(rule)
-        "-j #{iptables_action(rule)}"
-      end
-
-      def nat_rules(rules)
-        rules.select { |r| r.nat? || r.rdr? }
-      end
-
-      def filter_rules(rules)
-        rules.select { |r| [:pass, :block, :log].include?(r.action) }
-      end
-
-      def input_filter_rules(rules)
-        rules.select { |r| r.filter? && r.in? }
-      end
-
-      def output_filter_rules(rules)
-        rules.select { |r| r.filter? && r.out? }
+        "-j #{Melt::Formatters::Netfilter.iptables_action(rule)}"
       end
 
       def pp_rule(parts)
         parts.flatten.compact.join(' ')
       end
-
-      def iptables_action(rule_or_action, ret = false)
-        case rule_or_action
-        when :pass then 'ACCEPT'
-        when :log then 'LOG'
-        when :block then
-          ret ? 'RETURN' : 'DROP'
-        when Rule then iptables_action(rule_or_action.action, rule_or_action.return)
-        end
       end
     end
   end

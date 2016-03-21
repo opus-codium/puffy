@@ -12,9 +12,9 @@ module Melt
       @dsl = dsl
 
       @formatters = [
-        Melt::Formatters::Pf.new,
-        Melt::Formatters::Netfilter4.new,
-        Melt::Formatters::Netfilter6.new
+        Melt::Formatters::Pf::Ruleset.new,
+        Melt::Formatters::Netfilter4::Ruleset.new,
+        Melt::Formatters::Netfilter6::Ruleset.new
       ]
     end
 

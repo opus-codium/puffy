@@ -2,7 +2,7 @@ require 'melt'
 
 module Melt
   module Formatters
-    RSpec.describe Pf do
+    RSpec.describe Pf::Rule do
       it 'formats simple rules' do
         rule = Rule.new(action: :pass, dir: :out, proto: :tcp)
         expect(subject.emit_rule(rule)).to eq('pass out quick proto tcp')
@@ -61,7 +61,9 @@ module Melt
           expect(subject.emit_rule(rule)).to eq('pass in quick inet6 proto tcp to any port 80')
         end
       end
+    end
 
+    RSpec.describe Pf::Ruleset do
       context 'ruleset' do
         let(:dsl) do
           dsl = Melt::Dsl.new

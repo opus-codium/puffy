@@ -1,9 +1,31 @@
 module Melt
   module Formatters # :nodoc:
-    # Base class for Melt Formatters.
-    class Base
+    module Base # :nodoc:
+      # Returns the loopback IPv4 IPAddress
+      #
+      # @return [IPAddress]
+      def self.loopback_ipv4
+        IPAddress.parse('127.0.0.1')
+      end
+
+      # Returns the loopback IPv6 IPAddress
+      #
+      # @return [IPAddress]
+      def self.loopback_ipv6
+        IPAddress::IPv6::Loopback.new
+      end
+
+      # Returns a list of loopback addresses
+      #
+      # @return [Array<IPAddress>]
+      def self.loopback_addresses
+        [nil, loopback_ipv4, loopback_ipv6]
+      end
+
+      # Base class for Melt Formatter Rulesets
+      class Ruleset
       def initialize
-        @loopback_addresses = [nil, loopback_ipv4, loopback_ipv6]
+        @rule_formatter = Class.const_get(self.class.name.sub(/set$/, '')).new
       end
 
       # Returns a String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
@@ -12,7 +34,7 @@ module Melt
       # @param _policy [Symbol] ruleset policy.
       # @return [String]
       def emit_ruleset(rules, _policy = nil)
-        rules.collect { |rule| emit_rule(rule) }.join("\n")
+        rules.collect { |rule| @rule_formatter.emit_rule(rule) }.join("\n")
       end
 
       # Filename for a firewall configuration fragment emitted by the formatter.
@@ -21,7 +43,10 @@ module Melt
       def filename_fragment
         raise 'Formatters#filename_fragment MUST be overriden'
       end
+      end
 
+      # Base class for Melt Formatter Rulesets
+      class Rule
       protected
 
       # Returns the loopback IPAddress of the given +address_family+
@@ -30,25 +55,11 @@ module Melt
       # @return [IPAddress,nil]
       def loopback_address(address_family)
         case address_family
-        when :inet then loopback_ipv4
-        when :inet6 then loopback_ipv6
+        when :inet then Melt::Formatters::Base.loopback_ipv4
+        when :inet6 then Melt::Formatters::Base.loopback_ipv6
         when nil then nil
         else raise "Unsupported address family #{address_family.inspect}"
         end
-      end
-
-      # Returns the loopback IPv4 IPAddress
-      #
-      # @return [IPAddress]
-      def loopback_ipv4
-        IPAddress.parse('127.0.0.1')
-      end
-
-      # Returns the loopback IPv6 IPAddress
-      #
-      # @return [IPAddress]
-      def loopback_ipv6
-        IPAddress::IPv6::Loopback.new
       end
 
       # Return a string representation of the +host+ IPAddress as a host or network.
@@ -60,6 +71,7 @@ module Melt
         else
           host.to_string
         end
+      end
       end
     end
   end

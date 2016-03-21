@@ -1,18 +1,8 @@
 module Melt
   module Formatters
-    # Pf implementation of a Melt formatter.
-    class Pf < Base
-      # Returns a Pf String representation of the provided +rule+ Melt::Rule.
-      def emit_rule(rule)
-        parts = []
-        parts << emit_action(rule)
-        parts << emit_direction(rule)
-        parts << emit_quick(rule)
-        parts << emit_on(rule)
-        parts << emit_what(rule)
-        parts.flatten.compact.join(' ')
-      end
-
+    module Pf # :nodoc:
+      # Pf implementation of a Melt Ruleset formatter.
+      class Ruleset < Melt::Formatters::Base::Ruleset
       # Returns a Pf String representation of the provided +rules+ Array of Melt::Rule.
       def emit_ruleset(rules, policy = :block)
         parts = []
@@ -30,15 +20,29 @@ module Melt
         ['pf', 'pf.conf']
       end
 
-      private
-
       def emit_header(policy)
         parts = ['match in all scrub (no-df)']
         parts << 'set skip on lo'
-        parts << emit_rule(Rule.new(action: policy, dir: :in, no_quick: true))
-        parts << emit_rule(Rule.new(action: policy, dir: :out, no_quick: true))
+        parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :in, no_quick: true))
+        parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :out, no_quick: true))
         parts
       end
+      end
+
+      # Pf implementation of a Melt Rule formatter.
+      class Rule < Melt::Formatters::Base::Rule
+      # Returns a Pf String representation of the provided +rule+ Melt::Rule.
+      def emit_rule(rule)
+        parts = []
+        parts << emit_action(rule)
+        parts << emit_direction(rule)
+        parts << emit_quick(rule)
+        parts << emit_on(rule)
+        parts << emit_what(rule)
+        parts.flatten.compact.join(' ')
+      end
+
+      private
 
       def emit_action(rule)
         parts = [rule.action]
@@ -107,7 +111,7 @@ module Melt
 
       def emit_rdr_to(rule)
         if rule.rdr?
-          keyword = @loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
+          keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
           destination = rule.rdr_to_host || loopback_address(rule.af)
           raise 'Unspecified address family' if destination.nil?
           emit_endpoint_specification(keyword, destination, rule.rdr_to_port)
@@ -116,6 +120,7 @@ module Melt
 
       def emit_nat_to(rule)
         "nat-to #{emit_address(rule.nat_to)}" if rule.nat_to
+      end
       end
     end
   end
