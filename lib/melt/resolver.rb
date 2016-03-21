@@ -58,7 +58,7 @@ module Melt
     end
 
     def resolv_hostname_record(hostname, record)
-      @dns.getresources(hostname, record).collect { |r| IPAddress.parse(r.address.to_s) }
+      @dns.getresources(hostname, record).collect { |r| IPAddress.parse(r.address.to_s) }.sort
     end
 
     def initialize # :nodoc:
