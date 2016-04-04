@@ -61,6 +61,14 @@ module Melt
       expect(rules.count).to eq(2)
       expect(rules[0].dir).to eq(:out)
       expect(rules[1].dir).to eq(:out)
+      rules = subject.ruleset_for('restricted.client.example.com')
+      expect(rules.count).to eq(2)
+      expect(rules[0].dir).to eq(:out)
+      expect(rules[0].to_host).to eq(IPAddress.parse('10.0.0.1'))
+      expect(rules[0].to_port).to eq(1194)
+      expect(rules[1].dir).to eq(:out)
+      expect(rules[1].to_host).to eq(IPAddress.parse('10.0.0.1'))
+      expect(rules[1].to_port).to eq(1194)
     end
 
     context 'policies' do

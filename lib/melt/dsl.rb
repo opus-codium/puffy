@@ -1,3 +1,5 @@
+require 'deep_merge'
+
 module Melt
   # The Melt Domain Specific Language (DSL) is used to describe network firewall rules.
   #
@@ -25,6 +27,7 @@ module Melt
       @policy = :block
       @saved_policies = {}
       @factory = RuleFactory.new
+      @extra_options = {}
       reset_network
     end
 
@@ -88,7 +91,7 @@ module Melt
     #
     # @return [void]
     def pass(*args)
-      options = args.pop
+      options = args.pop.deep_merge(@extra_options)
       direction = args.pop
       build_rules(:pass, direction || @default_direction, options)
     end
@@ -97,7 +100,7 @@ module Melt
     #
     # @return [void]
     def block(*args)
-      options = args.pop
+      options = args.pop.deep_merge(@extra_options)
       direction = args.pop
       build_rules(:block, direction || @default_direction, options)
     end
@@ -106,7 +109,7 @@ module Melt
     #
     # @return [void]
     def log(*args)
-      options = args.pop
+      options = args.pop.deep_merge(@extra_options)
       direction = args.pop
       build_rules(:log, direction || @default_direction, options)
     end
@@ -174,11 +177,17 @@ module Melt
     #     client 'http'
     #   end
     #
+    #   host /^node\d+/ do
+    #     client 'http', to: { host: 'restricted-destination.example.com' }
+    #   end
+    #
     # @return [void]
-    def client(name)
+    def client(name, options = {})
       @default_direction = :out
+      @extra_options = options
       @services[name].call
       @default_direction = nil
+      @extra_options = {}
     end
 
     # Declare a service server
@@ -192,10 +201,12 @@ module Melt
     #   end
     #
     # @return [void]
-    def server(name)
+    def server(name, options = {})
       @default_direction = :in
+      @extra_options = options
       @services[name].call
       @default_direction = nil
+      @extra_options = {}
     end
 
     # Defines rules for the host +hostname+.
