@@ -88,37 +88,23 @@ module Melt
       @policy = policy
     end
 
-    # Emits a pass rule with the given +direction+ and +options+.
-    #
-    # @return [void]
-    def pass(*args)
-      options = args.pop if args.last.is_a?(Hash)
-      options = (options || {}).deep_merge(@extra_options)
-      direction = args.first
-      raise 'Direction redefined' if direction && @default_direction
-      build_rules(:pass, direction || @default_direction, options)
-    end
-
-    # Emits a block rule with the given +direction+ and +options+.
-    #
-    # @return [void]
-    def block(*args)
-      options = args.pop if args.last.is_a?(Hash)
-      options = (options || {}).deep_merge(@extra_options)
-      direction = args.first
-      raise 'Direction redefined' if direction && @default_direction
-      build_rules(:block, direction || @default_direction, options)
-    end
-
-    # Emits a log rule with the given +direction+ and +options+.
-    #
-    # @return [void]
-    def log(*args)
-      options = args.pop if args.last.is_a?(Hash)
-      options = (options || {}).deep_merge(@extra_options)
-      direction = args.first
-      raise 'Direction redefined' if direction && @default_direction
-      build_rules(:log, direction || @default_direction, options)
+    # @!method pass(direction = nil, options = {})
+    #   Emits a pass rule with the given +direction+ and +options+.
+    #   @return [void]
+    # @!method block(direction = nil, options = {})
+    #   Emits a block rule with the given +direction+ and +options+.
+    #   @return [void]
+    # @!method log(direction = nil, options = {})
+    #   Emits a log rule with the given +direction+ and +options+.
+    #   @return [void]
+    [:pass, :block, :log].each do |action|
+      define_method(action) do |*args|
+        options = args.pop if args.last.is_a?(Hash)
+        options = (options || {}).deep_merge(@extra_options)
+        direction = args.first
+        raise 'Direction redefined' if direction && @default_direction
+        build_rules(action, direction || @default_direction, options)
+      end
     end
 
     # Limits the scope of a set of rules to IPv4 only.
