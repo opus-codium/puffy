@@ -57,27 +57,43 @@ module Melt
       expect { subject.ruleset_for('client') }.to raise_error('Address familly already scopped')
     end
 
-    it 'buils client and server rules' do
-      subject.eval_network(File.join('spec', 'fixtures', 'services.rb'))
-      rules = subject.ruleset_for('server.example.com')
-      expect(rules.count).to eq(2)
-      expect(rules[0].dir).to eq(:in)
-      expect(rules[1].dir).to eq(:in)
-      rules = subject.ruleset_for('client.example.com')
-      expect(rules.count).to eq(2)
-      expect(rules[0].dir).to eq(:out)
-      expect(rules[1].dir).to eq(:out)
-      rules = subject.ruleset_for('restricted.client.example.com')
-      expect(rules.count).to eq(2)
-      expect(rules[0].dir).to eq(:out)
-      expect(rules[0].to_host).to eq(IPAddress.parse('10.0.0.1'))
-      expect(rules[0].to_port).to eq(1194)
-      expect(rules[1].dir).to eq(:out)
-      expect(rules[1].to_host).to eq(IPAddress.parse('10.0.0.1'))
-      expect(rules[1].to_port).to eq(1194)
+    context 'service, client, server' do
+      before do
+        subject.eval_network(File.join('spec', 'fixtures', 'services.rb'))
+      end
 
-      expect { subject.ruleset_for('invalid.client1.example.com') }.to raise_error('Direction unspecified')
-      expect { subject.ruleset_for('invalid.client2.example.com') }.to raise_error('Direction redefined')
+      it 'buils server rules' do
+        rules = subject.ruleset_for('server.example.com')
+        expect(rules.count).to eq(2)
+        expect(rules[0].dir).to eq(:in)
+        expect(rules[1].dir).to eq(:in)
+      end
+
+      it 'buils server rules' do
+        rules = subject.ruleset_for('client.example.com')
+        expect(rules.count).to eq(2)
+        expect(rules[0].dir).to eq(:out)
+        expect(rules[1].dir).to eq(:out)
+      end
+
+      it 'combines extra options' do
+        rules = subject.ruleset_for('restricted.client.example.com')
+        expect(rules.count).to eq(2)
+        expect(rules[0].dir).to eq(:out)
+        expect(rules[0].to_host).to eq(IPAddress.parse('10.0.0.1'))
+        expect(rules[0].to_port).to eq(1194)
+        expect(rules[1].dir).to eq(:out)
+        expect(rules[1].to_host).to eq(IPAddress.parse('10.0.0.1'))
+        expect(rules[1].to_port).to eq(1194)
+      end
+
+      it 'reports missing directions' do
+        expect { subject.ruleset_for('invalid.client1.example.com') }.to raise_error('Direction unspecified')
+      end
+
+      it 'reports extra directions' do
+        expect { subject.ruleset_for('invalid.client2.example.com') }.to raise_error('Direction redefined')
+      end
     end
 
     context 'policies' do
