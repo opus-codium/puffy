@@ -87,22 +87,28 @@ module Melt
     # Emits a pass rule with the given +direction+ and +options+.
     #
     # @return [void]
-    def pass(direction, options = {})
-      build_rules(:pass, direction, options)
+    def pass(*args)
+      options = args.pop
+      direction = args.pop
+      build_rules(:pass, direction || @default_direction, options)
     end
 
     # Emits a block rule with the given +direction+ and +options+.
     #
     # @return [void]
-    def block(direction, options = {})
-      build_rules(:block, direction, options)
+    def block(*args)
+      options = args.pop
+      direction = args.pop
+      build_rules(:block, direction || @default_direction, options)
     end
 
     # Emits a log rule with the given +direction+ and +options+.
     #
     # @return [void]
-    def log(direction, options = {})
-      build_rules(:log, direction, options)
+    def log(*args)
+      options = args.pop
+      direction = args.pop
+      build_rules(:log, direction || @default_direction, options)
     end
 
     # Limits the scope of a set of rules to IPv4 only.
@@ -156,6 +162,40 @@ module Melt
         raise "Undefined service \"#{name}\"" unless @services[name]
         @services[name].call
       end
+    end
+
+    # Declare a service client
+    #
+    #   service 'http' do
+    #     pass proto: :tcp, to { port: %w(http https) }
+    #   end
+    #
+    #   host /^node\d+/ do
+    #     client 'http'
+    #   end
+    #
+    # @return [void]
+    def client(name)
+      @default_direction = :out
+      @services[name].call
+      @default_direction = nil
+    end
+
+    # Declare a service server
+    #
+    #   service 'ssh' do
+    #     pass proto: :tcp, to { port: 'ssh' }
+    #   end
+    #
+    #   host /^node\d+/ do
+    #     server 'ssh'
+    #   end
+    #
+    # @return [void]
+    def server(name)
+      @default_direction = :in
+      @services[name].call
+      @default_direction = nil
     end
 
     # Defines rules for the host +hostname+.

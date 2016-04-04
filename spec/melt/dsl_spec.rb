@@ -51,6 +51,18 @@ module Melt
       expect { subject.ruleset_for('client') }.to raise_error('Address familly already scopped')
     end
 
+    it 'buils client and server rules' do
+      subject.eval_network(File.join('spec', 'fixtures', 'services.rb'))
+      rules = subject.ruleset_for('server.example.com')
+      expect(rules.count).to eq(2)
+      expect(rules[0].dir).to eq(:in)
+      expect(rules[1].dir).to eq(:in)
+      rules = subject.ruleset_for('client.example.com')
+      expect(rules.count).to eq(2)
+      expect(rules[0].dir).to eq(:out)
+      expect(rules[1].dir).to eq(:out)
+    end
+
     context 'policies' do
       before do
         subject.eval_network(File.join('spec', 'fixtures', 'policies.rb'))
