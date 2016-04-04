@@ -18,6 +18,12 @@ module Melt
       expect(subject.services).to eq([:dns])
     end
 
+    it 'generates basic ruleset for simple host' do
+      subject.eval_network(File.join('spec', 'fixtures', 'basic_host.rb'))
+
+      expect(subject.ruleset_for('example.com').count).to eq(2)
+    end
+
     it 'generates ruleset for host' do
       subject.eval_network(File.join('spec', 'fixtures', 'trivial_network.rb'))
 
@@ -69,6 +75,9 @@ module Melt
       expect(rules[1].dir).to eq(:out)
       expect(rules[1].to_host).to eq(IPAddress.parse('10.0.0.1'))
       expect(rules[1].to_port).to eq(1194)
+
+      expect { subject.ruleset_for('invalid.client1.example.com') }.to raise_error('Direction unspecified')
+      expect { subject.ruleset_for('invalid.client2.example.com') }.to raise_error('Direction redefined')
     end
 
     context 'policies' do

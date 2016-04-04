@@ -27,6 +27,7 @@ module Melt
       @policy = :block
       @saved_policies = {}
       @factory = RuleFactory.new
+      @default_direction = nil
       @extra_options = {}
       reset_network
     end
@@ -91,8 +92,10 @@ module Melt
     #
     # @return [void]
     def pass(*args)
-      options = args.pop.deep_merge(@extra_options)
-      direction = args.pop
+      options = args.pop if args.last.is_a?(Hash)
+      options = (options || {}).deep_merge(@extra_options)
+      direction = args.first
+      raise 'Direction redefined' if direction && @default_direction
       build_rules(:pass, direction || @default_direction, options)
     end
 
@@ -100,8 +103,10 @@ module Melt
     #
     # @return [void]
     def block(*args)
-      options = args.pop.deep_merge(@extra_options)
-      direction = args.pop
+      options = args.pop if args.last.is_a?(Hash)
+      options = (options || {}).deep_merge(@extra_options)
+      direction = args.first
+      raise 'Direction redefined' if direction && @default_direction
       build_rules(:block, direction || @default_direction, options)
     end
 
@@ -109,8 +114,10 @@ module Melt
     #
     # @return [void]
     def log(*args)
-      options = args.pop.deep_merge(@extra_options)
-      direction = args.pop
+      options = args.pop if args.last.is_a?(Hash)
+      options = (options || {}).deep_merge(@extra_options)
+      direction = args.first
+      raise 'Direction redefined' if direction && @default_direction
       build_rules(:log, direction || @default_direction, options)
     end
 
@@ -243,6 +250,7 @@ module Melt
     end
 
     def build_rules(action, direction, options)
+      raise 'Direction unspecified' unless direction
       options = options.merge(action: action, dir: direction)
       @rules += @factory.build(options)
     end
