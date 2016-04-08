@@ -160,46 +160,42 @@ module Melt
       end
     end
 
-    # Declare a service client
+    # @!method client(name, options = {})
+    #   Declare a service client
     #
-    #   service 'http' do
-    #     pass proto: :tcp, to { port: %w(http https) }
-    #   end
+    #     service 'http' do
+    #       pass proto: :tcp, to { port: %w(http https) }
+    #     end
     #
-    #   host /^node\d+/ do
-    #     client 'http'
-    #   end
+    #     host /^node\d+/ do
+    #       client 'http'
+    #     end
     #
-    #   host /^node\d+/ do
-    #     client 'http', to: { host: 'restricted-destination.example.com' }
-    #   end
+    #     host /^node\d+/ do
+    #       client 'http', to: { host: 'restricted-destination.example.com' }
+    #     end
     #
-    # @return [void]
-    def client(name, options = {})
-      @default_direction = :out
-      @extra_options = options
-      @services[name].call
-      @default_direction = nil
-      @extra_options = {}
-    end
-
-    # Declare a service server
+    #   @return [void]
+    # @!method server(name, options = {})
+    #   Declare a service server
     #
-    #   service 'ssh' do
-    #     pass proto: :tcp, to { port: 'ssh' }
-    #   end
+    #     service 'ssh' do
+    #       pass proto: :tcp, to { port: 'ssh' }
+    #     end
     #
-    #   host /^node\d+/ do
-    #     server 'ssh'
-    #   end
+    #     host /^node\d+/ do
+    #       server 'ssh'
+    #     end
     #
-    # @return [void]
-    def server(name, options = {})
-      @default_direction = :in
-      @extra_options = options
-      @services[name].call
-      @default_direction = nil
-      @extra_options = {}
+    #   @return [void]
+    { client: :out, server: :in }.each do |role, direction|
+      define_method(role) do |name, options = {}|
+        @default_direction = direction
+        @extra_options = options
+        @services[name].call
+        @default_direction = nil
+        @extra_options = {}
+      end
     end
 
     # Defines rules for the host +hostname+.
