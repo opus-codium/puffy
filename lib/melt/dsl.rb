@@ -99,11 +99,11 @@ module Melt
     #   @return [void]
     [:pass, :block, :log].each do |action|
       define_method(action) do |*args|
-        options = args.pop if args.last.is_a?(Hash)
-        options = (options || {}).deep_merge(@extra_options)
-        direction = args.first
-        raise 'Direction redefined' if direction && @default_direction
-        build_rules(action, direction || @default_direction, options)
+        options = build_options(args.last.is_a?(Hash) ? args.pop : nil)
+        direction = build_direction(args.first)
+        options[:action] = action
+        options[:dir] = direction
+        @rules += @factory.build(options)
       end
     end
 
@@ -231,10 +231,15 @@ module Melt
       found
     end
 
-    def build_rules(action, direction, options)
+    def build_options(options)
+      (options || {}).deep_merge(@extra_options)
+    end
+
+    def build_direction(direction)
+      raise 'Direction redefined' if direction && @default_direction
+      direction ||= @default_direction
       raise 'Direction unspecified' unless direction
-      options = options.merge(action: action, dir: direction)
-      @rules += @factory.build(options)
+      direction
     end
 
     def reset_network
