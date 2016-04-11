@@ -110,7 +110,7 @@ module Melt
 
         expect(result.count).to eq(1)
         expect(result[0].to_host).to eq(IPAddress.parse('127.0.0.1'))
-        expect(result[0].to_port).to eq('67:68')
+        expect(result[0].to_port).to eq(67..68)
       end
     end
 

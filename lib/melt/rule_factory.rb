@@ -112,8 +112,8 @@ module Melt
     def real_port_lookup(port)
       if port.is_a?(Fixnum) || port =~ /^\d+$/
         port.to_i
-      elsif port =~ /^\d+:\d+$/
-        port
+      elsif /^(?<start>\d+):(?<stop>\d+)$/ =~ port
+        Range.new(start.to_i, stop.to_i)
       else
         raise "unknown service \"#{port}\"" unless @services[port]
         @services[port]

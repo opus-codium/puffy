@@ -165,8 +165,17 @@ module Melt
           flag = { in: 's', out: 'd' }[direction]
           parts = []
           parts << "-#{flag} #{emit_address(host)}" if host
-          parts << "--#{flag}port #{port}" if port
+          parts << "--#{flag}port #{emit_port(port)}" if port
           parts
+        end
+
+        def emit_port(port)
+          case port
+          when Fixnum
+            port.to_s
+          when Range
+            "#{port.begin}:#{port.end}"
+          end
         end
 
         def emit_redirect_or_dnat(rule)

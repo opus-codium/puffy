@@ -96,7 +96,7 @@ module Melt
         def emit_endpoint_specification(keyword, host, port)
           parts = [keyword]
           parts << emit_address(host)
-          parts << "port #{port}" if port
+          parts << "port #{emit_port(port)}" if port
           parts
         end
 
@@ -106,6 +106,15 @@ module Melt
             super(host)
           else
             if_unspecified
+          end
+        end
+
+        def emit_port(port)
+          case port
+          when Fixnum
+            port.to_s
+          when Range
+            "#{port.begin}:#{port.end}"
           end
         end
 
