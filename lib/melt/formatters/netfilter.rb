@@ -169,15 +169,6 @@ module Melt
           parts
         end
 
-        def emit_port(port)
-          case port
-          when Fixnum
-            port.to_s
-          when Range
-            "#{port.begin}:#{port.end}"
-          end
-        end
-
         def emit_redirect_or_dnat(rule)
           if Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host)
             emit_redirect(rule)

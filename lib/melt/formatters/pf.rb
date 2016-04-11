@@ -109,15 +109,6 @@ module Melt
           end
         end
 
-        def emit_port(port)
-          case port
-          when Fixnum
-            port.to_s
-          when Range
-            "#{port.begin}:#{port.end}"
-          end
-        end
-
         def emit_rdr_to(rule)
           if rule.rdr?
             keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'

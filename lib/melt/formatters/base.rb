@@ -72,6 +72,15 @@ module Melt
             host.to_string
           end
         end
+
+        def emit_port(port)
+          case port
+          when Fixnum
+            port.to_s
+          when Range
+            "#{port.begin}:#{port.end}"
+          end
+        end
       end
     end
   end
