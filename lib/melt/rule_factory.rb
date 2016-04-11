@@ -30,6 +30,8 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
+      options = expand_endpoints(options)
+
       options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
 
       options = resolv_hostnames_and_ports(options)
@@ -37,6 +39,16 @@ module Melt
     end
 
     private
+
+    def expand_endpoints(options)
+      [:from, :to, :rdr_to].each do |endpoint|
+        if options[endpoint].is_a?(String)
+          host, port = options[endpoint].split(':', 2)
+          options[endpoint] = { host: host, port: port }
+        end
+      end
+      options
+    end
 
     def resolv_hostnames_and_ports(options)
       [:from, :to, :rdr_to].each do |endpoint|
@@ -98,7 +110,9 @@ module Melt
     end
 
     def real_port_lookup(port)
-      if port.is_a?(Fixnum) || port =~ /^\d+:\d+$/
+      if port.is_a?(Fixnum) || port =~ /^\d+$/
+        port.to_i
+      elsif port =~ /^\d+:\d+$/
         port
       else
         raise "unknown service \"#{port}\"" unless @services[port]
