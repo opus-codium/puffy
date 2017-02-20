@@ -1,2 +1,14 @@
+Metrics/BlockLength:
+  Exclude:
+    - spec/**/*.rb
+Metrics/ClassLength:
+  Max: 200
 Metrics/LineLength:
   Enabled: false
+Metrics/ModuleLength:
+  Exclude:
+    - spec/**/*.rb
+Style/Documentation:
+  Exclude:
+    - features/support/env.rb
+    - spec/**/*.rb

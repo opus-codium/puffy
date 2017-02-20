@@ -100,7 +100,7 @@ module Melt
 
     def port_lookup(port)
       case port
-      when Fixnum, String
+      when Integer, String
         real_port_lookup(port)
       when Array
         port.map { |x| port_lookup(x) }
@@ -110,7 +110,7 @@ module Melt
     end
 
     def real_port_lookup(port)
-      if port.is_a?(Fixnum) || port =~ /^\d+$/
+      if port.is_a?(Integer) || port =~ /^\d+$/
         port.to_i
       elsif /^(?<start>\d+):(?<stop>\d+)$/ =~ port
         Range.new(start.to_i, stop.to_i)

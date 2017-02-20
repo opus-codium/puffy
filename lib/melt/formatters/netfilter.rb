@@ -136,10 +136,10 @@ module Melt
         def emit_on(rule)
           on_direction_flag = { in: '-i', out: '-o' }
 
-          if rule.on && rule.dir
-            matches = /(!)?(.*)/.match(rule.on)
-            [matches[1], on_direction_flag[rule.dir], matches[2]].compact
-          end
+          return unless rule.on || rule.dir
+
+          matches = /(!)?(.*)/.match(rule.on)
+          [matches[1], on_direction_flag[rule.dir], matches[2]].compact
         end
 
         def emit_in_out(rule)

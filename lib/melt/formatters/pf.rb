@@ -110,12 +110,12 @@ module Melt
         end
 
         def emit_rdr_to(rule)
-          if rule.rdr?
-            keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
-            destination = rule.rdr_to_host || loopback_address(rule.af)
-            raise 'Unspecified address family' if destination.nil?
-            emit_endpoint_specification(keyword, destination, rule.rdr_to_port)
-          end
+          return unless rule.rdr?
+
+          keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
+          destination = rule.rdr_to_host || loopback_address(rule.af)
+          raise 'Unspecified address family' if destination.nil?
+          emit_endpoint_specification(keyword, destination, rule.rdr_to_port)
         end
 
         def emit_nat_to(rule)

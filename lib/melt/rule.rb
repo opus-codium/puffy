@@ -1,5 +1,5 @@
 module Melt
-  class AddressFamilyConflict < Exception
+  class AddressFamilyConflict < RuntimeError
   end
 
   # Abstract firewall rule.

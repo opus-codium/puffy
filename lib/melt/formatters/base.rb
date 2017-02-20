@@ -75,7 +75,7 @@ module Melt
 
         def emit_port(port)
           case port
-          when Fixnum
+          when Integer
             port.to_s
           when Range
             "#{port.begin}:#{port.end}"
