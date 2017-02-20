@@ -9,4 +9,5 @@ group :test do
   gem 'coveralls', require: false
   gem 'rake'
   gem 'rspec'
+  gem 'timecop'
 end
