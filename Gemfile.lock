@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/smortex/ipaddress.git
+  revision: 2ae788109b7f30f1f95a61903bd60ec6fdd546f9
+  branch: spaceship_compare
+  specs:
+    ipaddress (0.8.3)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -34,7 +41,6 @@ GEM
     docile (1.1.5)
     ffi (1.9.10)
     gherkin (3.2.0)
-    ipaddress (0.8.3)
     json (1.8.3)
     multi_json (1.11.2)
     multi_test (0.1.2)
@@ -69,10 +75,10 @@ DEPENDENCIES
   aruba
   coveralls
   deep_merge
-  ipaddress
+  ipaddress!
   rake
   rspec
   thor
 
 BUNDLED WITH
-   1.11.2
+   1.14.4
