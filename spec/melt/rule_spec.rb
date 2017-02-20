@@ -2,6 +2,11 @@ require 'melt'
 
 module Melt
   RSpec.describe Rule do
+    it 'reports invalid rules' do
+      expect { Rule.new(action: :moin) }.to raise_error("unsupported action `moin'")
+      expect { Rule.new(action: :pass, moin: :moin) }.to raise_error(NoMethodError, /undefined method `moin='/)
+    end
+
     it 'detects IPv4 rules' do
       expect(Rule.new.ipv4?).to be_truthy
       expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { port: 80 }).ipv4?).to be_truthy

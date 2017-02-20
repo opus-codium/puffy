@@ -66,6 +66,7 @@ module Melt
 
       @af = detect_af unless af
 
+      raise "unsupported action `#{options[:action]}'" unless [nil, :pass, :block].include?(options[:action])
       raise 'if from_port or to_port is specified, the protocol must also be given' if (from_port || to_port) && proto.nil?
     end
 
