@@ -73,6 +73,9 @@ module Melt
           end
         end
 
+        # Return a string representation of the +port+ port.
+        # #param port [Integer,Range]
+        # @return [String] Port
         def emit_port(port)
           case port
           when Integer
