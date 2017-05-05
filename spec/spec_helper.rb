@@ -15,12 +15,7 @@
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 
-begin
-  require 'simplecov'
-  SimpleCov.start
-rescue LoadError
-  nil # Ignore SimpleCov if it is not here.
-end
+require 'simplecov'
 
 RSpec.configure do |config|
   # rspec-expectations config goes here. You can use an alternate
