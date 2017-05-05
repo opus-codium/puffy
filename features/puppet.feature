@@ -14,13 +14,13 @@ Feature: Puppet
     """
     And the file "example.com/netfilter/rules.v4" should contain:
     """
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     """
     And the file "example.com/netfilter/rules.v6" should contain:
     """
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     """
 
   Scenario: Displays firewall rule differences
@@ -46,11 +46,11 @@ Feature: Puppet
     :INPUT DROP [0:0]
     :FORWARD DROP [0:0]
     :OUTPUT DROP [0:0]
-    -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
-    -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-    -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     COMMIT
 
     """
@@ -60,11 +60,11 @@ Feature: Puppet
     :INPUT DROP [0:0]
     :FORWARD DROP [0:0]
     :OUTPUT DROP [0:0]
-    -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
-    -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-    -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     COMMIT
 
     """
@@ -85,22 +85,22 @@ Feature: Puppet
     @@ -3,8 +4,8 @@
      :FORWARD DROP [0:0]
      :OUTPUT DROP [0:0]
-     -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-    +-A INPUT -p tcp --dport 22 -j ACCEPT
-     -A INPUT -p tcp --dport 80 -j ACCEPT
-    --A INPUT -p tcp --dport 443 -j ACCEPT
-     -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-     -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
+     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+     -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
      COMMIT
     --- a/example.com/netfilter/rules.v6
     +++ b/example.com/netfilter/rules.v6
     @@ -3,8 +4,8 @@
      :FORWARD DROP [0:0]
      :OUTPUT DROP [0:0]
-     -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-    +-A INPUT -p tcp --dport 22 -j ACCEPT
-     -A INPUT -p tcp --dport 80 -j ACCEPT
-    --A INPUT -p tcp --dport 443 -j ACCEPT
-     -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-     -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
+     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+     -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     """

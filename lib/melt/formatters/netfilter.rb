@@ -55,18 +55,18 @@ module Melt
         end
 
         def input_filter_ruleset(rules)
-          parts = ['-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT']
+          parts = ['-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
           parts << input_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
         end
 
         def forward_filter_ruleset(rules)
-          parts = ['-A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT']
+          parts = ['-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
           parts << rules.select(&:fwd?).map { |rule| @rule_formatter.emit_rule(rule) }
           parts << rules.select { |r| r.rdr? && !Melt::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Melt::Rule.fwd_rule(rule)) }
         end
 
         def output_filter_rulset(rules)
-          parts = ['-A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT']
+          parts = ['-A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
           parts << output_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
         end
 
@@ -117,6 +117,7 @@ module Melt
         def emit_filter_rule(rule)
           iptables_direction = { in: 'INPUT', out: 'OUTPUT', fwd: 'FORWARD' }
           parts = ["-A #{iptables_direction[rule.dir]}"]
+          parts << '-m conntrack --ctstate NEW'if [:tcp, :udp].include?(rule.proto)
           parts << emit_if(rule)
           parts << emit_proto(rule)
           parts << emit_src(rule)

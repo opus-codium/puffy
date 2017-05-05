@@ -23,14 +23,14 @@ Feature: Generate firewall rules
     When I run `melt generate -f Netfilter4 network.rb example.com`
     Then the stdout should contain:
     """
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     """
 
   Scenario: Generate IPv6 firewall rules for a Linux host
     When I run `melt generate -f Netfilter6 network.rb example.com`
     Then the stdout should contain:
     """
-    -A INPUT -p tcp --dport 80 -j ACCEPT
-    -A INPUT -p tcp --dport 443 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     """

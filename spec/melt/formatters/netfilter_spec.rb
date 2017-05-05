@@ -7,7 +7,7 @@ module Melt
     RSpec.describe Netfilter::Rule do
       it 'formats simple rules' do
         rule = Rule.new(action: :pass, dir: :in, proto: :tcp, to: { host: nil, port: 80 })
-        expect(subject.emit_rule(rule)).to eq('-A INPUT -p tcp --dport 80 -j ACCEPT')
+        expect(subject.emit_rule(rule)).to eq('-A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT')
 
         rule = Rule.new(action: :pass, dir: :in, on: 'lo')
         expect(subject.emit_rule(rule)).to eq('-A INPUT -i lo -j ACCEPT')
@@ -78,12 +78,12 @@ COMMIT
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT DROP [0:0]
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
--A FORWARD -i ppp0 -p tcp -d 192.168.1.80 --dport 80 -j ACCEPT
--A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A OUTPUT -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
--A OUTPUT -p udp -d 192.168.1.53 --dport 53 -j ACCEPT
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A FORWARD -m conntrack --ctstate NEW -i ppp0 -p tcp -d 192.168.1.80 --dport 80 -j ACCEPT
+-A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
+-A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.1.53 --dport 53 -j ACCEPT
 COMMIT
 EOT
           rules = dsl.ruleset_for('www')
@@ -93,12 +93,12 @@ EOT
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT DROP [0:0]
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A INPUT -p tcp --dport 80 -j ACCEPT
--A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
--A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A OUTPUT -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
--A OUTPUT -p udp -d 192.168.1.53 --dport 53 -j ACCEPT
+-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
+-A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.1.53 --dport 53 -j ACCEPT
 COMMIT
 EOT
         end
