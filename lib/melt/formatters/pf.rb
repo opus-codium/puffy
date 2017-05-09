@@ -21,7 +21,8 @@ module Melt
         end
 
         def emit_header(policy)
-          parts = ['match in all scrub (no-df)']
+          parts = super()
+          parts << 'match in all scrub (no-df)'
           parts << 'set skip on lo'
           parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :in, no_quick: true))
           parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :out, no_quick: true))

@@ -73,7 +73,7 @@ Feature: Puppet
     """
     --- a/example.com/pf/pf.conf
     +++ b/example.com/pf/pf.conf
-    @@ -2,5 +2,5 @@
+    @@ -2,5 +3,5 @@
      set skip on lo
      block in all
      block out all
