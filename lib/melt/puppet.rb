@@ -24,6 +24,9 @@ module Melt
     def save
       each_fragment do |fragment_name, fragment_content|
         FileUtils.mkdir_p(File.dirname(fragment_name))
+
+        next unless fragment_changed?(fragment_name, fragment_content)
+
         File.open(fragment_name, 'w') do |f|
           f.write(fragment_content)
         end
@@ -56,6 +59,11 @@ module Melt
           yield filename, formatter.emit_ruleset(rules, policy)
         end
       end
+    end
+
+    def fragment_changed?(fragment_name, fragment_content)
+      return true unless File.exist?(fragment_name)
+      File.read(fragment_name).split("\n").reject { |l| l =~ /^#/ } != fragment_content.split("\n").reject { |l| l =~ /^#/ }
     end
   end
 end
