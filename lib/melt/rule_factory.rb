@@ -89,6 +89,8 @@ module Melt
 
     def host_lookup(host)
       case host
+      when ''
+        nil
       when String
         @resolver.resolv(host)
       when Array

@@ -87,7 +87,17 @@ module Melt
         expect(result[1].to_port).to be_nil
       end
 
-      it 'accepts host and port' do
+      it 'accepts ":port"' do
+        expect(Rule).to receive(:new).exactly(1).times.and_call_original
+
+        result = subject.build(proto: :udp, to: ':tftp')
+
+        expect(result.count).to eq(1)
+        expect(result[0].to_host).to be_nil
+        expect(result[0].to_port).to eq(69)
+      end
+
+      it 'accepts "host:port"' do
         expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
 
         expect(Rule).to receive(:new).exactly(2).times.and_call_original
