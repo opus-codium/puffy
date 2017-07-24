@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'deep_merge'
 
 module Melt
@@ -97,7 +99,7 @@ module Melt
     # @!method log(direction = nil, options = {})
     #   Emits a log rule with the given +direction+ and +options+.
     #   @return [void]
-    [:pass, :block, :log].each do |action|
+    %i[pass block log].each do |action|
       define_method(action) do |*args|
         options = build_options(args.last.is_a?(Hash) ? args.pop : nil)
         direction = build_direction(args.first)

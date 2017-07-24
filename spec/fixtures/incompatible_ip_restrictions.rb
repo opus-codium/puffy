@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 server = ['192.0.2.1', '2001:DB8::1']
 
 host 'client' do

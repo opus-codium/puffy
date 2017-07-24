@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'melt'
 
 module Melt
@@ -14,7 +16,7 @@ module Melt
       expect(subject.services).to eq([])
 
       subject.eval_network(File.join('spec', 'fixtures', 'simple_lan_network.rb'))
-      expect(subject.hosts).to eq(%w(gw www))
+      expect(subject.hosts).to eq(%w[gw www])
       expect(subject.services).to eq([:dns])
     end
 

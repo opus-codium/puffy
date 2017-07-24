@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Melt
   # Melt::Rule factory
   class RuleFactory
@@ -41,7 +43,7 @@ module Melt
     private
 
     def expand_endpoints(options)
-      [:from, :to, :rdr_to].each do |endpoint|
+      %i[from to rdr_to].each do |endpoint|
         if options[endpoint].is_a?(String)
           host, port = options[endpoint].split(':', 2)
           options[endpoint] = { host: host, port: port }
@@ -51,7 +53,7 @@ module Melt
     end
 
     def resolv_hostnames_and_ports(options)
-      [:from, :to, :rdr_to].each do |endpoint|
+      %i[from to rdr_to].each do |endpoint|
         options[endpoint][:host] = host_lookup(options[endpoint][:host])
         options[endpoint][:port] = port_lookup(options[endpoint][:port])
       end

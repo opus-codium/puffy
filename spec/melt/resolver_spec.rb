@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'melt'
 
 # There are some differences in name resolution of each Ruby implementation.

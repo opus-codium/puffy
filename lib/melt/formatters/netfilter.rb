@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Melt
   module Formatters
     module Netfilter # :nodoc:
@@ -75,7 +77,7 @@ module Melt
         end
 
         def filter_rules(rules)
-          rules.select { |r| [:pass, :block, :log].include?(r.action) }
+          rules.select { |r| %i[pass block log].include?(r.action) }
         end
 
         def input_filter_rules(rules)
@@ -117,7 +119,7 @@ module Melt
         def emit_filter_rule(rule)
           iptables_direction = { in: 'INPUT', out: 'OUTPUT', fwd: 'FORWARD' }
           parts = ["-A #{iptables_direction[rule.dir]}"]
-          parts << '-m conntrack --ctstate NEW'if [:tcp, :udp].include?(rule.proto)
+          parts << '-m conntrack --ctstate NEW' if %i[tcp udp].include?(rule.proto)
           parts << emit_if(rule)
           parts << emit_proto(rule)
           parts << emit_src(rule)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Melt
   class AddressFamilyConflict < RuntimeError
   end
@@ -146,8 +148,8 @@ module Melt
     #   Returns the redirect destination host of the Melt::Rule.
     # @!method rdr_to_port
     #   Returns the redirect destination port of the Melt::Rule.
-    [:from, :to, :rdr_to].each do |destination|
-      [:host, :port].each do |param|
+    %i[from to rdr_to].each do |destination|
+      %i[host port].each do |param|
         define_method("#{destination}_#{param}") do
           res = public_send(destination)
           res && res[param]
@@ -177,7 +179,7 @@ module Melt
     end
 
     def collect_afs
-      [:from_host, :to_host, :rdr_to_host].map do |method|
+      %i[from_host to_host rdr_to_host].map do |method|
         res = send(method)
         if res.nil? then nil
         elsif res.ipv4? then :inet
@@ -193,8 +195,8 @@ module Melt
     # @!method to_ipv6?
     # @!method rdr_to_ipv4?
     # @!method rdr_to_ipv6?
-    [:from, :to, :rdr_to].each do |destination|
-      [:ipv4, :ipv6].each do |ip_version|
+    %i[from to rdr_to].each do |destination|
+      %i[ipv4 ipv6].each do |ip_version|
         define_method("#{destination}_#{ip_version}?") do
           res = public_send("#{destination}_host")
           res && res.public_send("#{ip_version}?")

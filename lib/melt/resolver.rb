@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'ipaddress'
 require 'resolv'
 require 'singleton'

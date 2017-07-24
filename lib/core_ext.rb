@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Mixin for combining variations
 #
 #   { a: :b }.expand       #=> [{ a: :b }]

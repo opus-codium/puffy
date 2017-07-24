@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 policy :pass
 
 host 'www1' do

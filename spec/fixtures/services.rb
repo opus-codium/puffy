@@ -1,5 +1,5 @@
 service :openvpn do
-  pass proto: %w(udp tcp), to: { port: 'openvpn' }
+  pass proto: %w[udp tcp], to: { port: 'openvpn' }
 end
 
 service :ssh do

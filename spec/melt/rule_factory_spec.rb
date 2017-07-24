@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'melt'
 
 module Melt
@@ -17,7 +19,7 @@ module Melt
 
       expect(Rule).to receive(:new).twice.and_call_original
 
-      result = subject.build(proto: [:tcp, :udp])
+      result = subject.build(proto: %i[tcp udp])
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
       expect(result[1].proto).to eq(:udp)
@@ -49,7 +51,7 @@ module Melt
     it 'accepts service names' do
       expect(Rule).to receive(:new).twice.and_call_original
 
-      result = subject.build(proto: :tcp, to: { port: %w(http https) })
+      result = subject.build(proto: :tcp, to: { port: %w[http https] })
 
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
@@ -63,7 +65,7 @@ module Melt
     it 'accepts service alt-names' do
       expect(Rule).to receive(:new).exactly(3).times.and_call_original
 
-      result = subject.build(proto: :tcp, to: { port: %w(auth tap ident) })
+      result = subject.build(proto: :tcp, to: { port: %w[auth tap ident] })
 
       expect(result.count).to eq(3)
       expect(result[0].proto).to eq(:tcp)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 dns_servers = ['192.168.0.53', '192.168.1.53']
 
 service :dns do
