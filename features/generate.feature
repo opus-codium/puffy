@@ -12,7 +12,7 @@ Feature: Generate firewall rules
     """
 
   Scenario: Generate firewall rules for an OpenBSD host
-    When I run `melt generate -f Pf network.rb example.com`
+    When I successfully run `melt generate -f Pf network.rb example.com`
     Then the stdout should contain:
     """
     pass in quick proto tcp to any port 80
@@ -20,7 +20,7 @@ Feature: Generate firewall rules
     """
 
   Scenario: Generate IPv4 firewall rules for a Linux host
-    When I run `melt generate -f Netfilter4 network.rb example.com`
+    When I successfully run `melt generate -f Netfilter4 network.rb example.com`
     Then the stdout should contain:
     """
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
@@ -28,7 +28,7 @@ Feature: Generate firewall rules
     """
 
   Scenario: Generate IPv6 firewall rules for a Linux host
-    When I run `melt generate -f Netfilter6 network.rb example.com`
+    When I successfully run `melt generate -f Netfilter6 network.rb example.com`
     Then the stdout should contain:
     """
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
