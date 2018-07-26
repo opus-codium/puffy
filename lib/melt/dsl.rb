@@ -208,9 +208,11 @@ module Melt
     #   end
     #
     # @return [void]
-    def host(hostname, &block)
-      hostname = /\A#{hostname}\z/ if hostname.is_a?(Regexp)
-      @hosts[hostname] = block
+    def host(*hostnames, &block)
+      hostnames.each do |hostname|
+        hostname = /\A#{hostname}\z/ if hostname.is_a?(Regexp)
+        @hosts[hostname] = block
+      end
     end
 
     private

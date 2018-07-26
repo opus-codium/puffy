@@ -40,6 +40,13 @@ module Melt
       expect(subject.ruleset_for('db3.example.com').count).to eq(1)
     end
 
+    it 'matches multiple hosts' do
+      subject.eval_network(File.join('spec', 'fixtures', 'multiple_hosts.rb'))
+
+      expect(subject.ruleset_for('example.com').count).to eq(1)
+      expect(subject.ruleset_for('example.net').count).to eq(1)
+    end
+
     it 'performs ip restrictions' do
       subject.eval_network(File.join('spec', 'fixtures', 'ip_restrictions.rb'))
       rules = subject.ruleset_for('client')
