@@ -18,16 +18,37 @@ module Melt
 
       # Netfilter implementation of a Melt Ruleset formatter.
       class Ruleset < Melt::Formatters::Base::Ruleset # :nodoc:
+        def self.known_conntrack_helpers
+          {
+            21   => 'ftp',
+            69   => 'tftp',
+            194  => 'irc',
+            6566 => 'sane',
+            5060 => 'sip'
+          }
+        end
+
         # Returns a Netfilter String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
         def emit_ruleset(rules, policy = :block)
           parts = []
           parts << emit_header
+          parts << raw_ruleset(raw_rules(rules))
           parts << nat_ruleset(nat_rules(rules))
           parts << filter_ruleset(filter_rules(rules), policy)
           parts.flatten.compact.join("\n") + "\n"
         end
 
         private
+
+        def raw_ruleset(rules)
+          return unless rules.any?
+
+          parts = ['*raw']
+          parts << emit_chain_policies(prerouting: :pass, output: :pass)
+          parts << rules.map { |rule| @rule_formatter.emit_ct_rule(rule) }
+          parts << 'COMMIT'
+          parts
+        end
 
         def nat_ruleset(rules)
           return unless rules.any?
@@ -72,6 +93,10 @@ module Melt
           parts << output_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
         end
 
+        def raw_rules(rules)
+          rules.select { |r| r.action == :pass && Ruleset.known_conntrack_helpers.include?(r.to_port) }
+        end
+
         def nat_rules(rules)
           rules.select { |r| r.nat? || r.rdr? }
         end
@@ -100,6 +125,17 @@ module Melt
           else
             emit_filter_rule(rule)
           end
+        end
+
+        def emit_ct_rule(rule)
+          parts = ['-A PREROUTING']
+          parts << emit_if(rule)
+          parts << emit_proto(rule)
+          parts << emit_src_port(rule)
+          parts << emit_dst_port(rule)
+          parts << '-j CT'
+          parts << "--helper #{Ruleset.known_conntrack_helpers[rule.to_port]}"
+          pp_rule(parts)
         end
 
         def emit_postrouting_rule(rule)
