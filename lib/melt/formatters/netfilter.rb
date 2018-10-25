@@ -193,19 +193,43 @@ module Melt
         end
 
         def emit_src(rule)
-          emit_endpoint_specification(:in, rule.from_host, rule.from_port)
+          emit_src_host(rule) + emit_src_port(rule)
+        end
+
+        def emit_src_host(rule)
+          if rule.from_host
+            ['-s', emit_address(rule.from_host)]
+          else
+            []
+          end
+        end
+
+        def emit_src_port(rule)
+          if rule.from_port
+            ['--sport', emit_port(rule.from_port)]
+          else
+            []
+          end
         end
 
         def emit_dst(rule)
-          emit_endpoint_specification(:out, rule.to_host, rule.to_port)
+          emit_dst_host(rule) + emit_dst_port(rule)
         end
 
-        def emit_endpoint_specification(direction, host, port)
-          flag = { in: 's', out: 'd' }[direction]
-          parts = []
-          parts << "-#{flag} #{emit_address(host)}" if host
-          parts << "--#{flag}port #{emit_port(port)}" if port
-          parts
+        def emit_dst_host(rule)
+          if rule.to_host
+            ['-d', emit_address(rule.to_host)]
+          else
+            []
+          end
+        end
+
+        def emit_dst_port(rule)
+          if rule.to_port
+            ['--dport', emit_port(rule.to_port)]
+          else
+            []
+          end
         end
 
         def emit_redirect_or_dnat(rule)
