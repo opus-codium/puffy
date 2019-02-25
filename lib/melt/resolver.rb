@@ -63,7 +63,7 @@ module Melt
     end
 
     def initialize # :nodoc:
-      config = {}
+      config = nil
       if ENV['CI'] == 'true' && ENV['TRAVIS'] == 'true'
         # XXX: Travis-CI unreliably resolves IPv6.
         config = {
