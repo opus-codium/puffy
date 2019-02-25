@@ -179,6 +179,7 @@ module Melt
       afs = collect_afs
       return nil if afs.empty?
       return afs.first if afs.one?
+
       raise AddressFamilyConflict, "Incompatible address famlilies: #{afs}"
     end
 
@@ -203,7 +204,7 @@ module Melt
       %i[ipv4 ipv6].each do |ip_version|
         define_method("#{destination}_#{ip_version}?") do
           res = public_send("#{destination}_host")
-          res && res.public_send("#{ip_version}?")
+          res&.public_send("#{ip_version}?")
         end
       end
     end

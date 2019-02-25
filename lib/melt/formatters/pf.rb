@@ -54,7 +54,7 @@ module Melt
         end
 
         def emit_direction(rule)
-          rule.dir if rule.dir
+          rule.dir
         end
 
         def emit_quick(rule)
@@ -118,6 +118,7 @@ module Melt
           keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
           destination = rule.rdr_to_host || loopback_address(rule.af)
           raise 'Unspecified address family' if destination.nil?
+
           emit_endpoint_specification(keyword, destination, rule.rdr_to_port)
         end
 

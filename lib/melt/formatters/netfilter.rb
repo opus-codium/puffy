@@ -24,7 +24,7 @@ module Melt
             69   => 'tftp',
             194  => 'irc',
             6566 => 'sane',
-            5060 => 'sip'
+            5060 => 'sip',
           }
         end
 

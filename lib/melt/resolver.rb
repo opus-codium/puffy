@@ -36,9 +36,7 @@ module Melt
 
     def filter_af(address, address_family)
       if address_family
-        if address.ipv6? && address_family == :inet || address.ipv4? && address_family == :inet6
-          return []
-        end
+        return [] if address.ipv6? && address_family == :inet || address.ipv4? && address_family == :inet6
       end
       [address]
     end
@@ -48,6 +46,7 @@ module Melt
       result += resolv_hostname_ipv6(hostname) if address_family.nil? || address_family == :inet6
       result += resolv_hostname_ipv4(hostname) if address_family.nil? || address_family == :inet
       raise "\"#{hostname}\" does not resolve to any valid IP#{@af_str[address_family]} address." if result.empty?
+
       result
     end
 
@@ -69,8 +68,8 @@ module Melt
         # XXX: Travis-CI unreliably resolves IPv6.
         config = {
           nameserver: '1.1.1.1',
-          search: '',
-          ndots: 1,
+          search:     '',
+          ndots:      1,
         }
       end
       @dns = Resolv::DNS.open(config)

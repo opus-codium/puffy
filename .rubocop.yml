@@ -1,16 +1,35 @@
 AllCops:
-  TargetRubyVersion: 2.3
+  TargetRubyVersion: '2.5'
+  AllowSymlinksInCacheRootDirectory: true
+
+Layout/AlignHash:
+  EnforcedColonStyle: table
+  EnforcedHashRocketStyle: table
+
 Metrics/BlockLength:
   Exclude:
     - spec/**/*.rb
+
 Metrics/ClassLength:
   Max: 200
+
 Metrics/LineLength:
   Enabled: false
+
 Metrics/ModuleLength:
   Exclude:
     - spec/**/*.rb
+
 Style/Documentation:
   Exclude:
     - features/support/env.rb
     - spec/**/*.rb
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma

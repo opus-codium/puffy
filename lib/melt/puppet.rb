@@ -16,7 +16,7 @@ module Melt
       @formatters = [
         Melt::Formatters::Pf::Ruleset.new,
         Melt::Formatters::Netfilter4::Ruleset.new,
-        Melt::Formatters::Netfilter6::Ruleset.new
+        Melt::Formatters::Netfilter6::Ruleset.new,
       ]
     end
 
@@ -65,6 +65,7 @@ module Melt
 
     def fragment_changed?(fragment_name, fragment_content)
       return true unless File.exist?(fragment_name)
+
       File.read(fragment_name).split("\n").reject { |l| l =~ /^#/ } != fragment_content.split("\n").reject { |l| l =~ /^#/ }
     end
   end

@@ -10,6 +10,7 @@ module IPAddress
     def <=>(other)
       return nil unless other.is_a?(self.class)
       return prefix <=> other.prefix if to_u32 == other.to_u32
+
       to_u32 <=> other.to_u32
     end
   end
@@ -18,6 +19,7 @@ module IPAddress
     def <=>(other)
       return nil unless other.is_a?(self.class)
       return prefix <=> other.prefix if to_u128 == other.to_u128
+
       to_u128 <=> other.to_u128
     end
   end

@@ -80,6 +80,7 @@ module Melt
     # @return [Symbol]
     def policy_for(hostname)
       raise "Policy for #{hostname} unknown" unless @saved_policies[hostname]
+
       @saved_policies[hostname]
     end
 
@@ -158,6 +159,7 @@ module Melt
         @services[name] = block
       else
         raise "Undefined service \"#{name}\"" unless @services[name]
+
         @services[name].call
       end
     end
@@ -218,20 +220,18 @@ module Melt
     private
 
     def bloc_for(hostname)
-      if @hosts[hostname]
-        @hosts[hostname]
-      else
-        block_matching(hostname)
-      end
+      @hosts[hostname] || block_matching(hostname)
     end
 
     def block_matching(hostname)
       found = nil
       @hosts.select { |host, _block| host.is_a?(Regexp) }.each do |_host, block|
         raise "Multiple host definition match \"#{hostname}\"" if found
+
         found = block
       end
       raise "No host definition match \"#{hostname}\"" unless found
+
       found
     end
 
@@ -241,8 +241,10 @@ module Melt
 
     def build_direction(direction)
       raise 'Direction redefined' if direction && @default_direction
+
       direction ||= @default_direction
       raise 'Direction unspecified' unless direction
+
       direction
     end
 

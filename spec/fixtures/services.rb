@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 service :openvpn do
   pass proto: %w[udp tcp], to: { port: 'openvpn' }
 end
