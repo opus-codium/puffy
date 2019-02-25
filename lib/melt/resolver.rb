@@ -36,9 +36,14 @@ module Melt
 
     def filter_af(address, address_family)
       if address_family
-        return [] if address.ipv6? && address_family == :inet || address.ipv4? && address_family == :inet6
+        return [] unless match_af?(address, address_family)
       end
       [address]
+    end
+
+    def match_af?(address, address_family)
+      address.ipv6? && address_family == :inet6 ||
+        address.ipv4? && address_family == :inet
     end
 
     def resolv_hostname(hostname, address_family)
