@@ -117,14 +117,20 @@ module Melt
     end
 
     def real_port_lookup(port)
-      if port.is_a?(Integer) || port =~ /^\d+$/
-        port.to_i
-      elsif /^(?<start>\d+):(?<stop>\d+)$/ =~ port
-        Range.new(start.to_i, stop.to_i)
-      else
-        raise "unknown service \"#{port}\"" unless @services[port]
+      res = port_is_a_number(port) || port_is_a_range(port) || @services[port]
 
-        @services[port]
+      raise "unknown service \"#{port}\"" unless res
+
+      res
+    end
+
+    def port_is_a_number(port)
+      port.to_i if port.is_a?(Integer) || port =~ /^\d+$/
+    end
+
+    def port_is_a_range(port)
+      if /^(?<start>\d+):(?<stop>\d+)$/ =~ port
+        Range.new(start.to_i, stop.to_i)
       end
     end
   end
