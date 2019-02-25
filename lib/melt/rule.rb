@@ -62,9 +62,7 @@ module Melt
     #
     #   Rule.new({ action: :accept, dir: :in, proto: :tcp, to: { port: 80 } })
     def initialize(options = {})
-      options.each do |k, v|
-        send("#{k}=", v)
-      end
+      send_options(options)
 
       @af = detect_af unless af
 
@@ -170,6 +168,12 @@ module Melt
     end
 
     private
+
+    def send_options(options)
+      options.each do |k, v|
+        send("#{k}=", v)
+      end
+    end
 
     def detect_af
       afs = collect_afs
