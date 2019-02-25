@@ -66,8 +66,8 @@ module Melt
 
       @af = detect_af unless af
 
-      raise "unsupported action `#{options[:action]}'" unless [nil, :pass, :block].include?(options[:action])
-      raise 'if from_port or to_port is specified, the protocol must also be given' if (from_port || to_port) && proto.nil?
+      raise "unsupported action `#{options[:action]}'" unless valid_action?
+      raise 'if from_port or to_port is specified, the protocol must also be given' if port_without_protocol?
     end
 
     # Instanciate a forward Melt::Rule.
@@ -168,6 +168,14 @@ module Melt
     end
 
     private
+
+    def valid_action?
+      [nil, :pass, :block].include?(action)
+    end
+
+    def port_without_protocol?
+      (from_port || to_port) && proto.nil?
+    end
 
     def send_options(options)
       options.each do |k, v|
