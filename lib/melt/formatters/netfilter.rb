@@ -45,7 +45,7 @@ module Melt
 
           parts = ['*raw']
           parts << emit_chain_policies(prerouting: :pass, output: :pass)
-          parts << rules.map { |rule| @rule_formatter.emit_ct_rule(rule) }
+          parts << rules.map { |rule| @rule_formatter.emit_ct_rule(rule) }.uniq
           parts << 'COMMIT'
           parts
         end
