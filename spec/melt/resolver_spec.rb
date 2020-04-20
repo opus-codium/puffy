@@ -9,19 +9,19 @@ module Melt
   RSpec.describe Resolver do
     subject { Melt::Resolver.instance }
     it 'resolves IPv4 and IPv6' do
-      expect(subject.resolv('localhost.').collect(&:to_s)).to eq(['::1', '127.0.0.1'])
+      expect(subject.resolv('example.com').collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946', '93.184.216.34'])
     end
 
     it 'resolves IPv4 only' do
-      expect(subject.resolv('localhost.', :inet).collect(&:to_s)).to eq(['127.0.0.1'])
-      expect(subject.resolv('127.0.0.1', :inet).collect(&:to_s)).to eq(['127.0.0.1'])
-      expect(subject.resolv('::1', :inet).collect(&:to_s)).to eq([])
+      expect(subject.resolv('example.com', :inet).collect(&:to_s)).to eq(['93.184.216.34'])
+      expect(subject.resolv('93.184.216.34', :inet).collect(&:to_s)).to eq(['93.184.216.34'])
+      expect(subject.resolv('2606:2800:220:1:248:1893:25c8:1946', :inet).collect(&:to_s)).to eq([])
     end
 
     it 'resolves IPv6 only' do
-      expect(subject.resolv('localhost.', :inet6).collect(&:to_s)).to eq(['::1'])
-      expect(subject.resolv('127.0.0.1', :inet6).collect(&:to_s)).to eq([])
-      expect(subject.resolv('::1', :inet6).collect(&:to_s)).to eq(['::1'])
+      expect(subject.resolv('example.com', :inet6).collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946'])
+      expect(subject.resolv('93.184.216.34', :inet6).collect(&:to_s)).to eq([])
+      expect(subject.resolv('2606:2800:220:1:248:1893:25c8:1946', :inet6).collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946'])
     end
 
     it 'raises exceptions with unknown hosts' do
