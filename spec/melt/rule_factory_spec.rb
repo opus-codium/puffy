@@ -153,16 +153,16 @@ module Melt
       result = []
 
       subject.ipv4 do
-        result = subject.build(to: { host: 'localhost.' })
+        result = subject.build(to: { host: 'example.com' })
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddress.parse('127.0.0.1'))
+      expect(result[0].to[:host]).to eq(IPAddress.parse('93.184.216.34'))
 
       subject.ipv6 do
-        result = subject.build(to: { host: 'localhost.' })
+        result = subject.build(to: { host: 'example.com' })
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddress.parse('::1'))
+      expect(result[0].to[:host]).to eq(IPAddress.parse('2606:2800:220:1:248:1893:25c8:1946'))
     end
   end
 end
