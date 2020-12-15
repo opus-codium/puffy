@@ -19,7 +19,7 @@
 
 ## Syntax
 
-The Melt {Melt::Rule} syntax if basically a [Ruby](https://www.ruby-lang.org) representation of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/) rules, with the ability to group them in reusable blocks in order to describe network rules in a single file.
+The Melt {Melt::Rule} syntax is basically a [Ruby](https://www.ruby-lang.org) representation of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/) rules, with the ability to group them in reusable blocks in order to describe network rules in a single file.
 
 As an example, the following PF rules:
 
