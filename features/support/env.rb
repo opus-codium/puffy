@@ -13,7 +13,7 @@ class Runner
   end
 
   def execute!
-    Melt::Cli::Main.start(@argv)
+    Melt::Cli.new.execute(@argv)
   end
 end
 

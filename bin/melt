@@ -5,4 +5,5 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 
 require 'melt/cli'
 
-Melt::Cli::Main.start
+cli = Melt::Cli.new
+cli.execute(ARGV)
