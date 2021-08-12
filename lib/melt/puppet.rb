@@ -40,7 +40,7 @@ module Melt
     # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
-        IO.popen("diff -u -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
+        IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
           io.write(fragment_content)
           io.close_write
           out = io.read

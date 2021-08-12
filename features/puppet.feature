@@ -73,34 +73,25 @@ Feature: Puppet
     """
     --- a/example.com/pf/pf.conf
     +++ b/example.com/pf/pf.conf
-    @@ -2,5 +3,5 @@
-     set skip on lo
-     block in all
+    @@ -4,3 +5,3 @@
      block out all
     +pass in quick proto tcp to any port 22
      pass in quick proto tcp to any port 80
     -pass in quick proto tcp to any port 443
     --- a/example.com/netfilter/rules.v4
     +++ b/example.com/netfilter/rules.v4
-    @@ -3,8 +4,8 @@
-     :FORWARD DROP [0:0]
-     :OUTPUT DROP [0:0]
+    @@ -5,4 +6,4 @@
      -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
      -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
      -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-     COMMIT
     --- a/example.com/netfilter/rules.v6
     +++ b/example.com/netfilter/rules.v6
-    @@ -3,8 +4,8 @@
-     :FORWARD DROP [0:0]
-     :OUTPUT DROP [0:0]
+    @@ -5,4 +6,4 @@
      -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
      -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
      -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     """
