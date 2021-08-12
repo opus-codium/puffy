@@ -21,9 +21,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
+  spec.add_runtime_dependency 'cri'
   spec.add_runtime_dependency 'deep_merge'
   spec.add_runtime_dependency 'ipaddress'
-  spec.add_runtime_dependency 'thor'
 
   spec.add_development_dependency 'aruba'
   spec.add_development_dependency 'cucumber'
