@@ -20,13 +20,14 @@ module Melt
 
         required  :f, :formatter, 'The formatter to use', default: 'Pf'
 
-        run do |opts, args|
-          network, hostname = args
+        param('network')
+        param('hostname')
 
+        run do |opts, args|
           config = Melt::Dsl.new
-          config.eval_network(network)
-          rules = config.ruleset_for(hostname)
-          policy = config.policy_for(hostname)
+          config.eval_network(args[:network])
+          rules = config.ruleset_for(args[:hostname])
+          policy = config.policy_for(args[:hostname])
 
           formatter = Object.const_get("Melt::Formatters::#{opts[:formatter]}::Ruleset").new
           puts formatter.emit_ruleset(rules, policy)
@@ -44,11 +45,11 @@ module Melt
         usage   'diff network'
         summary 'Show differences between network specification and firewall rules.'
 
-        run do |opts, args|
-          network = args.first
+        param('network')
 
+        run do |opts, args|
           config = Melt::Dsl.new
-          config.eval_network(network)
+          config.eval_network(args[:network])
           pu = Melt::Puppet.new('.', config)
           pu.diff
         end
@@ -59,11 +60,11 @@ module Melt
         usage   'generate network'
         summary 'Generate network firewall rules according to network specification.'
 
-        run do |opts, args|
-          network = args.first
+        param('network')
 
+        run do |opts, args|
           config = Melt::Dsl.new
-          config.eval_network(network)
+          config.eval_network(args[:network])
           pu = Melt::Puppet.new('.', config)
           pu.save
         end
