@@ -15,7 +15,8 @@ module Melt
           parts << super(rules.select(&:rdr?))
           parts << super(rules.select(&:filter?))
 
-          parts.reject(&:empty?).join("\n") + "\n"
+          ruleset = parts.reject(&:empty?).join("\n")
+          "#{ruleset}\n"
         end
 
         def filename_fragment

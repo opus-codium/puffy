@@ -15,6 +15,7 @@ host(/db\d+/) do
 end
 
 host 'log' do
+  # Empty
 end
 
 policy :log

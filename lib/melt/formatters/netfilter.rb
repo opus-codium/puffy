@@ -6,13 +6,13 @@ module Melt
       # Returns the target to jump to
       #
       # @return [String]
-      def self.iptables_action(rule_or_action, ret = false)
+      def self.iptables_action(rule_or_action, ret: false)
         case rule_or_action
         when :pass then 'ACCEPT'
         when :log then 'LOG'
-        when :block then
+        when :block
           ret ? 'RETURN' : 'DROP'
-        when Melt::Rule then iptables_action(rule_or_action.action, rule_or_action.return)
+        when Melt::Rule then iptables_action(rule_or_action.action, ret: rule_or_action.return)
         end
       end
 
@@ -35,7 +35,8 @@ module Melt
           parts << raw_ruleset(raw_rules(rules))
           parts << nat_ruleset(nat_rules(rules))
           parts << filter_ruleset(filter_rules(rules), policy)
-          parts.flatten.compact.join("\n") + "\n"
+          ruleset = parts.flatten.compact.join("\n")
+          "#{ruleset}\n"
         end
 
         private
