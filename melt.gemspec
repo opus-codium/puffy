@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Network firewall rules made easy!'
   spec.homepage      = 'https://github.com/smortex/melt'
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
     f.match(%r{^(test|spec|features)/})
