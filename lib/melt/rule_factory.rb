@@ -65,12 +65,10 @@ module Melt
 
     def instanciate_rules(options)
       options.expand.map do |hash|
-        begin
-          rule = Rule.new(hash)
-          rule if af_match_policy?(rule.af)
-        rescue AddressFamilyConflict
-          nil
-        end
+        rule = Rule.new(hash)
+        rule if af_match_policy?(rule.af)
+      rescue AddressFamilyConflict
+        nil
       end.compact
     end
 
@@ -94,14 +92,12 @@ module Melt
 
     def host_lookup(host)
       case host
-      when ''
+      when '', nil
         nil
       when String
         @resolver.resolv(host)
       when Array
         host.map { |x| @resolver.resolv(x) }.flatten
-      when nil
-        nil
       end
     end
 
@@ -129,9 +125,9 @@ module Melt
     end
 
     def port_is_a_range(port)
-      if /^(?<start>\d+):(?<stop>\d+)$/ =~ port
-        Range.new(start.to_i, stop.to_i)
-      end
+      return unless /^(?<start>\d+):(?<stop>\d+)$/ =~ port
+
+      Range.new(start.to_i, stop.to_i)
     end
   end
 end

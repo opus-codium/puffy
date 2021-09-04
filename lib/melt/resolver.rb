@@ -35,9 +35,8 @@ module Melt
     end
 
     def filter_af(address, address_family)
-      if address_family
-        return [] unless match_af?(address, address_family)
-      end
+      return [] if address_family && !match_af?(address, address_family)
+
       [address]
     end
 

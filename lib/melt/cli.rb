@@ -5,6 +5,7 @@ require 'melt'
 require 'fileutils'
 
 module Melt
+  # Command-line processing
   class Cli
     def initialize
       @main = Cri::Command.define do
@@ -18,7 +19,7 @@ module Melt
         usage       'generate <network> <hostname>'
         summary     'Generate the firewall configuration for a node.'
 
-        required  :f, :formatter, 'The formatter to use', default: 'Pf'
+        required :f, :formatter, 'The formatter to use', default: 'Pf'
 
         param('network')
         param('hostname')
@@ -47,7 +48,7 @@ module Melt
 
         param('network')
 
-        run do |opts, args|
+        run do |_opts, args|
           config = Melt::Dsl.new
           config.eval_network(args[:network])
           pu = Melt::Puppet.new('.', config)
@@ -62,7 +63,7 @@ module Melt
 
         param('network')
 
-        run do |opts, args|
+        run do |_opts, args|
           config = Melt::Dsl.new
           config.eval_network(args[:network])
           pu = Melt::Puppet.new('.', config)

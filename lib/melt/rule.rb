@@ -78,7 +78,7 @@ module Melt
     def self.fwd_rule(rule)
       res = rule.dup
       res.on_to_in_out!
-      res.to.merge!(res.rdr_to.reject { |_k, v| v.nil? })
+      res.to.merge!(res.rdr_to.compact)
       res.rdr_to = nil
       res.dir = :fwd
       res

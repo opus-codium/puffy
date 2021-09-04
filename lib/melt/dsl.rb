@@ -113,19 +113,15 @@ module Melt
     # Limits the scope of a set of rules to IPv4 only.
     #
     # @return [void]
-    def ipv4
-      @factory.ipv4 do
-        yield
-      end
+    def ipv4(&block)
+      @factory.ipv4(&block)
     end
 
     # Limits the scope of a set of rules to IPv6 only.
     #
     # @return [void]
-    def ipv6
-      @factory.ipv6 do
-        yield
-      end
+    def ipv6(&block)
+      @factory.ipv6(&block)
     end
 
     # Defines a set of reusable rules for service named +name+.
