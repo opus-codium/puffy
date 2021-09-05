@@ -10,13 +10,13 @@ module Melt
       expect { subject.ruleset_for('localhost') }.to raise_error('Undefined service "unknown"')
     end
 
-    it 'detects services and hosts' do
+    it 'detects services and nodes' do
       subject.eval_network(File.join('spec', 'fixtures', 'trivial_network.rb'))
-      expect(subject.hosts).to eq(['localhost'])
+      expect(subject.nodes).to eq(['localhost'])
       expect(subject.services).to eq([])
 
       subject.eval_network(File.join('spec', 'fixtures', 'simple_lan_network.rb'))
-      expect(subject.hosts).to eq(%w[gw www])
+      expect(subject.nodes).to eq(%w[gw www])
       expect(subject.services).to eq([:dns])
     end
 

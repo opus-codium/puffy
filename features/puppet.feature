@@ -1,8 +1,8 @@
 Feature: Puppet
-  Scenario: Generate firewall rules for a host
+  Scenario: Generate firewall rules for a node
     Given a file named "network.rb" with:
     """
-    host 'example.com' do
+    node 'example.com' do
       pass :in, proto: :tcp, to: { port: %w(http https) }
     end
     """
@@ -26,7 +26,7 @@ Feature: Puppet
   Scenario: Displays firewall rule differences
     Given a file named "network.rb" with:
     """
-    host 'example.com' do
+    node 'example.com' do
       pass :in, proto: :tcp, to: { port: %w(ssh http) }
     end
     """

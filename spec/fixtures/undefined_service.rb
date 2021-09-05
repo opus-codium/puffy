@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-host 'localhost' do
+node 'localhost' do
   service 'unknown'
 end
