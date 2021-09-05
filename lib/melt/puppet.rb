@@ -3,12 +3,12 @@
 require 'fileutils'
 
 module Melt
-  # Manage hosts rulesets as a tree of rules to serve via Puppet
+  # Manage nodes rulesets as a tree of rules to serve via Puppet
   class Puppet
     # Setup an environment to store firewall rules to disk
     #
     # @param path [String] Root directory of the tree of firewall rules
-    # @param dsl [Melt::Dsl] Description of hosts and rules as a Melt::Dsl
+    # @param dsl [Melt::Dsl] Description of nodes and rules as a Melt::Dsl
     def initialize(path, dsl)
       @path = path
       @dsl = dsl
@@ -52,7 +52,7 @@ module Melt
     private
 
     def each_fragment
-      @dsl.hosts.each do |host|
+      @dsl.nodes.each do |host|
         rules = @dsl.ruleset_for(host)
         policy = @dsl.policy_for(host)
 

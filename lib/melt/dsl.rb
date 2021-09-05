@@ -9,13 +9,13 @@ module Melt
   #     pass :in, af: :inet, proto: :tcp, from: { host: '192.168.1.0/24' }, to: { port: 'ssh' }
   #   end
   #
-  #   host 'www' do
+  #   node 'www' do
   #     service 'ssh'
   #     pass :in, proto: :tcp, to: { port: 'http' }
   #     pass :out
   #   end
   #
-  #   host 'gw' do
+  #   node 'gw' do
   #     service 'ssh'
   #     pass :out, on: 'ppp0', nat_to: 'public-ip'
   #     pass :in, on: 'ppp0', proto: :tcp, to: { port: 'http' }, rdr_to: { host: 'www' }
@@ -48,11 +48,11 @@ module Melt
       @default_policy = @policy
     end
 
-    # Returns the found hosts hostname.
+    # Returns the found nodes hostname.
     #
     # @return [Array]
-    def hosts
-      @hosts.keys
+    def nodes
+      @nodes.keys
     end
 
     # Returns the found services.
@@ -133,18 +133,18 @@ module Melt
     #     pass :out, proto: :tcp, to: { host: 'backup', port: 'bacula-sd' }
     #   end
     #
-    #   host 'backup' do
+    #   node 'backup' do
     #     service 'base-services'
     #     pass :in,  proto: :tcp, to: { port: 'bacula-sd' }
     #     pass :out, proto: :tcp, from: { port: 'bacula-dir' }
     #   end
     #
-    #   host 'dns' do
+    #   node 'dns' do
     #     service 'base-services'
     #     pass :in, proto: :udp, to: { port: 'domain' }
     #   end
     #
-    #   host 'www' do
+    #   node 'www' do
     #     service 'base-services'
     #     pass :in, proto: :tcp, to: { port: 'http' }
     #   end
@@ -167,11 +167,11 @@ module Melt
     #       pass proto: :tcp, to { port: %w(http https) }
     #     end
     #
-    #     host /^node\d+/ do
+    #     node /^node\d+/ do
     #       client 'http'
     #     end
     #
-    #     host /^node\d+/ do
+    #     node /^node\d+/ do
     #       client 'http', to: { host: 'restricted-destination.example.com' }
     #     end
     #
@@ -183,7 +183,7 @@ module Melt
     #       pass proto: :tcp, to { port: 'ssh' }
     #     end
     #
-    #     host /^node\d+/ do
+    #     node /^node\d+/ do
     #       server 'ssh'
     #     end
     #
@@ -198,35 +198,35 @@ module Melt
       end
     end
 
-    # Defines rules for the host +hostname+.
+    # Defines rules for the node +hostname+.
     #
-    #   host 'fqdn' do
+    #   node 'fqdn' do
     #     pass :out
     #     pass :in, to: { port: 'ssh' }
     #   end
     #
     # @return [void]
-    def host(*hostnames, &block)
+    def node(*hostnames, &block)
       hostnames.each do |hostname|
         hostname = /\A#{hostname}\z/ if hostname.is_a?(Regexp)
-        @hosts[hostname] = block
+        @nodes[hostname] = block
       end
     end
 
     private
 
     def bloc_for(hostname)
-      @hosts[hostname] || block_matching(hostname)
+      @nodes[hostname] || block_matching(hostname)
     end
 
     def block_matching(hostname)
       found = nil
-      @hosts.select { |host, _block| host.is_a?(Regexp) }.each do |_host, block|
-        raise "Multiple host definition match \"#{hostname}\"" if found
+      @nodes.select { |node, _block| node.is_a?(Regexp) }.each do |_node, block|
+        raise "Multiple node definition match \"#{hostname}\"" if found
 
         found = block
       end
-      raise "No host definition match \"#{hostname}\"" unless found
+      raise "No node definition match \"#{hostname}\"" unless found
 
       found
     end
@@ -246,7 +246,7 @@ module Melt
 
     def reset_network
       @services = {}
-      @hosts = {}
+      @nodes = {}
     end
   end
 end

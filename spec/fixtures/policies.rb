@@ -2,19 +2,19 @@
 
 policy :pass
 
-host 'www1' do
+node 'www1' do
   policy :block
 end
 
-host 'www2' do
+node 'www2' do
   policy :pass
 end
 
-host(/db\d+/) do
+node(/db\d+/) do
   policy :block
 end
 
-host 'log' do
+node 'log' do
   # Empty
 end
 

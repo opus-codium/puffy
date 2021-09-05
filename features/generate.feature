@@ -6,12 +6,12 @@ Feature: Generate firewall rules
   Background:
     Given a file named "network.rb" with:
     """
-    host 'example.com' do
+    node 'example.com' do
       pass :in, proto: :tcp, to: { port: %w(http https) }
     end
     """
 
-  Scenario: Generate firewall rules for an OpenBSD host
+  Scenario: Generate firewall rules for an OpenBSD node
     When I successfully run `melt generate -f Pf network.rb example.com`
     Then the stdout should contain:
     """
@@ -19,7 +19,7 @@ Feature: Generate firewall rules
     pass in quick proto tcp to any port 443
     """
 
-  Scenario: Generate IPv4 firewall rules for a Linux host
+  Scenario: Generate IPv4 firewall rules for a Linux node
     When I successfully run `melt generate -f Netfilter4 network.rb example.com`
     Then the stdout should contain:
     """
@@ -27,7 +27,7 @@ Feature: Generate firewall rules
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     """
 
-  Scenario: Generate IPv6 firewall rules for a Linux host
+  Scenario: Generate IPv6 firewall rules for a Linux node
     When I successfully run `melt generate -f Netfilter6 network.rb example.com`
     Then the stdout should contain:
     """

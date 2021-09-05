@@ -9,8 +9,8 @@
 
 * Generate rules for [Netfilter](http://www.netfilter.org/) and [PF](http://www.openbsd.org/faq/pf/) (extensible);
 * IPv6 and IPv4 support;
-* Define the configuration of multiple *hosts* in a single file;
-* Define *services* as group of rules to mix-in in *hosts* rules definitions;
+* Define the configuration of multiple *nodes* in a single file;
+* Define *services* as group of rules to mix-in in *nodes* rules definitions;
 * Handle NAT & port redirection;
 
 ## Requirements
@@ -33,7 +33,7 @@ pass :in, proto: :tcp, to: { port: 80 }
 pass :in, proto: :udp, from: { host: '192.168.1.0/24', port: 123 }, to: { port: 123 }
 ~~~
 
-Rules must appear in either a *host* or *service* definition, *services* being
+Rules must appear in either a *node* or *service* definition, *services* being
 reusable blocks of related rules:
 
 ~~~ruby
@@ -50,12 +50,12 @@ service 'ssh' do
   pass :in, proto: :tcp, to: { port: 'ssh' }
 end
 
-host 'db.example.com' do
+node 'db.example.com' do
   service 'base'
   pass :in, proto: :tcp, from: { host: 'www1.example.com' }, to: { port: 'postgresql' }
 end
 
-host /www\d+.example.com/ do
+node /www\d+.example.com/ do
   service 'base'
   pass :in, proto: :tcp, to: { port: 'www' }
   pass :out, proto: :tcp, to: { host: 'db.example.com', port: 'postgresql' }
@@ -67,7 +67,7 @@ end
 Logging is handy for debugging missing rules in your firewall configuration.  An easy way to diagnose missing rules consists in setting a *pass* `policy`, and `log` both *in* and *out*:
 
 ~~~ruby
-host 'debilglos' do
+node 'debilglos' do
   policy :pass
 
   # Existing rules
