@@ -1,0 +1,16 @@
+dns_servers = { 192.168.0.53 192.168.1.53 }
+
+service dns do
+  pass out proto udp from any to $dns_servers port domain
+end
+
+node 'gw' do
+  service dns
+  pass out on 'ppp0' all nat-to 198.51.100.72
+  pass in on 'ppp0' proto tcp from any to port http rdr-to 192.168.1.80
+end
+
+node 'www' do
+  service dns
+  pass in proto tcp from any to port http
+end

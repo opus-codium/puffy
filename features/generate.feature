@@ -10,6 +10,12 @@ Feature: Generate firewall rules
       pass :in, proto: :tcp, to: { port: %w(http https) }
     end
     """
+    And a file named "network.melt" with:
+    """
+    node 'example.com' do
+      pass in proto tcp from any to port {http https}
+    end
+    """
 
   Scenario: Generate firewall rules for an OpenBSD node
     When I successfully run `melt generate -f Pf network.rb example.com`
@@ -29,6 +35,30 @@ Feature: Generate firewall rules
 
   Scenario: Generate IPv6 firewall rules for a Linux node
     When I successfully run `melt generate -f Netfilter6 network.rb example.com`
+    Then the stdout should contain:
+    """
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    """
+
+  Scenario: Generate firewall rules for an OpenBSD node
+    When I successfully run `melt generate -f Pf network.melt example.com`
+    Then the stdout should contain:
+    """
+    pass in quick proto tcp to any port 80
+    pass in quick proto tcp to any port 443
+    """
+
+  Scenario: Generate IPv4 firewall rules for a Linux node
+    When I successfully run `melt generate -f Netfilter4 network.melt example.com`
+    Then the stdout should contain:
+    """
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    """
+
+  Scenario: Generate IPv6 firewall rules for a Linux node
+    When I successfully run `melt generate -f Netfilter6 network.melt example.com`
     Then the stdout should contain:
     """
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT

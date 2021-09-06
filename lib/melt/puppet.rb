@@ -8,10 +8,10 @@ module Melt
     # Setup an environment to store firewall rules to disk
     #
     # @param path [String] Root directory of the tree of firewall rules
-    # @param dsl [Melt::Dsl] Description of nodes and rules as a Melt::Dsl
-    def initialize(path, dsl)
+    # @param obj [Melt::Dsl/Melt::Parser] An object associating nodes and rules
+    def initialize(path, obj)
       @path = path
-      @dsl = dsl
+      @obj = obj
 
       @formatters = [
         Melt::Formatters::Pf::Ruleset.new,
@@ -53,12 +53,12 @@ module Melt
     private
 
     def each_fragment
-      @dsl.nodes.each do |host|
-        rules = @dsl.ruleset_for(host)
-        policy = @dsl.policy_for(host)
+      @obj.nodes.each do |hostname|
+        rules = @obj.ruleset_for(hostname)
+        policy = @obj.policy_for(hostname)
 
         @formatters.each do |formatter|
-          filename = File.join(@path, host, formatter.filename_fragment)
+          filename = File.join(@path, hostname, formatter.filename_fragment)
           yield filename, formatter.emit_ruleset(rules, policy)
         end
       end

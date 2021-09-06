@@ -8,6 +8,8 @@ module Melt
   # Command-line processing
   class Cli
     def initialize
+      cli = self
+
       @main = Cri::Command.define do
         name    'melt'
         usage   'melt <command> [options]'
@@ -25,10 +27,14 @@ module Melt
         param('hostname')
 
         run do |opts, args|
-          config = Melt::Dsl.new
-          config.eval_network(args[:network])
-          rules = config.ruleset_for(args[:hostname])
-          policy = config.policy_for(args[:hostname])
+          if args[:network].end_with?('.rb')
+            obj = Melt::Dsl.new
+            obj.eval_network(args[:network])
+          else
+            obj = cli.load_config(args[:network])
+          end
+          rules = obj.ruleset_for(args[:hostname])
+          policy = obj.policy_for(args[:hostname])
 
           formatter = Object.const_get("Melt::Formatters::#{opts[:formatter]}::Ruleset").new
           puts formatter.emit_ruleset(rules, policy)
@@ -51,9 +57,14 @@ module Melt
         param('network')
 
         run do |opts, args|
-          config = Melt::Dsl.new
-          config.eval_network(args[:network])
-          pu = Melt::Puppet.new(opts[:output], config)
+          if args[:network].end_with?('.rb')
+            config = Melt::Dsl.new
+            config.eval_network(args[:network])
+            pu = Melt::Puppet.new(opts[:output], config)
+          else
+            nodes = cli.load_config(args[:network])
+            pu = Melt::Puppet.new(opts[:output], nodes)
+          end
           pu.diff
         end
       end
@@ -66,14 +77,25 @@ module Melt
         param('network')
 
         run do |opts, args|
-          config = Melt::Dsl.new
-          config.eval_network(args[:network])
-          pu = Melt::Puppet.new(opts[:output], config)
+          if args[:network].end_with?('.rb')
+            config = Melt::Dsl.new
+            config.eval_network(args[:network])
+            pu = Melt::Puppet.new(opts[:output], config)
+          else
+            nodes = cli.load_config(args[:network])
+            pu = Melt::Puppet.new(opts[:output], nodes)
+          end
           pu.save
         end
       end
 
       @main.add_command Cri::Command.new_basic_help
+    end
+
+    def load_config(filename)
+      parser = Melt::Parser.new
+      parser.parse(File.read(filename))
+      parser
     end
 
     def execute(argv)

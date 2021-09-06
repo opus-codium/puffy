@@ -11,3 +11,10 @@ Cucumber::Rake::Task.new(:features)
 task test: %i[spec features]
 
 task default: :test
+
+desc 'Generate the melt language parser'
+task gen_parser: 'lib/melt/parser.tab.rb'
+
+file 'lib/melt/parser.tab.rb' => 'lib/melt/parser.y' do
+  `racc -S lib/melt/parser.y`
+end

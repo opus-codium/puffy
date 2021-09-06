@@ -1,0 +1,4 @@
+node 'example.com' {
+  block in all
+  pass out all
+}

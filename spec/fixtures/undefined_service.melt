@@ -1,0 +1,3 @@
+node 'localhost' do
+  service 'unknown'
+end

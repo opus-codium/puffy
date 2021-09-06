@@ -2,6 +2,9 @@ AllCops:
   TargetRubyVersion: '2.6'
   AllowSymlinksInCacheRootDirectory: true
   NewCops: enable
+  Exclude:
+    - lib/melt/*.tab.rb
+    - tmp/**/*.rb
 
 Layout/HashAlignment:
   EnforcedColonStyle: table
