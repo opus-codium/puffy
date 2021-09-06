@@ -40,6 +40,7 @@ module Melt
     # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
+        fragment_name = fragment_name[2..] if fragment_name.start_with?('./')
         IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
           io.write(fragment_content)
           io.close_write
@@ -57,7 +58,7 @@ module Melt
         policy = @dsl.policy_for(host)
 
         @formatters.each do |formatter|
-          filename = File.join(host, formatter.filename_fragment)
+          filename = File.join(@path, host, formatter.filename_fragment)
           yield filename, formatter.emit_ruleset(rules, policy)
         end
       end

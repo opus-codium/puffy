@@ -39,6 +39,8 @@ module Melt
         name    'puppet'
         usage   'puppet subcommand [options]'
         summary 'Run puppet actions.'
+
+        required :o, :output, 'Base directory for network firewall rules', default: '.'
       end
 
       puppet.define_command do
@@ -48,10 +50,10 @@ module Melt
 
         param('network')
 
-        run do |_opts, args|
+        run do |opts, args|
           config = Melt::Dsl.new
           config.eval_network(args[:network])
-          pu = Melt::Puppet.new('.', config)
+          pu = Melt::Puppet.new(opts[:output], config)
           pu.diff
         end
       end
@@ -63,10 +65,10 @@ module Melt
 
         param('network')
 
-        run do |_opts, args|
+        run do |opts, args|
           config = Melt::Dsl.new
           config.eval_network(args[:network])
-          pu = Melt::Puppet.new('.', config)
+          pu = Melt::Puppet.new(opts[:output], config)
           pu.save
         end
       end
