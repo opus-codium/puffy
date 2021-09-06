@@ -47,4 +47,16 @@ end
 
 class Hash # :nodoc:
   include Expandable
+
+  def deep_dup
+    hash = dup
+    each_pair do |key, value|
+      if value.respond_to?(:deep_dup)
+        hash[key.dup] = value.deep_dup
+      else
+        hash[key.dup] = value.dup
+      end
+    end
+    hash
+  end
 end

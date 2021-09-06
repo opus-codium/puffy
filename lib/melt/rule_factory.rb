@@ -34,7 +34,7 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = expand_endpoints(options)
+      options = expand_endpoints(options.deep_dup)
 
       options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
 

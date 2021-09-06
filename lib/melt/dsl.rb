@@ -106,6 +106,7 @@ module Melt
         direction = build_direction(args.first)
         options[:action] = action
         options[:dir] = direction
+        options.freeze
         @rules += @factory.build(options)
       end
     end
