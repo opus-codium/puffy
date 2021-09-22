@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary       = 'Network firewall rules made easy!'
   spec.homepage      = 'https://github.com/smortex/melt'
   spec.license       = 'MIT'
-  spec.required_ruby_version = Gem::Requirement.new('>= 2.6.0')
+  spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
 
   spec.metadata['allowed_push_host'] = 'https://rubygems.org/'
 

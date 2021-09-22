@@ -27,14 +27,9 @@ module Melt
         param('hostname')
 
         run do |opts, args|
-          if args[:network].end_with?('.rb')
-            obj = Melt::Dsl.new
-            obj.eval_network(args[:network])
-          else
-            obj = cli.load_config(args[:network])
-          end
-          rules = obj.ruleset_for(args[:hostname])
-          policy = obj.policy_for(args[:hostname])
+          parser = cli.load_config(args[:network])
+          rules = parser.ruleset_for(args[:hostname])
+          policy = parser.policy_for(args[:hostname])
 
           formatter = Object.const_get("Melt::Formatters::#{opts[:formatter]}::Ruleset").new
           puts formatter.emit_ruleset(rules, policy)
@@ -57,15 +52,9 @@ module Melt
         param('network')
 
         run do |opts, args|
-          if args[:network].end_with?('.rb')
-            config = Melt::Dsl.new
-            config.eval_network(args[:network])
-            pu = Melt::Puppet.new(opts[:output], config)
-          else
-            nodes = cli.load_config(args[:network])
-            pu = Melt::Puppet.new(opts[:output], nodes)
-          end
-          pu.diff
+          parser = cli.load_config(args[:network])
+          puppet = Melt::Puppet.new(opts[:output], parser)
+          puppet.diff
         end
       end
 
@@ -77,15 +66,9 @@ module Melt
         param('network')
 
         run do |opts, args|
-          if args[:network].end_with?('.rb')
-            config = Melt::Dsl.new
-            config.eval_network(args[:network])
-            pu = Melt::Puppet.new(opts[:output], config)
-          else
-            nodes = cli.load_config(args[:network])
-            pu = Melt::Puppet.new(opts[:output], nodes)
-          end
-          pu.save
+          parser = cli.load_config(args[:network])
+          puppet = Melt::Puppet.new(opts[:output], parser)
+          puppet.save
         end
       end
 

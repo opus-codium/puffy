@@ -3,7 +3,6 @@
 require 'core_ext'
 require 'ipaddress_ext'
 
-require 'melt/dsl'
 require 'melt/parser.tab'
 require 'melt/formatters/base'
 require 'melt/formatters/netfilter'

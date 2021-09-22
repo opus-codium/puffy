@@ -8,10 +8,10 @@ module Melt
     # Setup an environment to store firewall rules to disk
     #
     # @param path [String] Root directory of the tree of firewall rules
-    # @param obj [Melt::Dsl/Melt::Parser] An object associating nodes and rules
-    def initialize(path, obj)
+    # @param parser [Melt::Parser] A parser with nodes and rules
+    def initialize(path, parser)
       @path = path
-      @obj = obj
+      @parser = parser
 
       @formatters = [
         Melt::Formatters::Pf::Ruleset.new,
@@ -40,7 +40,7 @@ module Melt
     # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
-        fragment_name = fragment_name[2..] if fragment_name.start_with?('./')
+        fragment_name = fragment_name[2..-1] if fragment_name.start_with?('./')
         IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
           io.write(fragment_content)
           io.close_write
@@ -53,9 +53,9 @@ module Melt
     private
 
     def each_fragment
-      @obj.nodes.each do |hostname|
-        rules = @obj.ruleset_for(hostname)
-        policy = @obj.policy_for(hostname)
+      @parser.nodes.each do |hostname|
+        rules = @parser.ruleset_for(hostname)
+        policy = @parser.policy_for(hostname)
 
         @formatters.each do |formatter|
           filename = File.join(@path, hostname, formatter.filename_fragment)
