@@ -29,23 +29,23 @@ module Melt
       result = subject.build(to: { host: '192.0.2.1' })
 
       expect(result.count).to eq(1)
-      expect(result[0].to[:host].to_s).to eq('192.0.2.1')
+      expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.1'))
 
       result = subject.build(to: { host: '192.0.2.0/24' })
 
       expect(result.count).to eq(1)
-      expect(result[0].to[:host].to_string).to eq('192.0.2.0/24')
+      expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.0/24'))
     end
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
       result = subject.build(to: { host: 'example.com' })
 
       expect(result.count).to eq(2)
-      expect(result[0].to[:host]).to eq(IPAddress.parse('2001:DB8::1'))
-      expect(result[1].to[:host]).to eq(IPAddress.parse('192.0.2.1'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2001:DB8::1'))
+      expect(result[1].to[:host]).to eq(IPAddr.new('192.0.2.1'))
     end
 
     it 'accepts service names' do
@@ -78,14 +78,14 @@ module Melt
 
     context 'condensed sources and destinations' do
       it 'accepts host' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
         result = subject.build(proto: :tcp, to: 'example.com')
 
         expect(result.count).to eq(2)
-        expect(result[0].to_host).to eq(IPAddress.parse('2001:DB8::1'))
+        expect(result[0].to_host).to eq(IPAddr.new('2001:DB8::1'))
         expect(result[0].to_port).to be_nil
-        expect(result[1].to_host).to eq(IPAddress.parse('192.0.2.1'))
+        expect(result[1].to_host).to eq(IPAddr.new('192.0.2.1'))
         expect(result[1].to_port).to be_nil
       end
 
@@ -100,45 +100,45 @@ module Melt
       end
 
       it 'accepts "host:port"' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
         expect(Rule).to receive(:new).exactly(2).times.and_call_original
 
         result = subject.build(proto: :tcp, to: 'example.com:443')
 
         expect(result.count).to eq(2)
-        expect(result[0].to_host).to eq(IPAddress.parse('2001:DB8::1'))
+        expect(result[0].to_host).to eq(IPAddr.new('2001:DB8::1'))
         expect(result[0].to_port).to eq(443)
-        expect(result[1].to_host).to eq(IPAddress.parse('192.0.2.1'))
+        expect(result[1].to_host).to eq(IPAddr.new('192.0.2.1'))
         expect(result[1].to_port).to eq(443)
       end
 
       it 'accepts host and port range' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('localhost').and_return([IPAddress.parse('127.0.0.1')])
+        expect(Melt::Resolver.instance).to receive(:resolv).with('localhost').and_return([IPAddr.new('127.0.0.1')])
 
         expect(Rule).to receive(:new).exactly(1).times.and_call_original
 
         result = subject.build(proto: :tcp, to: 'localhost:67:68')
 
         expect(result.count).to eq(1)
-        expect(result[0].to_host).to eq(IPAddress.parse('127.0.0.1'))
+        expect(result[0].to_host).to eq(IPAddr.new('127.0.0.1'))
         expect(result[0].to_port).to eq(67..68)
       end
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'), IPAddress.parse('198.51.100.1')])
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddress.parse('2001:DB8::1'), IPAddress.parse('192.0.2.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'), IPAddr.new('198.51.100.1')])
+      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
       expect(Rule).to receive(:new).exactly(4).times.and_call_original
 
       result = subject.build(from: { host: 'example.net' }, to: { host: 'example.com' })
 
       expect(result.count).to eq(2)
-      expect(result[0].from[:host]).to eq(IPAddress.parse('2001:DB8::FFFF:FFFF:FFFF'))
-      expect(result[0].to[:host]).to eq(IPAddress.parse('2001:DB8::1'))
-      expect(result[1].from[:host]).to eq(IPAddress.parse('198.51.100.1'))
-      expect(result[1].to[:host]).to eq(IPAddress.parse('192.0.2.1'))
+      expect(result[0].from[:host]).to eq(IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2001:DB8::1'))
+      expect(result[1].from[:host]).to eq(IPAddr.new('198.51.100.1'))
+      expect(result[1].to[:host]).to eq(IPAddr.new('192.0.2.1'))
     end
 
     it 'filters address family' do
@@ -156,13 +156,13 @@ module Melt
         result = subject.build(to: { host: 'example.com' })
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddress.parse('93.184.216.34'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('93.184.216.34'))
 
       subject.ipv6 do
         result = subject.build(to: { host: 'example.com' })
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddress.parse('2606:2800:220:1:248:1893:25c8:1946'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2606:2800:220:1:248:1893:25c8:1946'))
     end
   end
 end

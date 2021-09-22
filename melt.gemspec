@@ -32,7 +32,6 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'cri'
   spec.add_runtime_dependency 'deep_merge'
-  spec.add_runtime_dependency 'ipaddress'
 
   spec.add_development_dependency 'aruba'
   spec.add_development_dependency 'bundler'

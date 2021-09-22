@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'core_ext'
-require 'ipaddress_ext'
 
 require 'melt/parser.tab'
 require 'melt/formatters/base'

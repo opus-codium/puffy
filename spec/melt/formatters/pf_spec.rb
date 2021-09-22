@@ -31,7 +31,7 @@ module Melt
 
       context 'redirect rules' do
         it 'formats redirect rules' do
-          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddress.parse('127.0.0.1/32'), port: 3128 })
+          rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddr.new('127.0.0.1/32'), port: 3128 })
           expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
         end
 
@@ -53,9 +53,9 @@ module Melt
 
       context 'implicit address family' do
         it 'skips redundant address family' do
-          rule = Rule.new(action: :pass, dir: :in, af: :inet, proto: :tcp, to: { host: IPAddress.parse('127.0.0.1') })
+          rule = Rule.new(action: :pass, dir: :in, af: :inet, proto: :tcp, to: { host: IPAddr.new('127.0.0.1') })
           expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp to 127.0.0.1')
-          rule = Rule.new(action: :pass, dir: :in, af: :inet6, proto: :tcp, to: { host: IPAddress.parse('::1') })
+          rule = Rule.new(action: :pass, dir: :in, af: :inet6, proto: :tcp, to: { host: IPAddr.new('::1') })
           expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp to ::1')
           rule = Rule.new(action: :pass, dir: :in, af: :inet, proto: :tcp, to: { port: 80 })
           expect(subject.emit_rule(rule)).to eq('pass in quick inet proto tcp to any port 80')

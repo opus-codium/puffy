@@ -44,7 +44,7 @@ module Melt
     #   @return [Hash] Destination
     # @!attribute nat_to
     #   The packet destination when peforming NAT.
-    #   @return [IPAddress] IP Adress
+    #   @return [IPAddr] IP Adress
     # @!attribute rdr_to
     #   The destination as a Hash for redirections.
     #
