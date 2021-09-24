@@ -94,10 +94,14 @@ module Melt
       case host
       when '', nil
         nil
+      when IPAddr
+        host
       when String
         @resolver.resolv(host)
       when Array
         host.map { |x| @resolver.resolv(x) }.flatten
+      else
+        raise "Unexpected #{host.class.name}"
       end
     end
 

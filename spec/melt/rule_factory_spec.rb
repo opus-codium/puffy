@@ -26,12 +26,12 @@ module Melt
     end
 
     it 'passes addresses and networks' do
-      result = subject.build(to: { host: '192.0.2.1' })
+      result = subject.build(to: { host: IPAddr.new('192.0.2.1') })
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.1'))
 
-      result = subject.build(to: { host: '192.0.2.0/24' })
+      result = subject.build(to: { host: IPAddr.new('192.0.2.0/24') })
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.0/24'))

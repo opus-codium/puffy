@@ -177,7 +177,7 @@ rule
             ;
 
   filteropt: RDR_TO ADDRESS PORT INTEGER { result = { rdr_to: { host: val[1], port: val[3] } } }
-           | RDR_TO ADDRESS { result = { rdr_to: val[1] } }
+           | RDR_TO ADDRESS { result = { rdr_to: { host: val[1] } } }
            | NAT_TO ADDRESS { result = { nat_to: val[1] } }
            ;
 end
@@ -265,8 +265,8 @@ require 'strscan'
     when s.scan(/nat-to\b/) then       tokens << [:NAT_TO, s.matched]
     when s.scan(/rdr-to\b/) then       tokens << [:RDR_TO, s.matched]
 
-    when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           tokens << [:ADDRESS, s.matched] # FIXME
-    when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then tokens << [:ADDRESS, s.matched] # FIXME
+    when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           tokens << [:ADDRESS, IPAddr.new(s.matched)]
+    when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then tokens << [:ADDRESS, IPAddr.new(s.matched)]
 
     when s.scan(/\d+/) then tokens << [:INTEGER, s.matched.to_i]
     when s.scan(/\w[\w-]+/) then tokens << [:IDENTIFIER, s.matched]

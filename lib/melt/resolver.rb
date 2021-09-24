@@ -22,15 +22,17 @@ module Melt
     # @param address_family [Symbol] if set, limit search to +address_family+, +:inet+ or +:inet6+
     # @return [Array<IPAddr>]
     def resolv(hostname, address_family = nil)
-      resolv_ipaddress(hostname, address_family) || resolv_hostname(hostname, address_family)
+      if hostname.is_a?(IPAddr)
+        resolv_ipaddress(hostname, address_family)
+      else
+        resolv_hostname(hostname, address_family)
+      end
     end
 
     private
 
     def resolv_ipaddress(address, address_family)
-      filter_af(IPAddr.new(address), address_family)
-    rescue ArgumentError
-      nil
+      filter_af(address, address_family)
     end
 
     def filter_af(address, address_family)
