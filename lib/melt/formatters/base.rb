@@ -61,9 +61,9 @@ module Melt
         # @return [IPAddr,nil]
         def loopback_address(address_family)
           case address_family
-          when :inet then Melt::Formatters::Base.loopback_ipv4
+          when nil    then nil
+          when :inet  then Melt::Formatters::Base.loopback_ipv4
           when :inet6 then Melt::Formatters::Base.loopback_ipv6
-          when nil then nil
           else raise "Unsupported address family #{address_family.inspect}"
           end
         end
@@ -72,10 +72,10 @@ module Melt
         # @param host [IPAddr]
         # @return [String] IP address
         def emit_address(host)
-          if host.ipv4? && host.prefix.to_i == 32 || host.ipv6? && host.prefix.to_i == 128
+          if (host.ipv4? && host.prefix.to_i == 32) || (host.ipv6? && host.prefix.to_i == 128)
             host.to_s
           else
-            host.to_s + '/' + host.prefix.to_s
+            "#{host}/#{host.prefix}"
           end
         end
 
@@ -84,10 +84,8 @@ module Melt
         # @return [String] Port
         def emit_port(port)
           case port
-          when Integer
-            port.to_s
-          when Range
-            "#{port.begin}:#{port.end}"
+          when Integer then port.to_s
+          when Range   then "#{port.begin}:#{port.end}"
           else raise "Unexpected #{port.class.name}"
           end
         end

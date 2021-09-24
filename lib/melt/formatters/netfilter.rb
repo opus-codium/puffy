@@ -8,10 +8,9 @@ module Melt
       # @return [String]
       def self.iptables_action(rule_or_action, ret: false)
         case rule_or_action
-        when :pass then 'ACCEPT'
-        when :log then 'LOG'
-        when :block
-          ret ? 'RETURN' : 'DROP'
+        when :pass      then 'ACCEPT'
+        when :log       then 'LOG'
+        when :block     then ret ? 'RETURN' : 'DROP'
         when Melt::Rule then iptables_action(rule_or_action.action, ret: rule_or_action.return)
         end
       end

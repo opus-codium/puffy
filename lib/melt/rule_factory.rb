@@ -80,14 +80,10 @@ module Melt
 
     def host_lookup(host)
       case host
-      when '', nil
-        nil
-      when IPAddr
-        host
-      when String
-        @resolver.resolv(host)
-      when Array
-        host.map { |x| @resolver.resolv(x) }.flatten
+      when nil    then nil
+      when IPAddr then host
+      when String then @resolver.resolv(host)
+      when Array  then host.map { |x| @resolver.resolv(x) }.flatten
       else
         raise "Unexpected #{host.class.name}"
       end
@@ -95,14 +91,10 @@ module Melt
 
     def port_lookup(port)
       case port
-      when Integer, Range
-        port
-      when String
-        real_port_lookup(port)
-      when Array
-        port.map { |x| port_lookup(x) }
-      when nil
-        nil
+      when nil then nil
+      when Integer, Range then port
+      when String         then real_port_lookup(port)
+      when Array          then port.map { |x| port_lookup(x) }
       else
         raise "Unexpected #{port.class.name}"
       end
