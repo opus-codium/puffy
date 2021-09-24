@@ -88,6 +88,7 @@ module Melt
             port.to_s
           when Range
             "#{port.begin}:#{port.end}"
+          else raise "Unexpected #{port.class.name}"
           end
         end
       end
