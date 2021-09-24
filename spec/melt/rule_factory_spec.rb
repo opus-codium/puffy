@@ -76,56 +76,6 @@ module Melt
       expect(result[2].to[:port]).to eq(113)
     end
 
-    context 'condensed sources and destinations' do
-      it 'accepts host' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
-
-        result = subject.build(proto: :tcp, to: 'example.com')
-
-        expect(result.count).to eq(2)
-        expect(result[0].to_host).to eq(IPAddr.new('2001:DB8::1'))
-        expect(result[0].to_port).to be_nil
-        expect(result[1].to_host).to eq(IPAddr.new('192.0.2.1'))
-        expect(result[1].to_port).to be_nil
-      end
-
-      it 'accepts ":port"' do
-        expect(Rule).to receive(:new).exactly(1).times.and_call_original
-
-        result = subject.build(proto: :udp, to: ':tftp')
-
-        expect(result.count).to eq(1)
-        expect(result[0].to_host).to be_nil
-        expect(result[0].to_port).to eq(69)
-      end
-
-      it 'accepts "host:port"' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
-
-        expect(Rule).to receive(:new).exactly(2).times.and_call_original
-
-        result = subject.build(proto: :tcp, to: 'example.com:443')
-
-        expect(result.count).to eq(2)
-        expect(result[0].to_host).to eq(IPAddr.new('2001:DB8::1'))
-        expect(result[0].to_port).to eq(443)
-        expect(result[1].to_host).to eq(IPAddr.new('192.0.2.1'))
-        expect(result[1].to_port).to eq(443)
-      end
-
-      it 'accepts host and port range' do
-        expect(Melt::Resolver.instance).to receive(:resolv).with('localhost').and_return([IPAddr.new('127.0.0.1')])
-
-        expect(Rule).to receive(:new).exactly(1).times.and_call_original
-
-        result = subject.build(proto: :tcp, to: 'localhost:67:68')
-
-        expect(result.count).to eq(1)
-        expect(result[0].to_host).to eq(IPAddr.new('127.0.0.1'))
-        expect(result[0].to_port).to eq(67..68)
-      end
-    end
-
     it 'does not mix IPv4 and IPv6' do
       expect(Melt::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'), IPAddr.new('198.51.100.1')])
       expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])

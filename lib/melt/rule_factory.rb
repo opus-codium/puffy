@@ -34,8 +34,6 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = expand_endpoints(options.deep_dup)
-
       options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
 
       options = resolv_hostnames_and_ports(options)
@@ -43,16 +41,6 @@ module Melt
     end
 
     private
-
-    def expand_endpoints(options)
-      %i[from to rdr_to].each do |endpoint|
-        if options[endpoint].is_a?(String)
-          host, port = options[endpoint].split(':', 2)
-          options[endpoint] = { host: host, port: port }
-        end
-      end
-      options
-    end
 
     def resolv_hostnames_and_ports(options)
       %i[from to rdr_to].each do |endpoint|
