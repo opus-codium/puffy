@@ -69,14 +69,6 @@ module Melt
 
     def initialize # :nodoc:
       config = nil
-      if ENV['CI'] == 'true' && ENV['TRAVIS'] == 'true'
-        # XXX: Travis-CI unreliably resolves IPv6.
-        config = {
-          nameserver: '1.1.1.1',
-          search:     '',
-          ndots:      1,
-        }
-      end
       @dns = Resolv::DNS.open(config)
       @af_str = { inet: 'v4', inet6: 'v6' }
     end
