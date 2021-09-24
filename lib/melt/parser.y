@@ -157,9 +157,7 @@ rule
 
   port: INTEGER
       | IDENTIFIER
-      # TODO: Directly return a Range.
-      # RuleFactory#port_is_a_range does it for us.
-      | INTEGER ':' INTEGER { result = val.join }
+      | INTEGER ':' INTEGER { result = Range.new(val[0], val[2]) }
       ;
 
   host: ADDRESS

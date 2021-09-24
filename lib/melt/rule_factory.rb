@@ -95,17 +95,21 @@ module Melt
 
     def port_lookup(port)
       case port
-      when Integer, String
+      when Integer, Range
+        port
+      when String
         real_port_lookup(port)
       when Array
         port.map { |x| port_lookup(x) }
       when nil
         nil
+      else
+        raise "Unexpected #{port.class.name}"
       end
     end
 
     def real_port_lookup(port)
-      res = port_is_a_number(port) || port_is_a_range(port) || @services[port]
+      res = port_is_a_number(port) || @services[port]
 
       raise "unknown service \"#{port}\"" unless res
 
@@ -113,13 +117,9 @@ module Melt
     end
 
     def port_is_a_number(port)
-      port.to_i if port.is_a?(Integer) || port =~ /^\d+$/
-    end
-
-    def port_is_a_range(port)
-      return unless /^(?<start>\d+):(?<stop>\d+)$/ =~ port
-
-      Range.new(start.to_i, stop.to_i)
+      Integer(port)
+    rescue ArgumentError
+      nil
     end
   end
 end
