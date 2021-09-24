@@ -19,59 +19,33 @@
 
 ## Syntax
 
-The Melt {Melt::Rule} syntax is basically a [Ruby](https://www.ruby-lang.org) representation of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/) rules, with the ability to group them in reusable blocks in order to describe network rules in a single file.
-
-As an example, the following PF rules:
-
-    pass in proto tcp to port 80
-    pass in proto udp from 192.168.1.0/24 port 123 to port 123
-
-can be expressed as:
-
-~~~ruby
-pass :in, proto: :tcp, to: { port: 80 }
-pass :in, proto: :udp, from: { host: '192.168.1.0/24', port: 123 }, to: { port: 123 }
-~~~
+The Melt syntax is inspired by the syntax of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/), with the ability to group rules in reusable blocks in order to describe all rules of a network of nodes in a single file.
 
 Rules must appear in either a *node* or *service* definition, *services* being
 reusable blocks of related rules:
 
-~~~ruby
-service 'base' do
-  service 'ntp'
-  service 'ssh'
+~~~
+service base do
+  service ntp
+  service ssh
 end
 
-service 'ntp' do
-  pass :out, proto: :udp, to: { port: 'ntp' }
+service ntp do
+  pass out proto udp from any to port ntp
 end
 
-service 'ssh' do
-  pass :in, proto: :tcp, to: { port: 'ssh' }
+service ssh do
+  pass in proto tcp form any to port ssh
 end
 
 node 'db.example.com' do
-  service 'base'
-  pass :in, proto: :tcp, from: { host: 'www1.example.com' }, to: { port: 'postgresql' }
+  service base
+  pass in proto tcp from 'www1.example.com' to port postgresql
 end
 
 node /www\d+.example.com/ do
-  service 'base'
-  pass :in, proto: :tcp, to: { port: 'www' }
-  pass :out, proto: :tcp, to: { host: 'db.example.com', port: 'postgresql' }
-end
-~~~
-
-## Debugging rulesets
-
-Logging is handy for debugging missing rules in your firewall configuration.  An easy way to diagnose missing rules consists in setting a *pass* `policy`, and `log` both *in* and *out*:
-
-~~~ruby
-node 'debilglos' do
-  policy :pass
-
-  # Existing rules
-
-  log [:in, :out]
+  service base
+  pass in proto tcp from any to port www
+  pass out proto tcp from any to 'db.example.com' port postgresql
 end
 ~~~
