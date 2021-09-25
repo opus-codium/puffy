@@ -40,8 +40,8 @@ module Melt
     # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
-        fragment_name = fragment_name[2..-1] if fragment_name.start_with?('./')
-        IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
+        human_fragment_name = fragment_name.delete_prefix(@path).delete_prefix('/')
+        IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{human_fragment_name} #{fragment_name} --label b/#{human_fragment_name} -", 'r+') do |io|
           io.write(fragment_content)
           io.close_write
           out = io.read
