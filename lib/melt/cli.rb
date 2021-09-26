@@ -77,7 +77,7 @@ module Melt
 
     def load_config(filename)
       parser = Melt::Parser.new
-      parser.parse(File.read(filename))
+      parser.parse_file(filename)
       parser
     end
 

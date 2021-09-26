@@ -188,7 +188,7 @@ require 'strscan'
 ---- inner
 
   attr_accessor :yydebug
-  attr_reader :policy
+  attr_reader :policy, :filename
   #attr_accessor :variables, :nodes, :services
 
   def ipaddress?(s)
@@ -198,86 +198,92 @@ require 'strscan'
     nil
   end
 
+  def parse_file(filename)
+    @filename = filename
+    parse(File.read(filename))
+    @filename = nil
+  end
+
   def parse(text)
     lineoff = 0
     lineno = 1
     s = StringScanner.new(text)
 
     tokens = []
-    case
-    when s.scan(/\n/)
-      lineno += 1
-      lineoff = s.pos
-    when s.scan(/#.*/) then # ignore comments
-    when s.scan(/\s+/) then # ignore blanks
+    position = 0
+    line = (s.check_until(/\n/) || '').chomp
+    until s.eos? do
+      case
+      when s.scan(/\n/)
+        lineno += 1
+        lineoff = s.pos
+        position = -1 # Current match "\n" length will be added before we read the first token
+        line = (s.check_until(/\n/) || '').chomp
+      when s.scan(/#.*/) then # ignore comments
+      when s.scan(/\s+/) then # ignore blanks
 
-    when s.scan(/\//)
-      n = 0
-      while char = s.post_match[n]
-        case char
-        when /\\/
+      when s.scan(/\//)
+        n = 0
+        while char = s.post_match[n]
+          case char
+          when /\\/
+            n += 1
+          when /\//
+            tokens << [:REGEX, Regexp.new(s.post_match[0...n])]
+            s.pos += n + 1
+            break
+          end
           n += 1
-        when /\//
-          tokens << [:REGEX, Regexp.new(s.post_match[0...n])]
-          s.pos += n + 1
-          break
         end
-        n += 1
+      when s.scan(/=/) then              tokens << ['=', s.matched]
+      when s.scan(/:/) then              tokens << [':', s.matched]
+      when s.scan(/,/) then              tokens << [',', s.matched]
+      when s.scan(/{/) then              tokens << ['{', s.matched]
+      when s.scan(/}/) then              tokens << ['}', s.matched]
+      when s.scan(/service\b/) then      tokens << [:SERVICE, s.matched]
+      when s.scan(/client\b/) then       tokens << [:CLIENT, s.matched]
+      when s.scan(/server\b/) then       tokens << [:SERVER, s.matched]
+      when s.scan(/node\b/) then         tokens << [:NODE, s.matched]
+      when s.scan(/'[^'\n]*'/) then      tokens << [:STRING, s.matched[1...-1]]
+      when s.scan(/"[^"\n]*"/) then      tokens << [:STRING, s.matched[1...-1]]
+
+      when s.scan(/ipv4\b/) then         tokens << [:IPV4, s.matched]
+      when s.scan(/ipv6\b/) then         tokens << [:IPV6, s.matched]
+      when s.scan(/policy\b/) then       tokens << [:POLICY, s.matched]
+
+      when s.scan(/do\b/) then           tokens << [:DO, s.matched]
+      when s.scan(/end\b/) then          tokens << [:END, s.matched]
+
+      when s.scan(/\$\S+/) then          tokens << [:VARIABLE, s.matched[1..-1]]
+
+      when s.scan(/pass\b/) then         tokens << [:PASS, s.matched]
+      when s.scan(/block\b/) then        tokens << [:BLOCK, s.matched]
+      when s.scan(/in\b/) then           tokens << [:IN, s.matched]
+      when s.scan(/out\b/) then          tokens << [:OUT, s.matched]
+      when s.scan(/log\b/) then          tokens << [:LOG, s.matched]
+      when s.scan(/inet\b/) then          tokens << [:INET, s.matched]
+      when s.scan(/inet6\b/) then          tokens << [:INET6, s.matched]
+      when s.scan(/on\b/) then           tokens << [:ON, s.matched]
+      when s.scan(/proto\b/) then        tokens << [:PROTO, s.matched]
+      when s.scan(/from\b/) then         tokens << [:FROM, s.matched]
+      when s.scan(/to\b/) then           tokens << [:TO, s.matched]
+      when s.scan(/all\b/) then          tokens << [:ALL, s.matched]
+      when s.scan(/any\b/) then          tokens << [:ANY, s.matched]
+      when s.scan(/self\b/) then         tokens << [:SELF, s.matched]
+      when s.scan(/port\b/) then         tokens << [:PORT, s.matched]
+      when s.scan(/nat-to\b/) then       tokens << [:NAT_TO, s.matched]
+      when s.scan(/rdr-to\b/) then       tokens << [:RDR_TO, s.matched]
+
+      when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           tokens << [:ADDRESS, IPAddr.new(s.matched)]
+      when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then tokens << [:ADDRESS, IPAddr.new(s.matched)]
+
+      when s.scan(/\d+/) then tokens << [:INTEGER, s.matched.to_i]
+      when s.scan(/\w[\w-]+/) then tokens << [:IDENTIFIER, s.matched]
+      else
+        raise SyntaxError.new('Syntax error', filename: @filename, lineno: lineno, position: position, line: line)
       end
-    when s.scan(/=/) then              tokens << ['=', s.matched]
-    when s.scan(/:/) then              tokens << [':', s.matched]
-    when s.scan(/,/) then              tokens << [',', s.matched]
-    when s.scan(/{/) then              tokens << ['{', s.matched]
-    when s.scan(/}/) then              tokens << ['}', s.matched]
-    when s.scan(/service\b/) then      tokens << [:SERVICE, s.matched]
-    when s.scan(/client\b/) then       tokens << [:CLIENT, s.matched]
-    when s.scan(/server\b/) then       tokens << [:SERVER, s.matched]
-    when s.scan(/node\b/) then         tokens << [:NODE, s.matched]
-    when s.scan(/'[^'\n]*'/) then      tokens << [:STRING, s.matched[1...-1]]
-    when s.scan(/"[^"\n]*"/) then      tokens << [:STRING, s.matched[1...-1]]
-
-    when s.scan(/ipv4\b/) then         tokens << [:IPV4, s.matched]
-    when s.scan(/ipv6\b/) then         tokens << [:IPV6, s.matched]
-    when s.scan(/policy\b/) then       tokens << [:POLICY, s.matched]
-
-    when s.scan(/do\b/) then           tokens << [:DO, s.matched]
-    when s.scan(/end\b/) then          tokens << [:END, s.matched]
-
-    when s.scan(/\$\S+/) then          tokens << [:VARIABLE, s.matched[1..-1]]
-
-    when s.scan(/pass\b/) then         tokens << [:PASS, s.matched]
-    when s.scan(/block\b/) then        tokens << [:BLOCK, s.matched]
-    when s.scan(/in\b/) then           tokens << [:IN, s.matched]
-    when s.scan(/out\b/) then          tokens << [:OUT, s.matched]
-    when s.scan(/log\b/) then          tokens << [:LOG, s.matched]
-    when s.scan(/inet\b/) then          tokens << [:INET, s.matched]
-    when s.scan(/inet6\b/) then          tokens << [:INET6, s.matched]
-    when s.scan(/on\b/) then           tokens << [:ON, s.matched]
-    when s.scan(/proto\b/) then        tokens << [:PROTO, s.matched]
-    when s.scan(/from\b/) then         tokens << [:FROM, s.matched]
-    when s.scan(/to\b/) then           tokens << [:TO, s.matched]
-    when s.scan(/all\b/) then          tokens << [:ALL, s.matched]
-    when s.scan(/any\b/) then          tokens << [:ANY, s.matched]
-    when s.scan(/self\b/) then         tokens << [:SELF, s.matched]
-    when s.scan(/port\b/) then         tokens << [:PORT, s.matched]
-    when s.scan(/nat-to\b/) then       tokens << [:NAT_TO, s.matched]
-    when s.scan(/rdr-to\b/) then       tokens << [:RDR_TO, s.matched]
-
-    when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           tokens << [:ADDRESS, IPAddr.new(s.matched)]
-    when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then tokens << [:ADDRESS, IPAddr.new(s.matched)]
-
-    when s.scan(/\d+/) then tokens << [:INTEGER, s.matched.to_i]
-    when s.scan(/\w[\w-]+/) then tokens << [:IDENTIFIER, s.matched]
-    else
-      puts tokens.inspect
-      puts "Syntax error on line #{lineno} at position #{s.pos - lineoff + 1}:"
-
-      endlineoff = lineoff
-      endlineoff += 1 until text[endlineoff] == "\n"
-      puts text[lineoff..endlineoff]
-      puts ' ' * (s.pos - lineoff) + '^'
-      raise 'Syntax error'
-    end until s.eos?
+      position += s.matched_size if s.matched_size
+    end
 
     define_singleton_method(:next_token) do
       r = tokens.shift
