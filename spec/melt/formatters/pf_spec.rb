@@ -77,6 +77,10 @@ module Melt
           Timecop.freeze('2000-01-01 00:00:00')
         end
 
+        after do
+          Timecop.return
+        end
+
         it 'formats a simple lan network rules' do
           rules = parser.ruleset_for('gw')
           expect(subject.emit_ruleset(rules, :block)).to eq <<~PF

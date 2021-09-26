@@ -62,6 +62,11 @@ module Melt
         before do
           Timecop.freeze('2000-01-01 00:00:00')
         end
+
+        after do
+          Timecop.return
+        end
+
         it 'formats a simple lan network rules' do
           parser = Melt::Parser.new
           parser.parse(File.read(File.join('spec', 'fixtures', 'simple_lan_network.melt')))
