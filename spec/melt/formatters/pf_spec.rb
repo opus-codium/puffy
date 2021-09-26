@@ -17,6 +17,9 @@ module Melt
 
         rule = Rule.new(action: :pass, dir: :in, proto: :udp, from: { port: 123 }, to: { port: 123 })
         expect(subject.emit_rule(rule)).to eq('pass in quick proto udp from any port 123 to any port 123')
+
+        rule = Rule.new(action: :pass, dir: :in, proto: :tcp, from: { port: 67..68 }, to: { port: 67..68 })
+        expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp from any port 67:68 to any port 67:68')
       end
 
       it 'generates non-quick rules' do

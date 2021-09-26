@@ -19,6 +19,9 @@ module Melt
 
         rule = Rule.new(action: :pass, dir: :out)
         expect(subject.emit_rule(rule)).to eq('-A OUTPUT -j ACCEPT')
+
+        rule = Rule.new(action: :pass, dir: :in, proto: :tcp, from: { port: 67..68 }, to: { port: 67..68 })
+        expect(subject.emit_rule(rule)).to eq('-A INPUT -m conntrack --ctstate NEW -p tcp --sport 67:68 --dport 67:68 -j ACCEPT')
       end
 
       it 'returns packets when instructed so' do
