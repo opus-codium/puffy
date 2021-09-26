@@ -7,8 +7,8 @@ rule
         |
         ;
 
-  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0]] = val[3].freeze }
-             | IDENTIFIER '=' variable_value               { @variables[val[0]] = val[2].freeze }
+  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].freeze }
+             | IDENTIFIER '=' variable_value               { @variables[val[0][:value]] = val[2].freeze }
              ;
 
   variable_value_list: variable_value_list ',' variable_value { result = val[0] + [val[2]] }
@@ -16,15 +16,15 @@ rule
                      | variable_value                         { result = [val[0]] }
                      ;
 
-  variable_value: ADDRESS
-                | STRING
+  variable_value: ADDRESS { result = val[0][:value] }
+                | STRING  { result = val[0][:value] }
                 ;
 
   service: SERVICE service_name block { @services[val[1]] = val[2] }
          ;
 
-  service_name: IDENTIFIER
-              | STRING
+  service_name: IDENTIFIER { result = val[0][:value] }
+              | STRING     { result = val[0][:value] }
               ;
 
   node: NODE '{' node_name_list '}' block_with_policy { @nodes[val[2]] = val[4]; @saved_policies[val[2]] = @policy }
@@ -36,8 +36,8 @@ rule
                 | node_name                    { result = [val[0]] }
                 ;
 
-  node_name: STRING
-           | REGEX
+  node_name: STRING { result = val[0][:value] }
+           | REGEX  { result = val[0][:value] }
            ;
 
   block_with_policy: '{' policy rules '}' { @policy = val[1]; result = val[2] }
@@ -84,7 +84,7 @@ rule
      ;
 
   on_interface:
-              | ON STRING { result = { on: val[1] } }
+              | ON STRING { result = { on: val[1][:value] } }
               ;
 
   action: BLOCK  { result = { action: :block } }
@@ -120,7 +120,7 @@ rule
                | protocol                   { result = [val[0]] }
                ;
 
-  protocol: IDENTIFIER { result = val[0].to_sym }
+  protocol: IDENTIFIER { result = val[0][:value].to_sym }
           ;
 
   hosts: FROM hosts_from hosts_port TO hosts_to hosts_port { result = { from: { host: val[1], port: val[2] }, to: { host: val[4], port: val[5] } } }
@@ -134,14 +134,14 @@ rule
   hosts_from: ANY               { result = nil }
             | '{' host_list '}' { result = val[1] }
             | host
-            | VARIABLE          { result = @variables.fetch(val[0]) }
+            | VARIABLE          { result = @variables.fetch(val[0][:value]) }
             |
             ;
 
   hosts_to: ANY               { result = nil }
           | '{' host_list '}' { result = val[1] }
           | host
-          | VARIABLE          { result = @variables.fetch(val[0]) }
+          | VARIABLE          { result = @variables.fetch(val[0][:value]) }
           |
           ;
 
@@ -155,13 +155,13 @@ rule
            | port               { result = [val[0]] }
            ;
 
-  port: INTEGER
-      | IDENTIFIER
-      | INTEGER ':' INTEGER { result = Range.new(val[0], val[2]) }
+  port: INTEGER             { result = val[0][:value] }
+      | IDENTIFIER          { result = val[0][:value] }
+      | INTEGER ':' INTEGER { result = Range.new(val[0][:value], val[2][:value]) }
       ;
 
-  host: ADDRESS
-      | STRING
+  host: ADDRESS { result = val[0][:value] }
+      | STRING  { result = val[0][:value] }
       ;
 
   host_list: host_list ',' host { result = val[0] + [val[2]] }
@@ -174,9 +174,9 @@ rule
             |                           { result = {} }
             ;
 
-  filteropt: RDR_TO ADDRESS PORT INTEGER { result = { rdr_to: { host: val[1], port: val[3] } } }
-           | RDR_TO ADDRESS { result = { rdr_to: { host: val[1] } } }
-           | NAT_TO ADDRESS { result = { nat_to: val[1] } }
+  filteropt: RDR_TO ADDRESS PORT INTEGER { result = { rdr_to: { host: val[1][:value], port: val[3][:value] } } }
+           | RDR_TO ADDRESS { result = { rdr_to: { host: val[1][:value] } } }
+           | NAT_TO ADDRESS { result = { nat_to: val[1][:value] } }
            ;
 end
 
@@ -205,20 +205,18 @@ require 'strscan'
   end
 
   def parse(text)
-    lineoff = 0
-    lineno = 1
+    @lineno = 1
     s = StringScanner.new(text)
 
-    tokens = []
-    position = 0
-    line = (s.check_until(/\n/) || '').chomp
+    @tokens = []
+    @position = 0
+    @line = (s.check_until(/\n/) || '').chomp
     until s.eos? do
       case
       when s.scan(/\n/)
-        lineno += 1
-        lineoff = s.pos
-        position = -1 # Current match "\n" length will be added before we read the first token
-        line = (s.check_until(/\n/) || '').chomp
+        @lineno += 1
+        @position = -1 # Current match "\n" length will be added before we read the first token
+        @line = (s.check_until(/\n/) || '').chomp
       when s.scan(/#.*/) then # ignore comments
       when s.scan(/\s+/) then # ignore blanks
 
@@ -229,74 +227,88 @@ require 'strscan'
           when /\\/
             n += 1
           when /\//
-            tokens << [:REGEX, Regexp.new(s.post_match[0...n])]
+            emit(:REGEX, Regexp.new(s.post_match[0...n]), s.matched_size)
             s.pos += n + 1
             break
           end
           n += 1
         end
-      when s.scan(/=/) then              tokens << ['=', s.matched]
-      when s.scan(/:/) then              tokens << [':', s.matched]
-      when s.scan(/,/) then              tokens << [',', s.matched]
-      when s.scan(/{/) then              tokens << ['{', s.matched]
-      when s.scan(/}/) then              tokens << ['}', s.matched]
-      when s.scan(/service\b/) then      tokens << [:SERVICE, s.matched]
-      when s.scan(/client\b/) then       tokens << [:CLIENT, s.matched]
-      when s.scan(/server\b/) then       tokens << [:SERVER, s.matched]
-      when s.scan(/node\b/) then         tokens << [:NODE, s.matched]
-      when s.scan(/'[^'\n]*'/) then      tokens << [:STRING, s.matched[1...-1]]
-      when s.scan(/"[^"\n]*"/) then      tokens << [:STRING, s.matched[1...-1]]
+      when s.scan(/=/) then         emit('=', s.matched)
+      when s.scan(/:/) then         emit(':', s.matched)
+      when s.scan(/,/) then         emit(',', s.matched)
+      when s.scan(/{/) then         emit('{', s.matched)
+      when s.scan(/}/) then         emit('}', s.matched)
+      when s.scan(/service\b/) then emit(:SERVICE, s.matched)
+      when s.scan(/client\b/) then  emit(:CLIENT, s.matched)
+      when s.scan(/server\b/) then  emit(:SERVER, s.matched)
+      when s.scan(/node\b/) then    emit(:NODE, s.matched)
+      when s.scan(/'[^'\n]*'/) then emit(:STRING, s.matched[1...-1], s.matched_size)
+      when s.scan(/"[^"\n]*"/) then emit(:STRING, s.matched[1...-1], s.matched_size)
 
-      when s.scan(/ipv4\b/) then         tokens << [:IPV4, s.matched]
-      when s.scan(/ipv6\b/) then         tokens << [:IPV6, s.matched]
-      when s.scan(/policy\b/) then       tokens << [:POLICY, s.matched]
+      when s.scan(/ipv4\b/) then    emit(:IPV4, s.matched)
+      when s.scan(/ipv6\b/) then    emit(:IPV6, s.matched)
+      when s.scan(/policy\b/) then  emit(:POLICY, s.matched)
 
-      when s.scan(/do\b/) then           tokens << [:DO, s.matched]
-      when s.scan(/end\b/) then          tokens << [:END, s.matched]
+      when s.scan(/do\b/) then      emit(:DO, s.matched)
+      when s.scan(/end\b/) then     emit(:END, s.matched)
 
-      when s.scan(/\$\S+/) then          tokens << [:VARIABLE, s.matched[1..-1]]
+      when s.scan(/\$\S+/) then     emit(:VARIABLE, s.matched[1..-1], s.matched_size)
 
-      when s.scan(/pass\b/) then         tokens << [:PASS, s.matched]
-      when s.scan(/block\b/) then        tokens << [:BLOCK, s.matched]
-      when s.scan(/in\b/) then           tokens << [:IN, s.matched]
-      when s.scan(/out\b/) then          tokens << [:OUT, s.matched]
-      when s.scan(/log\b/) then          tokens << [:LOG, s.matched]
-      when s.scan(/inet\b/) then          tokens << [:INET, s.matched]
-      when s.scan(/inet6\b/) then          tokens << [:INET6, s.matched]
-      when s.scan(/on\b/) then           tokens << [:ON, s.matched]
-      when s.scan(/proto\b/) then        tokens << [:PROTO, s.matched]
-      when s.scan(/from\b/) then         tokens << [:FROM, s.matched]
-      when s.scan(/to\b/) then           tokens << [:TO, s.matched]
-      when s.scan(/all\b/) then          tokens << [:ALL, s.matched]
-      when s.scan(/any\b/) then          tokens << [:ANY, s.matched]
-      when s.scan(/self\b/) then         tokens << [:SELF, s.matched]
-      when s.scan(/port\b/) then         tokens << [:PORT, s.matched]
-      when s.scan(/nat-to\b/) then       tokens << [:NAT_TO, s.matched]
-      when s.scan(/rdr-to\b/) then       tokens << [:RDR_TO, s.matched]
+      when s.scan(/pass\b/) then    emit(:PASS, s.matched)
+      when s.scan(/block\b/) then   emit(:BLOCK, s.matched)
+      when s.scan(/in\b/) then      emit(:IN, s.matched)
+      when s.scan(/out\b/) then     emit(:OUT, s.matched)
+      when s.scan(/log\b/) then     emit(:LOG, s.matched)
+      when s.scan(/inet\b/) then    emit(:INET, s.matched)
+      when s.scan(/inet6\b/) then   emit(:INET6, s.matched)
+      when s.scan(/on\b/) then      emit(:ON, s.matched)
+      when s.scan(/proto\b/) then   emit(:PROTO, s.matched)
+      when s.scan(/from\b/) then    emit(:FROM, s.matched)
+      when s.scan(/to\b/) then      emit(:TO, s.matched)
+      when s.scan(/all\b/) then     emit(:ALL, s.matched)
+      when s.scan(/any\b/) then     emit(:ANY, s.matched)
+      when s.scan(/self\b/) then    emit(:SELF, s.matched)
+      when s.scan(/port\b/) then    emit(:PORT, s.matched)
+      when s.scan(/nat-to\b/) then  emit(:NAT_TO, s.matched)
+      when s.scan(/rdr-to\b/) then  emit(:RDR_TO, s.matched)
 
-      when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           tokens << [:ADDRESS, IPAddr.new(s.matched)]
-      when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then tokens << [:ADDRESS, IPAddr.new(s.matched)]
+      when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           emit(:ADDRESS, ip, s.matched_size)
+      when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
 
-      when s.scan(/\d+/) then tokens << [:INTEGER, s.matched.to_i]
-      when s.scan(/\w[\w-]+/) then tokens << [:IDENTIFIER, s.matched]
+      when s.scan(/\d+/) then      emit(:INTEGER, s.matched.to_i, s.matched_size)
+      when s.scan(/\w[\w-]+/) then emit(:IDENTIFIER, s.matched)
       else
-        raise SyntaxError.new('Syntax error', filename: @filename, lineno: lineno, position: position, line: line)
+        raise SyntaxError.new('Syntax error', { filename: @filename, lineno: @lineno, position: @position, line: @line })
       end
-      position += s.matched_size if s.matched_size
+      @position += s.matched_size if s.matched_size
     end
 
-    define_singleton_method(:next_token) do
-      r = tokens.shift
-      #puts r.inspect
-      r
+    begin
+      do_parse
+    rescue Racc::ParseError => e
+      raise ParseError.new("Parse error: unexpected token: #{@current_token[0]}", @current_token[1].merge(filename: @filename))
+    end
+  end
+
+  def emit(token, value, length = nil)
+    if token && length.nil?
+      raise "length must be explicitly passed when value is not a String (#{value.class.name})" unless value.is_a?(String)
+
+      length = value.length
     end
 
-    tokens << [false, false]
+    exvalue = {
+      value: value,
+      line: @line,
+      lineno: @lineno,
+      position: @position,
+      length: length,
+    }
+    @tokens << [token, exvalue]
+  end
 
-    #puts tokens.inspect
-
-    do_parse
-  #rescue Racc::ParseError
+  def next_token
+    @current_token = @tokens.shift
   end
 
   def initialize

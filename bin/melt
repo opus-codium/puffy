@@ -11,4 +11,7 @@ begin
 rescue Melt::SyntaxError => e
   $stderr.puts e.message
   exit 1
+rescue Melt::ParseError => e
+  $stderr.puts e.message
+  exit 1
 end
