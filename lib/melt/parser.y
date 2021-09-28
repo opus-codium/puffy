@@ -124,6 +124,8 @@ rule
           ;
 
   hosts: FROM hosts_from hosts_port TO hosts_to hosts_port { result = { from: { host: val[1], port: val[2] }, to: { host: val[4], port: val[5] } } }
+       | FROM hosts_from hosts_port                        { result = { from: { host: val[1], port: val[2] } } }
+       | TO hosts_from hosts_port                          { result = { to: { host: val[1], port: val[2] } } }
        | ALL                                               { result = {} }
        ;
 
