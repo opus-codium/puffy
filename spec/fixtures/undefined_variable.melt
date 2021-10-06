@@ -1,0 +1,3 @@
+node 'example.com' {
+  pass in proto tcp from $lan to port postgresql
+}

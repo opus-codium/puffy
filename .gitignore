@@ -1,2 +1,5 @@
 Gemfile.lock
 coverage
+lib/melt/parser.tab.rb
+tags
+tmp

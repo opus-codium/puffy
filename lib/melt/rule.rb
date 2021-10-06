@@ -44,7 +44,7 @@ module Melt
     #   @return [Hash] Destination
     # @!attribute nat_to
     #   The packet destination when peforming NAT.
-    #   @return [IPAddress] IP Adress
+    #   @return [IPAddr] IP Adress
     # @!attribute rdr_to
     #   The destination as a Hash for redirections.
     #
@@ -91,7 +91,7 @@ module Melt
 
     # Return true if the rule has an IPv4 source or destination.
     def implicit_ipv4?
-      from_ipv4? || to_ipv4? || rdr_to_ipv4? || rdr_to && af == :inet
+      from_ipv4? || to_ipv4? || rdr_to_ipv4? || (rdr_to && af == :inet)
     end
 
     # Return true if the rule is valid in an IPv6 context.
@@ -101,7 +101,7 @@ module Melt
 
     # Return true if the rule has an IPv6 source or destination.
     def implicit_ipv6?
-      from_ipv6? || to_ipv6? || rdr_to_ipv6? || rdr_to && af == :inet6
+      from_ipv6? || to_ipv6? || rdr_to_ipv6? || (rdr_to && af == :inet6)
     end
 
     # Return true if the rule is a filter rule.

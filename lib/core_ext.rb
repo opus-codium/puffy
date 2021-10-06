@@ -45,6 +45,32 @@ module Expandable
   end
 end
 
+class Array # :nodoc:
+  def deep_dup
+    array = []
+    each do |value|
+      array << if value.respond_to?(:deep_dup)
+                 value.deep_dup
+               else
+                 value.dup
+               end
+    end
+    array
+  end
+end
+
 class Hash # :nodoc:
   include Expandable
+
+  def deep_dup
+    hash = dup
+    each_pair do |key, value|
+      hash[key.dup] = if value.respond_to?(:deep_dup)
+                        value.deep_dup
+                      else
+                        value.dup
+                      end
+    end
+    hash
+  end
 end

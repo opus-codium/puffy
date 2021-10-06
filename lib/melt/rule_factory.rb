@@ -34,8 +34,6 @@ module Melt
     def build(options = {})
       return [] if options == {}
 
-      options = expand_endpoints(options)
-
       options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
 
       options = resolv_hostnames_and_ports(options)
@@ -43,16 +41,6 @@ module Melt
     end
 
     private
-
-    def expand_endpoints(options)
-      %i[from to rdr_to].each do |endpoint|
-        if options[endpoint].is_a?(String)
-          host, port = options[endpoint].split(':', 2)
-          options[endpoint] = { host: host, port: port }
-        end
-      end
-      options
-    end
 
     def resolv_hostnames_and_ports(options)
       %i[from to rdr_to].each do |endpoint|
@@ -92,28 +80,28 @@ module Melt
 
     def host_lookup(host)
       case host
-      when '', nil
-        nil
-      when String
-        @resolver.resolv(host)
-      when Array
-        host.map { |x| @resolver.resolv(x) }.flatten
+      when nil    then nil
+      when IPAddr then host
+      when String then @resolver.resolv(host)
+      when Array  then host.map { |x| @resolver.resolv(x) }.flatten
+      else
+        raise "Unexpected #{host.class.name}"
       end
     end
 
     def port_lookup(port)
       case port
-      when Integer, String
-        real_port_lookup(port)
-      when Array
-        port.map { |x| port_lookup(x) }
-      when nil
-        nil
+      when nil then nil
+      when Integer, Range then port
+      when String         then real_port_lookup(port)
+      when Array          then port.map { |x| port_lookup(x) }
+      else
+        raise "Unexpected #{port.class.name}"
       end
     end
 
     def real_port_lookup(port)
-      res = port_is_a_number(port) || port_is_a_range(port) || @services[port]
+      res = port_is_a_number(port) || @services[port]
 
       raise "unknown service \"#{port}\"" unless res
 
@@ -121,13 +109,9 @@ module Melt
     end
 
     def port_is_a_number(port)
-      port.to_i if port.is_a?(Integer) || port =~ /^\d+$/
-    end
-
-    def port_is_a_range(port)
-      return unless /^(?<start>\d+):(?<stop>\d+)$/ =~ port
-
-      Range.new(start.to_i, stop.to_i)
+      Integer(port)
+    rescue ArgumentError
+      nil
     end
   end
 end

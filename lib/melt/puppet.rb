@@ -8,10 +8,10 @@ module Melt
     # Setup an environment to store firewall rules to disk
     #
     # @param path [String] Root directory of the tree of firewall rules
-    # @param dsl [Melt::Dsl] Description of nodes and rules as a Melt::Dsl
-    def initialize(path, dsl)
+    # @param parser [Melt::Parser] A parser with nodes and rules
+    def initialize(path, parser)
       @path = path
-      @dsl = dsl
+      @parser = parser
 
       @formatters = [
         Melt::Formatters::Pf::Ruleset.new,
@@ -40,7 +40,8 @@ module Melt
     # @return [void]
     def diff
       each_fragment do |fragment_name, fragment_content|
-        IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{fragment_name} #{fragment_name} --label b/#{fragment_name} -", 'r+') do |io|
+        human_fragment_name = fragment_name.delete_prefix(@path).delete_prefix('/')
+        IO.popen("diff -u1 -N --unidirectional-new-file --ignore-matching-lines='^#' --label a/#{human_fragment_name} #{fragment_name} --label b/#{human_fragment_name} -", 'r+') do |io|
           io.write(fragment_content)
           io.close_write
           out = io.read
@@ -52,12 +53,12 @@ module Melt
     private
 
     def each_fragment
-      @dsl.nodes.each do |host|
-        rules = @dsl.ruleset_for(host)
-        policy = @dsl.policy_for(host)
+      @parser.nodes.each do |hostname|
+        rules = @parser.ruleset_for(hostname)
+        policy = @parser.policy_for(hostname)
 
         @formatters.each do |formatter|
-          filename = File.join(host, formatter.filename_fragment)
+          filename = File.join(@path, hostname, formatter.filename_fragment)
           yield filename, formatter.emit_ruleset(rules, policy)
         end
       end

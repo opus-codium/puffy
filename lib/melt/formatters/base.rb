@@ -3,23 +3,23 @@
 module Melt
   module Formatters # :nodoc:
     module Base # :nodoc:
-      # Returns the loopback IPv4 IPAddress
+      # Returns the loopback IPv4 IPAddr
       #
-      # @return [IPAddress]
+      # @return [IPAddr]
       def self.loopback_ipv4
-        IPAddress.parse('127.0.0.1')
+        IPAddr.new('127.0.0.1')
       end
 
-      # Returns the loopback IPv6 IPAddress
+      # Returns the loopback IPv6 IPAddr
       #
-      # @return [IPAddress]
+      # @return [IPAddr]
       def self.loopback_ipv6
-        IPAddress::IPv6::Loopback.new
+        IPAddr.new('::1')
       end
 
       # Returns a list of loopback addresses
       #
-      # @return [Array<IPAddress>]
+      # @return [Array<IPAddr>]
       def self.loopback_addresses
         [nil, loopback_ipv4, loopback_ipv6]
       end
@@ -55,27 +55,27 @@ module Melt
       class Rule
         protected
 
-        # Returns the loopback IPAddress of the given +address_family+
+        # Returns the loopback IPAddr of the given +address_family+
         #
         # @param address_family [Symbol] the address family, +:inet+ or +:inet6+
-        # @return [IPAddress,nil]
+        # @return [IPAddr,nil]
         def loopback_address(address_family)
           case address_family
-          when :inet then Melt::Formatters::Base.loopback_ipv4
+          when nil    then nil
+          when :inet  then Melt::Formatters::Base.loopback_ipv4
           when :inet6 then Melt::Formatters::Base.loopback_ipv6
-          when nil then nil
           else raise "Unsupported address family #{address_family.inspect}"
           end
         end
 
-        # Return a string representation of the +host+ IPAddress as a host or network.
-        # @param host [IPAddress]
+        # Return a string representation of the +host+ IPAddr as a host or network.
+        # @param host [IPAddr]
         # @return [String] IP address
         def emit_address(host)
-          if host.ipv4? && host.prefix.to_i == 32 || host.ipv6? && host.prefix.to_i == 128
+          if (host.ipv4? && host.prefix.to_i == 32) || (host.ipv6? && host.prefix.to_i == 128)
             host.to_s
           else
-            host.to_string
+            "#{host}/#{host.prefix}"
           end
         end
 
@@ -84,10 +84,9 @@ module Melt
         # @return [String] Port
         def emit_port(port)
           case port
-          when Integer
-            port.to_s
-          when Range
-            "#{port.begin}:#{port.end}"
+          when Integer then port.to_s
+          when Range   then "#{port.begin}:#{port.end}"
+          else raise "Unexpected #{port.class.name}"
           end
         end
       end

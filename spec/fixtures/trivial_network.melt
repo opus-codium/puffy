@@ -1,0 +1,4 @@
+node 'localhost' do
+  pass out proto udp from any to 192.0.2.27 port domain
+  pass in proto tcp from any to port ssh
+end

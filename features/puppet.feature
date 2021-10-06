@@ -1,12 +1,12 @@
 Feature: Puppet
   Scenario: Generate firewall rules for a node
-    Given a file named "network.rb" with:
+    Given a file named "network.melt" with:
     """
     node 'example.com' do
-      pass :in, proto: :tcp, to: { port: %w(http https) }
+      pass in proto tcp from any to port {http https}
     end
     """
-    When I successfully run `melt puppet generate network.rb`
+    When I successfully run `melt puppet generate network.melt`
     Then the file "example.com/pf/pf.conf" should contain:
     """
     pass in quick proto tcp to any port 80
@@ -24,10 +24,10 @@ Feature: Puppet
     """
 
   Scenario: Displays firewall rule differences
-    Given a file named "network.rb" with:
+    Given a file named "network.melt" with:
     """
     node 'example.com' do
-      pass :in, proto: :tcp, to: { port: %w(ssh http) }
+      pass in proto tcp from any to port {ssh http}
     end
     """
     And a file named "example.com/pf/pf.conf" with:
@@ -68,7 +68,7 @@ Feature: Puppet
     COMMIT
 
     """
-    When I successfully run `melt puppet diff network.rb`
+    When I successfully run `melt puppet diff network.melt`
     Then the stdout should contain:
     """
     --- a/example.com/pf/pf.conf
