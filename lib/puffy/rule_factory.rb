@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-module Melt
-  # Melt::Rule factory
+module Puffy
+  # Puffy::Rule factory
   class RuleFactory
-    # Initialize a Melt::Rule factory.
+    # Initialize a Puffy::Rule factory.
     def initialize
       @af = nil
       @resolver = Resolver.instance
@@ -28,9 +28,9 @@ module Melt
       @af = nil
     end
 
-    # Return an Array of Melt::Rule for the provided +options+.
+    # Return an Array of Puffy::Rule for the provided +options+.
     # @param [Hash] options
-    # @return [Array<Melt::Rule>]
+    # @return [Array<Puffy::Rule>]
     def build(options = {})
       return [] if options == {}
 

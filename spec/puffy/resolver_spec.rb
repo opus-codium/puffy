@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'melt'
+require 'puffy'
 
 # There are some differences in name resolution of each Ruby implementation.
 # See:
 # https://github.com/jordansissel/experiments/tree/master/ruby/dns-resolving-bug
-module Melt
+module Puffy
   RSpec.describe Resolver do
-    subject { Melt::Resolver.instance }
+    subject { Puffy::Resolver.instance }
     it 'resolves IPv4 and IPv6' do
       expect(subject.resolv('example.com').collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946', '93.184.216.34'])
     end

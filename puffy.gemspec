@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require_relative 'lib/melt/version'
+require_relative 'lib/puffy/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'melt'
-  spec.version       = Melt::VERSION
+  spec.name          = 'puffy'
+  spec.version       = Puffy::VERSION
   spec.authors       = ['Romain Tartière']
   spec.email         = ['romain@blogreen.org']
 
   spec.summary       = 'Network firewall rules made easy!'
-  spec.homepage      = 'https://github.com/smortex/melt'
+  spec.homepage      = 'https://github.com/opus-codium/puffy'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.5.0')
 
@@ -23,8 +23,8 @@ Gem::Specification.new do |spec|
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) } -
-      ['lib/melt/parser.y'] +
-      ['lib/melt/parser.tab.rb']
+      ['lib/puffy/parser.y'] +
+      ['lib/puffy/parser.tab.rb']
   end
   spec.bindir        = 'bin'
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }

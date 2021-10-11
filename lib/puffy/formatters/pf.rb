@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module Melt
+module Puffy
   module Formatters
     module Pf # :nodoc:
-      # Pf implementation of a Melt Ruleset formatter.
-      class Ruleset < Melt::Formatters::Base::Ruleset # :nodoc:
-        # Returns a Pf String representation of the provided +rules+ Array of Melt::Rule.
+      # Pf implementation of a Puffy Ruleset formatter.
+      class Ruleset < Puffy::Formatters::Base::Ruleset # :nodoc:
+        # Returns a Pf String representation of the provided +rules+ Array of Puffy::Rule.
         def emit_ruleset(rules, policy = :block)
           parts = []
 
@@ -27,15 +27,15 @@ module Melt
           parts = super()
           parts << 'match in all scrub (no-df)'
           parts << 'set skip on lo'
-          parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :in, no_quick: true))
-          parts << @rule_formatter.emit_rule(Melt::Rule.new(action: policy, dir: :out, no_quick: true))
+          parts << @rule_formatter.emit_rule(Puffy::Rule.new(action: policy, dir: :in, no_quick: true))
+          parts << @rule_formatter.emit_rule(Puffy::Rule.new(action: policy, dir: :out, no_quick: true))
           parts
         end
       end
 
-      # Pf implementation of a Melt Rule formatter.
-      class Rule < Melt::Formatters::Base::Rule # :nodoc:
-        # Returns a Pf String representation of the provided +rule+ Melt::Rule.
+      # Pf implementation of a Puffy Rule formatter.
+      class Rule < Puffy::Formatters::Base::Rule # :nodoc:
+        # Returns a Pf String representation of the provided +rule+ Puffy::Rule.
         def emit_rule(rule)
           parts = []
           parts << emit_action(rule)
@@ -116,7 +116,7 @@ module Melt
         def emit_rdr_to(rule)
           return unless rule.rdr?
 
-          keyword = Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
+          keyword = Puffy::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host) ? 'divert-to' : 'rdr-to'
           destination = rule.rdr_to_host || loopback_address(rule.af)
           raise 'Unspecified address family' if destination.nil?
 

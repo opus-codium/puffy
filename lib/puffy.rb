@@ -2,20 +2,20 @@
 
 require 'core_ext'
 
-require 'melt/parser.tab'
-require 'melt/formatters/base'
-require 'melt/formatters/netfilter'
-require 'melt/formatters/netfilter4'
-require 'melt/formatters/netfilter6'
-require 'melt/formatters/pf'
-require 'melt/puppet'
-require 'melt/resolver'
-require 'melt/rule'
-require 'melt/rule_factory'
-require 'melt/version'
+require 'puffy/parser.tab'
+require 'puffy/formatters/base'
+require 'puffy/formatters/netfilter'
+require 'puffy/formatters/netfilter4'
+require 'puffy/formatters/netfilter6'
+require 'puffy/formatters/pf'
+require 'puffy/puppet'
+require 'puffy/resolver'
+require 'puffy/rule'
+require 'puffy/rule_factory'
+require 'puffy/version'
 
-module Melt
-  class MeltError < RuntimeError
+module Puffy
+  class PuffyError < RuntimeError
     def initialize(message, token)
       super(message)
       @token = token
@@ -54,9 +54,9 @@ module Melt
     end
   end
 
-  class ParseError < MeltError
+  class ParseError < PuffyError
   end
 
-  class SyntaxError < MeltError
+  class SyntaxError < PuffyError
   end
 end

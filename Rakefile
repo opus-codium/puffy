@@ -12,9 +12,9 @@ task test: %i[spec features]
 
 task default: :test
 
-desc 'Generate the melt language parser'
-task gen_parser: 'lib/melt/parser.tab.rb'
+desc 'Generate the puffy language parser'
+task gen_parser: 'lib/puffy/parser.tab.rb'
 
-file 'lib/melt/parser.tab.rb' => 'lib/melt/parser.y' do
-  `racc -S lib/melt/parser.y`
+file 'lib/puffy/parser.tab.rb' => 'lib/puffy/parser.y' do
+  `racc -S lib/puffy/parser.y`
 end

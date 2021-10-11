@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'melt'
+require 'puffy'
 
-module Melt
+module Puffy
   RSpec.describe RuleFactory do
     it 'empty rules produce no rule' do
       expect(Rule).not_to receive(:new)
@@ -39,7 +39,7 @@ module Melt
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
       result = subject.build(to: { host: 'example.com' })
 
@@ -77,8 +77,8 @@ module Melt
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'), IPAddr.new('198.51.100.1')])
-      expect(Melt::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'), IPAddr.new('198.51.100.1')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
       expect(Rule).to receive(:new).exactly(4).times.and_call_original
 

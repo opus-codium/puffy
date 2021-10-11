@@ -1,12 +1,12 @@
 Feature: Puppet
   Scenario: Generate firewall rules for a node
-    Given a file named "network.melt" with:
+    Given a file named "network.puffy" with:
     """
     node 'example.com' do
       pass in proto tcp from any to port {http https}
     end
     """
-    When I successfully run `melt puppet generate network.melt`
+    When I successfully run `puffy puppet generate network.puffy`
     Then the file "example.com/pf/pf.conf" should contain:
     """
     pass in quick proto tcp to any port 80
@@ -24,7 +24,7 @@ Feature: Puppet
     """
 
   Scenario: Displays firewall rule differences
-    Given a file named "network.melt" with:
+    Given a file named "network.puffy" with:
     """
     node 'example.com' do
       pass in proto tcp from any to port {ssh http}
@@ -68,7 +68,7 @@ Feature: Puppet
     COMMIT
 
     """
-    When I successfully run `melt puppet diff network.melt`
+    When I successfully run `puffy puppet diff network.puffy`
     Then the stdout should contain:
     """
     --- a/example.com/pf/pf.conf
