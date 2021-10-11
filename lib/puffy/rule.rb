@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Melt
+module Puffy
   class AddressFamilyConflict < RuntimeError
   end
 
@@ -16,7 +16,7 @@ module Melt
     #   The direction of the rule (+:in+ or +:out+).
     #   @return [Symbol] Direction
     # @!attribute proto
-    #   The protocol the Melt::Rule applies to (+:tcp+, +:udp+, etc).
+    #   The protocol the Puffy::Rule applies to (+:tcp+, +:udp+, etc).
     #   @return [Symbol] Protocol
     # @!attribute af
     #   The address family of the rule (+:inet6+ or +:inet+)
@@ -56,9 +56,9 @@ module Melt
     #   @return [Boolean] Quick flag
     attr_accessor :action, :return, :dir, :proto, :af, :on, :in, :out, :from, :to, :nat_to, :rdr_to, :no_quick
 
-    # Instanciate a firewall Melt::Rule.
+    # Instanciate a firewall Puffy::Rule.
     #
-    # +options+ is a Hash of the Melt::Rule class attributes
+    # +options+ is a Hash of the Puffy::Rule class attributes
     #
     #   Rule.new({ action: :accept, dir: :in, proto: :tcp, to: { port: 80 } })
     def initialize(options = {})
@@ -70,11 +70,11 @@ module Melt
       raise 'if from_port or to_port is specified, the protocol must also be given' if port_without_protocol?
     end
 
-    # Instanciate a forward Melt::Rule.
+    # Instanciate a forward Puffy::Rule.
     #
-    # @param rule [Melt::Rule] a NAT rule
+    # @param rule [Puffy::Rule] a NAT rule
     #
-    # @return [Melt::Rule]
+    # @return [Puffy::Rule]
     def self.fwd_rule(rule)
       res = rule.dup
       res.on_to_in_out!
@@ -135,17 +135,17 @@ module Melt
     end
 
     # @!method from_host
-    #   Returns the source host of the Melt::Rule.
+    #   Returns the source host of the Puffy::Rule.
     # @!method from_port
-    #   Returns the source port of the Melt::Rule.
+    #   Returns the source port of the Puffy::Rule.
     # @!method to_host
-    #   Returns the destination host of the Melt::Rule.
+    #   Returns the destination host of the Puffy::Rule.
     # @!method to_port
-    #   Returns the destination port of the Melt::Rule.
+    #   Returns the destination port of the Puffy::Rule.
     # @!method rdr_to_host
-    #   Returns the redirect destination host of the Melt::Rule.
+    #   Returns the redirect destination host of the Puffy::Rule.
     # @!method rdr_to_port
-    #   Returns the redirect destination port of the Melt::Rule.
+    #   Returns the redirect destination port of the Puffy::Rule.
     %i[from to rdr_to].each do |destination|
       %i[host port].each do |param|
         define_method("#{destination}_#{param}") do

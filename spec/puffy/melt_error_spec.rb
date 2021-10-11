@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'melt'
+require 'puffy'
 
-RSpec.describe Melt::MeltError do
+RSpec.describe Puffy::PuffyError do
   let(:token) do
     {
       filename: 'filename.ext',
@@ -14,7 +14,7 @@ RSpec.describe Melt::MeltError do
   end
 
   subject do
-    Melt::MeltError.new('Message', token)
+    Puffy::PuffyError.new('Message', token)
   end
 
   it 'reports the correct location in file' do

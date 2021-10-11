@@ -3,7 +3,7 @@
 require 'simplecov'
 
 require 'aruba/cucumber'
-require 'melt/cli'
+require 'puffy/cli'
 
 class Runner
   def initialize(argv, stdin, stdout, stderr, kernel)
@@ -15,7 +15,7 @@ class Runner
   end
 
   def execute!
-    Melt::Cli.new.execute(@argv)
+    Puffy::Cli.new.execute(@argv)
   end
 end
 

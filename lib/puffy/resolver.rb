@@ -3,7 +3,7 @@
 require 'resolv'
 require 'singleton'
 
-module Melt
+module Puffy
   # DNS resolution class.
   class Resolver
     include Singleton

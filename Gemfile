@@ -2,5 +2,5 @@
 
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in melt.gemspec
+# Specify your gem's dependencies in puffy.gemspec
 gemspec

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'melt'
+require 'puffy'
 
-module Melt
+module Puffy
   RSpec.describe Rule do
     it 'reports invalid rules' do
       expect { Rule.new(action: :moin) }.to raise_error("unsupported action `moin'")

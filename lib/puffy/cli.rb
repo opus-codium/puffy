@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 require 'cri'
-require 'melt'
+require 'puffy'
 require 'fileutils'
 
-module Melt
+module Puffy
   # Command-line processing
   class Cli
     def initialize
       cli = self
 
       @main = Cri::Command.define do
-        name    'melt'
-        usage   'melt [options] <command>'
+        name    'puffy'
+        usage   'puffy [options] <command>'
         summary 'Network firewall rules made easy!'
 
         description <<~DESCRIPTION
@@ -51,7 +51,7 @@ module Melt
           rules = parser.ruleset_for(args[:hostname])
           policy = parser.policy_for(args[:hostname])
 
-          formatter = Object.const_get("Melt::Formatters::#{opts[:formatter]}::Ruleset").new
+          formatter = Object.const_get("Puffy::Formatters::#{opts[:formatter]}::Ruleset").new
           puts formatter.emit_ruleset(rules, policy)
         end
       end
@@ -79,7 +79,7 @@ module Melt
         summary 'Show differences between network specification and firewall rules'
 
         description <<~DESCRIPTION
-          Show the changes that would be introduced by running `melt puppet
+          Show the changes that would be introduced by running `puffy puppet
           generate` with the current "network" specification file.
         DESCRIPTION
 
@@ -87,7 +87,7 @@ module Melt
 
         run do |opts, args|
           parser = cli.load_network(args[:network])
-          puppet = Melt::Puppet.new(opts[:output], parser)
+          puppet = Puffy::Puppet.new(opts[:output], parser)
           puppet.diff
         end
       end
@@ -107,7 +107,7 @@ module Melt
 
         run do |opts, args|
           parser = cli.load_network(args[:network])
-          puppet = Melt::Puppet.new(opts[:output], parser)
+          puppet = Puffy::Puppet.new(opts[:output], parser)
           puppet.save
         end
       end
@@ -120,7 +120,7 @@ module Melt
     end
 
     def load_network(filename)
-      parser = Melt::Parser.new
+      parser = Puffy::Parser.new
       parser.parse_file(filename)
       parser
     end

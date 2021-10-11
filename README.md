@@ -1,9 +1,9 @@
-# Melt
+# Puffy
 
-[![Build Status](https://travis-ci.com/opus-codium/melt.svg?branch=master)](https://travis-ci.com/opus-codium/melt)
-[![Maintainability](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/maintainability)](https://codeclimate.com/github/opus-codium/melt/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/test_coverage)](https://codeclimate.com/github/opus-codium/melt/test_coverage)
-[![Inline docs](http://inch-ci.org/github/opus-codium/melt.svg?branch=master)](http://inch-ci.org/github/opus-codium/melt)
+[![Build Status](https://travis-ci.com/opus-codium/puffy.svg?branch=master)](https://travis-ci.com/opus-codium/puffy)
+[![Maintainability](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/maintainability)](https://codeclimate.com/github/opus-codium/puffy/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/test_coverage)](https://codeclimate.com/github/opus-codium/puffy/test_coverage)
+[![Inline docs](http://inch-ci.org/github/opus-codium/puffy.svg?branch=master)](http://inch-ci.org/github/opus-codium/puffy)
 
 ## Features
 
@@ -19,7 +19,7 @@
 
 ## Syntax
 
-The Melt syntax is inspired by the syntax of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/), with the ability to group rules in reusable blocks in order to describe all rules of a network of nodes in a single file.
+The Puffy syntax is inspired by the syntax of the [OpenBSD Packet Filter](http://www.openbsd.org/faq/pf/), with the ability to group rules in reusable blocks in order to describe all rules of a network of nodes in a single file.
 
 Rules must appear in either a *node* or *service* definition, *services* being
 reusable blocks of related rules:

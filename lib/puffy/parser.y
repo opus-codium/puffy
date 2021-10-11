@@ -1,4 +1,4 @@
-class Melt::Parser
+class Puffy::Parser
 rule
   target: assignation target
         | node target
@@ -319,7 +319,7 @@ require 'strscan'
     @nodes = {}
     @saved_policies = {}
     @services = {} 
-    @rule_factory = Melt::RuleFactory.new
+    @rule_factory = Puffy::RuleFactory.new
   end
 
   def nodes

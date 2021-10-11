@@ -2,21 +2,21 @@
 
 require 'fileutils'
 
-module Melt
+module Puffy
   # Manage nodes rulesets as a tree of rules to serve via Puppet
   class Puppet
     # Setup an environment to store firewall rules to disk
     #
     # @param path [String] Root directory of the tree of firewall rules
-    # @param parser [Melt::Parser] A parser with nodes and rules
+    # @param parser [Puffy::Parser] A parser with nodes and rules
     def initialize(path, parser)
       @path = path
       @parser = parser
 
       @formatters = [
-        Melt::Formatters::Pf::Ruleset.new,
-        Melt::Formatters::Netfilter4::Ruleset.new,
-        Melt::Formatters::Netfilter6::Ruleset.new,
+        Puffy::Formatters::Pf::Ruleset.new,
+        Puffy::Formatters::Netfilter4::Ruleset.new,
+        Puffy::Formatters::Netfilter6::Ruleset.new,
       ]
     end
 

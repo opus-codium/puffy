@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Melt
+module Puffy
   module Formatters
     module Netfilter # :nodoc:
       # Returns the target to jump to
@@ -11,12 +11,12 @@ module Melt
         when :pass      then 'ACCEPT'
         when :log       then 'LOG'
         when :block     then ret ? 'RETURN' : 'DROP'
-        when Melt::Rule then iptables_action(rule_or_action.action, ret: rule_or_action.return)
+        when Puffy::Rule then iptables_action(rule_or_action.action, ret: rule_or_action.return)
         end
       end
 
-      # Netfilter implementation of a Melt Ruleset formatter.
-      class Ruleset < Melt::Formatters::Base::Ruleset # :nodoc:
+      # Netfilter implementation of a Puffy Ruleset formatter.
+      class Ruleset < Puffy::Formatters::Base::Ruleset # :nodoc:
         def self.known_conntrack_helpers
           {
             21   => 'ftp',
@@ -27,7 +27,7 @@ module Melt
           }
         end
 
-        # Returns a Netfilter String representation of the provided +rules+ Array of Melt::Rule with the +policy+ policy.
+        # Returns a Netfilter String representation of the provided +rules+ Array of Puffy::Rule with the +policy+ policy.
         def emit_ruleset(rules, policy = :block)
           parts = []
           parts << emit_header
@@ -74,7 +74,7 @@ module Melt
         end
 
         def emit_chain_policies(policies)
-          policies.map { |chain, action| ":#{chain.upcase} #{Melt::Formatters::Netfilter.iptables_action(action)} [0:0]" }
+          policies.map { |chain, action| ":#{chain.upcase} #{Puffy::Formatters::Netfilter.iptables_action(action)} [0:0]" }
         end
 
         def input_filter_ruleset(rules)
@@ -85,7 +85,7 @@ module Melt
         def forward_filter_ruleset(rules)
           parts = ['-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
           parts << rules.select(&:fwd?).map { |rule| @rule_formatter.emit_rule(rule) }
-          parts << rules.select { |r| r.rdr? && !Melt::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Melt::Rule.fwd_rule(rule)) }
+          parts << rules.select { |r| r.rdr? && !Puffy::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Puffy::Rule.fwd_rule(rule)) }
         end
 
         def output_filter_rulset(rules)
@@ -114,9 +114,9 @@ module Melt
         end
       end
 
-      # Netfilter implementation of a Melt Rule formatter.
-      class Rule < Melt::Formatters::Base::Rule # :nodoc:
-        # Returns a Netfilter String representation of the provided +rule+ Melt::Rule.
+      # Netfilter implementation of a Puffy Rule formatter.
+      class Rule < Puffy::Formatters::Base::Rule # :nodoc:
+        # Returns a Netfilter String representation of the provided +rule+ Puffy::Rule.
         def emit_rule(rule)
           if rule.nat?
             emit_postrouting_rule(rule)
@@ -233,7 +233,7 @@ module Melt
         end
 
         def emit_redirect_or_dnat(rule)
-          if Melt::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host)
+          if Puffy::Formatters::Base.loopback_addresses.include?(rule.rdr_to_host)
             emit_redirect(rule)
           else
             emit_dnat(rule)
@@ -251,7 +251,7 @@ module Melt
         end
 
         def emit_jump(rule)
-          "-j #{Melt::Formatters::Netfilter.iptables_action(rule)}"
+          "-j #{Puffy::Formatters::Netfilter.iptables_action(rule)}"
         end
 
         def pp_rule(parts)

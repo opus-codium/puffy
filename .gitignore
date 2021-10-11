@@ -1,5 +1,5 @@
 Gemfile.lock
 coverage
-lib/melt/parser.tab.rb
+lib/puffy/parser.tab.rb
 tags
 tmp
