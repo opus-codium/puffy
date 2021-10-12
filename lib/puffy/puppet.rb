@@ -67,7 +67,7 @@ module Puffy
     def fragment_changed?(fragment_name, fragment_content)
       return true unless File.exist?(fragment_name)
 
-      File.read(fragment_name).split("\n").reject { |l| l =~ /^#/ } != fragment_content.split("\n").reject { |l| l =~ /^#/ }
+      File.read(fragment_name).split("\n").grep_v(/^#/) != fragment_content.split("\n").grep_v(/^#/)
     end
   end
 end
