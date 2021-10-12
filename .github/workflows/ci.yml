@@ -11,8 +11,20 @@ on:
       - master
 
 jobs:
+  rubocop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.0
+          bundler-cache: true
+      - name: Run static code analysis
+        run: bundle exec rubocop
   unit:
     runs-on: ubuntu-latest
+    needs: rubocop
     strategy:
       matrix:
         ruby:
@@ -26,10 +38,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - name: Install dependencies
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3
+          bundler-cache: true
       - name: Generate the parser
         run: bundle exec rake gen_parser
       - name: Run tests without uploading code coverage

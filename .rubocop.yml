@@ -5,6 +5,7 @@ AllCops:
   Exclude:
     - lib/melt/*.tab.rb
     - tmp/**/*.rb
+    - vendor/bundle/**/*
 
 Layout/HashAlignment:
   EnforcedColonStyle: table
