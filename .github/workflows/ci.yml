@@ -32,5 +32,13 @@ jobs:
           bundle install --jobs 4 --retry 3
       - name: Generate the parser
         run: bundle exec rake gen_parser
-      - name: Run tests
+      - name: Run tests without uploading code coverage
+        if: ${{ matrix.ruby != '3.0' }}
         run: bundle exec rake
+      - name: Run tests and upload coverage to Code Climate
+        if: ${{ matrix.ruby == '3.0' }}
+        uses: paambaati/codeclimate-action@v3.0.0
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TOKEN }}
+        with:
+          coverageCommand: bundle exec rake

@@ -1,8 +1,8 @@
 # Puffy
 
-[![Build Status](https://travis-ci.com/opus-codium/puffy.svg?branch=master)](https://travis-ci.com/opus-codium/puffy)
-[![Maintainability](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/maintainability)](https://codeclimate.com/github/opus-codium/puffy/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/1d46ac8511718fd284fd/test_coverage)](https://codeclimate.com/github/opus-codium/puffy/test_coverage)
+[![Build Status](https://github.com/opus-codium/puffy/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/opus-codium/puffy/actions/workflows/ci.yml)
+[![Maintainability](https://api.codeclimate.com/v1/badges/e12923a13a5e17698b05/maintainability)](https://codeclimate.com/github/opus-codium/puffy/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/e12923a13a5e17698b05/test_coverage)](https://codeclimate.com/github/opus-codium/puffy/test_coverage)
 [![Inline docs](http://inch-ci.org/github/opus-codium/puffy.svg?branch=master)](http://inch-ci.org/github/opus-codium/puffy)
 
 ## Features
