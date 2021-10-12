@@ -16,6 +16,7 @@ Layout/LineLength:
 
 Metrics/BlockLength:
   Exclude:
+    - puffy.gemspec
     - spec/**/*.rb
 
 Metrics/ClassLength:

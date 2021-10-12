@@ -7,7 +7,7 @@ require 'fileutils'
 module Puffy
   # Command-line processing
   class Cli
-    def initialize
+    def initialize # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       cli = self
 
       @main = Cri::Command.define do
