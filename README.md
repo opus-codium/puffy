@@ -25,27 +25,36 @@ Rules must appear in either a *node* or *service* definition, *services* being
 reusable blocks of related rules:
 
 ~~~
-service base do
-  service ntp
-  service ssh
+service ntp do
+  pass proto udp to port ntp
 end
 
-service ntp do
-  pass out proto udp from any to port ntp
+service postgresql do
+  pass proto tcp to port postgresql
 end
 
 service ssh do
-  pass in proto tcp form any to port ssh
+  pass proto tcp to port ssh
+end
+
+service www do
+  pass proto tcp to port {http https}
+end
+
+service base do
+  client ntp
+  server ssh
 end
 
 node 'db.example.com' do
   service base
-  pass in proto tcp from 'www1.example.com' to port postgresql
+  server postgresql from 'www1.example.com'
 end
 
 node /www\d+.example.com/ do
   service base
-  pass in proto tcp from any to port www
-  pass out proto tcp from any to 'db.example.com' port postgresql
+  server www
+  client postgresql to 'db.example.com'
+  pass in proto tcp from any to port 8000
 end
 ~~~
