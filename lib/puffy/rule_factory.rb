@@ -74,8 +74,8 @@ module Puffy
       end
     end
 
-    def af_match_policy?(af)
-      @af.nil? || af.nil? || af == @af
+    def af_match_policy?(address_family)
+      @af.nil? || address_family.nil? || address_family == @af
     end
 
     def host_lookup(host)

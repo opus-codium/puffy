@@ -5,6 +5,7 @@ AllCops:
   Exclude:
     - lib/melt/*.tab.rb
     - tmp/**/*.rb
+    - vendor/bundle/**/*
 
 Layout/HashAlignment:
   EnforcedColonStyle: table
@@ -15,6 +16,7 @@ Layout/LineLength:
 
 Metrics/BlockLength:
   Exclude:
+    - puffy.gemspec
     - spec/**/*.rb
 
 Metrics/ClassLength:

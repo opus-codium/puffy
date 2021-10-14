@@ -8,10 +8,7 @@ require 'puffy/cli'
 begin
   cli = Puffy::Cli.new
   cli.execute(ARGV)
-rescue Puffy::SyntaxError => e
-  $stderr.puts e.message
-  exit 1
-rescue Puffy::ParseError => e
-  $stderr.puts e.message
+rescue Puffy::SyntaxError, Puffy::ParseError => e
+  warn(e.message)
   exit 1
 end

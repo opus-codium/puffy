@@ -11,7 +11,7 @@ class Runner
     $stdin  = stdin
     $stdout = stdout
     $stderr = stderr
-    $kernel = kernel
+    $kernel = kernel # rubocop:disable Style/GlobalVars
   end
 
   def execute!

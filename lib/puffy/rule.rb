@@ -197,7 +197,8 @@ module Puffy
         if res.nil? then nil
         elsif res.ipv4? then :inet
         elsif res.ipv6? then :inet6
-        else raise 'Fail'
+        else
+          raise 'Fail'
         end
       end.uniq.compact
     end

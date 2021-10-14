@@ -15,6 +15,7 @@ require 'puffy/rule_factory'
 require 'puffy/version'
 
 module Puffy
+  # Base class for application errors with a configuration file
   class PuffyError < RuntimeError
     def initialize(message, token)
       super(message)
@@ -54,9 +55,11 @@ module Puffy
     end
   end
 
+  # Invalid configuration file
   class ParseError < PuffyError
   end
 
+  # Syntax error in configuration file
   class SyntaxError < PuffyError
   end
 end
