@@ -67,14 +67,28 @@ rule
             | IPV6 '{' rules '}' { result = val[2].reject { |x| x[:af] == :inet }.map { |x| x[:af] = :inet6 ; x } }
             ;
 
-  pf_rule: SERVICE service_name optional_hosts { result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(val[2]) } }
+  pf_rule: SERVICE service_name optional_hosts {
+             begin
+               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(val[2]) }
+             rescue KeyError
+               raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
+             end
+           }
          | CLIENT service_name optional_hosts  {
-             raise "service #{val[1]} cannot be used as client" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
-             result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :out).deep_merge(val[2]) }
+             begin
+               raise "service #{val[1]} cannot be used as client" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
+               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :out).deep_merge(val[2]) }
+             rescue KeyError
+               raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
+             end
            }
          | SERVER service_name optional_hosts  {
-             raise "service #{val[1]} cannot be used as server" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
-             result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :in).deep_merge(val[2]) }
+             begin
+               raise "service #{val[1]} cannot be used as server" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
+               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :in).deep_merge(val[2]) }
+             rescue KeyError
+               raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
+             end
            }
          | action rule_direction log on_interface rule_af protospec hosts filteropts { result = [val.compact.inject(:merge)] }
          ;
@@ -207,6 +221,7 @@ require 'strscan'
   end
 
   def parse(text)
+    @filename ||= '<stdin>'
     @lineno = 1
     s = StringScanner.new(text)
 
@@ -288,7 +303,7 @@ require 'strscan'
     begin
       do_parse
     rescue Racc::ParseError => e
-      raise ParseError.new("Parse error: unexpected token: #{@current_token[0]}", @current_token[1].merge(filename: @filename))
+      raise ParseError.new("Parse error: unexpected token: #{@current_token[0]}", @current_token[1])
     end
   end
 
@@ -304,6 +319,7 @@ require 'strscan'
       line: @line,
       lineno: @lineno,
       position: @position,
+      filename: @filename,
       length: length,
     }
     @tokens << [token, exvalue]
