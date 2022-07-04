@@ -26,12 +26,12 @@ module Puffy
     end
 
     it 'passes addresses and networks' do
-      result = subject.build(to: { host: IPAddr.new('192.0.2.1') })
+      result = subject.build(to: [{ host: IPAddr.new('192.0.2.1') }])
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.1'))
 
-      result = subject.build(to: { host: IPAddr.new('192.0.2.0/24') })
+      result = subject.build(to: [{ host: IPAddr.new('192.0.2.0/24') }])
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.0/24'))
@@ -41,7 +41,7 @@ module Puffy
       expect(Rule).to receive(:new).twice.and_call_original
       expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
 
-      result = subject.build(to: { host: 'example.com' })
+      result = subject.build(to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
       expect(result[0].to[:host]).to eq(IPAddr.new('2001:DB8::1'))
@@ -51,7 +51,7 @@ module Puffy
     it 'accepts service names' do
       expect(Rule).to receive(:new).twice.and_call_original
 
-      result = subject.build(proto: :tcp, to: { port: %w[http https] })
+      result = subject.build(proto: :tcp, to: [{ port: %w[http https] }])
 
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
@@ -59,13 +59,13 @@ module Puffy
       expect(result[1].proto).to eq(:tcp)
       expect(result[1].to[:port]).to eq(443)
 
-      expect { subject.build(to: { port: 'invalid' }) }.to raise_error('unknown service "invalid"')
+      expect { subject.build(to: [{ port: 'invalid' }]) }.to raise_error('unknown service "invalid"')
     end
 
     it 'accepts service alt-names' do
       expect(Rule).to receive(:new).exactly(3).times.and_call_original
 
-      result = subject.build(proto: :tcp, to: { port: %w[auth tap ident] })
+      result = subject.build(proto: :tcp, to: [{ port: %w[auth tap ident] }])
 
       expect(result.count).to eq(3)
       expect(result[0].proto).to eq(:tcp)
@@ -82,7 +82,7 @@ module Puffy
 
       expect(Rule).to receive(:new).exactly(4).times.and_call_original
 
-      result = subject.build(from: { host: 'example.net' }, to: { host: 'example.com' })
+      result = subject.build(from: [{ host: 'example.net' }], to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
       expect(result[0].from[:host]).to eq(IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'))
@@ -103,13 +103,13 @@ module Puffy
       result = []
 
       subject.ipv4 do
-        result = subject.build(to: { host: 'example.com' })
+        result = subject.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('93.184.216.34'))
 
       subject.ipv6 do
-        result = subject.build(to: { host: 'example.com' })
+        result = subject.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('2606:2800:220:1:248:1893:25c8:1946'))
