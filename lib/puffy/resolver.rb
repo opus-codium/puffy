@@ -29,6 +29,18 @@ module Puffy
       end
     end
 
+    # Resolve the SRV record for +service+ and return its target and port.
+    #
+    # @example
+    #   Resolver.instance.resolv_srv('_http._tcp.deb.debian.org')
+    #   #=> [{ host: 'debian.map.fastlydns.net.', port: 80 }]
+    #
+    # @param service [String] The service to resolve
+    # @return [Array<Hash>]
+    def resolv_srv(service)
+      @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port } }.sort
+    end
+
     private
 
     def resolv_ipaddress(address, address_family)

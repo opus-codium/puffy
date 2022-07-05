@@ -152,6 +152,7 @@ rule
             | hosts_port                   { result = [{ host: nil, port: val[0] }] }
             | '{' host_list '}' hosts_port { result = [{ host: val[1], port: val[3] }] }
             | VARIABLE hosts_port          { result = [{ host: @variables.fetch(val[0][:value]), port: val[1] }] }
+            | SRV '(' STRING ')'           { result = Resolver.instance.resolv_srv(val[2][:value]) }
             ;
 
   hosts_port: PORT '{' port_list '}' { result = val[2] }
@@ -248,6 +249,8 @@ require 'strscan'
       when s.scan(/,/) then         emit(',', s.matched)
       when s.scan(/{/) then         emit('{', s.matched)
       when s.scan(/}/) then         emit('}', s.matched)
+      when s.scan(/\(/) then        emit('(', s.matched)
+      when s.scan(/\)/) then        emit(')', s.matched)
       when s.scan(/service\b/) then emit(:SERVICE, s.matched)
       when s.scan(/client\b/) then  emit(:CLIENT, s.matched)
       when s.scan(/server\b/) then  emit(:SERVER, s.matched)
@@ -281,6 +284,7 @@ require 'strscan'
       when s.scan(/port\b/) then    emit(:PORT, s.matched)
       when s.scan(/nat-to\b/) then  emit(:NAT_TO, s.matched)
       when s.scan(/rdr-to\b/) then  emit(:RDR_TO, s.matched)
+      when s.scan(/srv\b/) then     emit(:SRV, s.matched)
 
       when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           emit(:ADDRESS, ip, s.matched_size)
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
