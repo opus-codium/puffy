@@ -66,6 +66,8 @@ module Puffy
 
       @af = detect_af unless af
 
+      self.proto ||= from_proto_hint || to_proto_hint
+
       raise "unsupported action `#{options[:action]}'" unless valid_action?
       raise 'if from_port or to_port is specified, the protocol must also be given' if port_without_protocol?
     end
@@ -138,16 +140,22 @@ module Puffy
     #   Returns the source host of the Puffy::Rule.
     # @!method from_port
     #   Returns the source port of the Puffy::Rule.
+    # @!method from_proto_hint
+    #   Returns the proto hint of the Puffy::Rule.
     # @!method to_host
     #   Returns the destination host of the Puffy::Rule.
     # @!method to_port
     #   Returns the destination port of the Puffy::Rule.
+    # @!method to_proto_hint
+    #   Returns the proto hint of the Puffy::Rule.
     # @!method rdr_to_host
     #   Returns the redirect destination host of the Puffy::Rule.
     # @!method rdr_to_port
     #   Returns the redirect destination port of the Puffy::Rule.
+    # @!method rdr_to_proto_hint
+    #   Returns the proto hint of the Puffy::Rule (does not make sense).
     %i[from to rdr_to].each do |destination|
-      %i[host port].each do |param|
+      %i[host port proto_hint].each do |param|
         define_method("#{destination}_#{param}") do
           res = public_send(destination)
           res && res[param]

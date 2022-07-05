@@ -10,7 +10,7 @@ Feature: Functions
     Given a file named "network.puffy" with:
     """
     node 'example.com' do
-      pass out proto tcp from any to srv('_x-puppet._tcp.blogreen.org')
+      pass out to srv('_x-puppet._tcp.blogreen.org')
     end
     """
     When I successfully run `puffy generate -f Pf network.puffy example.com`

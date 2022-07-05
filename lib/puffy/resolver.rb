@@ -38,7 +38,8 @@ module Puffy
     # @param service [String] The service to resolve
     # @return [Array<Hash>]
     def resolv_srv(service)
-      @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port } }.sort
+      proto = service.split('.')[1][1..-1].to_sym
+      @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port, proto_hint: proto } }.sort
     end
 
     private
