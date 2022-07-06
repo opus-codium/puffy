@@ -28,19 +28,31 @@ module Expandable
 
   private
 
-  def expand_array(key)
+  def expand_array(key) # rubocop:disable Metrics/MethodLength
     orig = @expand_res
     @expand_res = []
     fetch(key).each do |value|
-      @expand_res += orig.map { |hash| hash.merge(key => value) }
+      if value.respond_to?(:expand)
+        value.expand.each do |v|
+          @expand_res += orig.map { |hash| hash.merge(key => v) }
+        end
+      else
+        @expand_res += orig.map { |hash| hash.merge(key => value) }
+      end
     end
   end
 
-  def expand_hash(key)
+  def expand_hash(key) # rubocop:disable Metrics/MethodLength
     orig = @expand_res
     @expand_res = []
     fetch(key).expand.each do |value|
-      @expand_res += orig.map { |hash| hash.merge(key => value) }
+      if value.respond_to?(:expand)
+        value.expand.each do |v|
+          @expand_res += orig.map { |hash| hash.merge(key => v) }
+        end
+      else
+        @expand_res += orig.map { |hash| hash.merge(key => value) }
+      end
     end
   end
 end

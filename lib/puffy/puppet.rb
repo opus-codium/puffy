@@ -29,9 +29,7 @@ module Puffy
 
         next unless fragment_changed?(fragment_name, fragment_content)
 
-        File.open(fragment_name, 'w') do |f|
-          f.write(fragment_content)
-        end
+        File.write(fragment_name, fragment_content)
       end
     end
 

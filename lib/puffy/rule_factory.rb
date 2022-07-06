@@ -34,7 +34,7 @@ module Puffy
     def build(options = {})
       return [] if options == {}
 
-      options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: { host: nil, port: nil }, to: { host: nil, port: nil }, nat_to: nil, rdr_to: { host: nil, port: nil } }.merge(options)
+      options = { action: nil, return: false, dir: nil, af: nil, proto: nil, on: nil, from: [{ host: nil, port: nil }], to: [{ host: nil, port: nil }], nat_to: nil, rdr_to: [{ host: nil, port: nil }] }.merge(options)
 
       options = resolv_hostnames_and_ports(options)
       instanciate_rules(options)
@@ -44,8 +44,10 @@ module Puffy
 
     def resolv_hostnames_and_ports(options)
       %i[from to rdr_to].each do |endpoint|
-        options[endpoint][:host] = host_lookup(options[endpoint][:host])
-        options[endpoint][:port] = port_lookup(options[endpoint][:port])
+        options[endpoint].map do |ep|
+          ep[:host] = host_lookup(ep[:host])
+          ep[:port] = port_lookup(ep[:port])
+        end
       end
       options[:nat_to] = host_lookup(options[:nat_to])
       options
