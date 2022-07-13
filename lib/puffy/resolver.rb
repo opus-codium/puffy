@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'open-uri'
 require 'resolv'
 require 'singleton'
 
@@ -42,7 +43,25 @@ module Puffy
       @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port, proto_hint: proto } }.sort
     end
 
+    def resolv_apt_mirror(url)
+      res = []
+      http_url = url.sub(%r{^mirror(\+http)?://}, 'http://')
+      res << parse_url(http_url)
+
+      URI.parse(http_url).open do |document|
+        document.each_line do |line|
+          res << parse_url(line)
+        end
+      end
+      res
+    end
+
     private
+
+    def parse_url(url)
+      url =~ %r{^([^:]+)://([^/]+)}
+      { host: Regexp.last_match(2), port: Regexp.last_match(1), proto_hint: :tcp }
+    end
 
     def resolv_ipaddress(address, address_family)
       filter_af(address, address_family)

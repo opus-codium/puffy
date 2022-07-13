@@ -153,6 +153,7 @@ rule
             | '{' host_list '}' hosts_port { result = [{ host: val[1], port: val[3] }] }
             | VARIABLE hosts_port          { result = [{ host: @variables.fetch(val[0][:value]), port: val[1] }] }
             | SRV '(' STRING ')'           { result = Resolver.instance.resolv_srv(val[2][:value]) }
+            | APT_MIRROR '(' STRING ')'    { result = Resolver.instance.resolv_apt_mirror(val[2][:value]) }
             ;
 
   hosts_port: PORT '{' port_list '}' { result = val[2] }
@@ -285,6 +286,7 @@ require 'strscan'
       when s.scan(/nat-to\b/) then  emit(:NAT_TO, s.matched)
       when s.scan(/rdr-to\b/) then  emit(:RDR_TO, s.matched)
       when s.scan(/srv\b/) then     emit(:SRV, s.matched)
+      when s.scan(/apt-mirror\b/) then emit(:APT_MIRROR, s.matched)
 
       when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           emit(:ADDRESS, ip, s.matched_size)
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
