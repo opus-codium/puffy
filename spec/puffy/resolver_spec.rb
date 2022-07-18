@@ -27,5 +27,23 @@ module Puffy
     it 'raises exceptions with unknown hosts' do
       expect { subject.resolv('host.invalid.') }.to raise_error('"host.invalid." does not resolve to any valid IP address.')
     end
+
+    describe '#resolv_apt_mirror' do
+      it 'works' do
+        uri = double
+        allow(URI).to receive(:parse).with('http://apt.example.org/mirror.lst').and_return(uri)
+        allow(uri).to receive(:open).and_yield <<~MIRRORS
+          ftp://ftp.de.debian.org/debian/
+          http://ftp.us.debian.org/debian/
+          https://deb.debian.org/debian/
+        MIRRORS
+        expect(subject.resolv_apt_mirror('mirror://apt.example.org/mirror.lst')).to eq([
+                                                                                         { host: 'apt.example.org', port: 'http', proto_hint: :tcp },
+                                                                                         { host: 'ftp.de.debian.org', port: 'ftp', proto_hint: :tcp },
+                                                                                         { host: 'ftp.us.debian.org', port: 'http', proto_hint: :tcp },
+                                                                                         { host: 'deb.debian.org', port: 'https', proto_hint: :tcp },
+                                                                                       ])
+      end
+    end
   end
 end

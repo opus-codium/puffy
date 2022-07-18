@@ -5,67 +5,52 @@ rule
         | policy target { @default_policy = val[0] }
         | service target
         |
-        ;
 
   assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].freeze }
              | IDENTIFIER '=' variable_value               { @variables[val[0][:value]] = val[2].freeze }
-             ;
 
   variable_value_list: variable_value_list ',' variable_value { result = val[0] + [val[2]] }
                      | variable_value_list variable_value     { result = val[0] + [val[1]] }
                      | variable_value                         { result = [val[0]] }
-                     ;
 
   variable_value: ADDRESS { result = val[0][:value] }
                 | STRING  { result = val[0][:value] }
-                ;
 
   service: SERVICE service_name block { @services[val[1]] = val[2] }
-         ;
 
   service_name: IDENTIFIER { result = val[0][:value] }
               | STRING     { result = val[0][:value] }
-              ;
 
   node: NODE '{' node_name_list '}' block_with_policy { @nodes[val[2]] = val[4]; @saved_policies[val[2]] = @policy }
       | NODE node_name block_with_policy              { @nodes[val[1]] = val[2]; @saved_policies[val[1]] = @policy }
-      ;
 
   node_name_list: node_name_list ',' node_name { result = val[0] + [val[2]] }
                 | node_name_list node_name     { result = val[0] + [val[1]] }
                 | node_name                    { result = [val[0]] }
-                ;
 
   node_name: STRING { result = val[0][:value] }
            | REGEX  { result = val[0][:value] }
-           ;
 
   block_with_policy: '{' policy rules '}' { @policy = val[1]; result = val[2] }
                    | DO policy rules END  { @policy = val[1]; result = val[2] }
                    | block                { @policy = nil; result = val[0] }
-                   ;
 
   block: '{' rules '}' { result = val[1].freeze }
        | DO rules END  { result = val[1].freeze }
-       ;
 
   rules: pf_rule rules    { result = val[0] + val[1] }
        | ipv4_block rules { result = val[0] + val[1] }
        | ipv6_block rules { result = val[0] + val[1] }
        |                  { result = [] }
-       ;
 
   policy: POLICY action { result = val[1][:action] }
         | POLICY LOG    { result = 'log' }
-        ;
 
   ipv4_block: IPV4 DO rules END  { result = val[2].reject { |x| x[:af] == :inet6 }.map { |x| x[:af] = :inet ; x } }
             | IPV4 '{' rules '}' { result = val[2].reject { |x| x[:af] == :inet6 }.map { |x| x[:af] = :inet ; x } }
-            ;
 
   ipv6_block: IPV6 DO rules END  { result = val[2].reject { |x| x[:af] == :inet }.map { |x| x[:af] = :inet6 ; x } }
             | IPV6 '{' rules '}' { result = val[2].reject { |x| x[:af] == :inet }.map { |x| x[:af] = :inet6 ; x } }
-            ;
 
   pf_rule: SERVICE service_name optional_hosts {
              begin
@@ -91,61 +76,48 @@ rule
              end
            }
          | action rule_direction log on_interface rule_af protospec hosts filteropts { result = [val.compact.inject(:merge)] }
-         ;
 
   log: LOG
      |
-     ;
 
   on_interface:
               | ON STRING { result = { on: val[1][:value] } }
-              ;
 
   action: BLOCK  { result = { action: :block } }
         | PASS   { result = { action: :pass } }
-        ;
 
   rule_direction:
                 | '{' direction_list '}' { result = { dir: val[1] } }
                 | direction              { result = { dir: val[0] } }
-                ;
 
   direction_list: direction_list ',' direction { result = val[0] + [val[2]] }
                 | direction_list direction     { result = val[0] + [val[1]] }
                 | direction                    { result = [val[0]] }
-                ;
 
   direction: IN  { result = :in }
            | OUT { result = :out }
-           ;
 
   rule_af:
          | INET   { result = { af: :inet } }
          | INET6  { result = { af: :inet6 } }
-         ;
 
   protospec:
            | PROTO '{' protocol_list '}' { result = { proto: val[2] } }
            | PROTO protocol              { result = { proto: val[1] } }
-           ;
 
   protocol_list: protocol_list ',' protocol { result = val[0] + [val[2]] }
                | protocol_list protocol     { result = val[0] + [val[1]] }
                | protocol                   { result = [val[0]] }
-               ;
 
   protocol: IDENTIFIER { result = val[0][:value].to_sym }
-          ;
 
   hosts: FROM hosts_host TO hosts_host { result = { from: val[1], to: val[3] } }
        | FROM hosts_host               { result = { from: val[1] } }
        | TO hosts_host                 { result = { to: val[1] } }
        | ALL                           { result = {} }
-       ;
 
   optional_hosts: hosts
                 |       { result = {} }
-                ;
 
   hosts_host: ANY hosts_port               { result = [{ host: nil, port: val[1] }] }
             | host hosts_port              { result = [{ host: val[0], port: val[1] }] }
@@ -153,41 +125,34 @@ rule
             | '{' host_list '}' hosts_port { result = [{ host: val[1], port: val[3] }] }
             | VARIABLE hosts_port          { result = [{ host: @variables.fetch(val[0][:value]), port: val[1] }] }
             | SRV '(' STRING ')'           { result = Resolver.instance.resolv_srv(val[2][:value]) }
-            ;
+            | APT_MIRROR '(' STRING ')'    { result = Resolver.instance.resolv_apt_mirror(val[2][:value]) }
 
   hosts_port: PORT '{' port_list '}' { result = val[2] }
             | PORT port              { result = val[1] }
             |
-            ;
 
   port_list: port_list ',' port { result = val[0] + [val[2]] }
            | port_list port     { result = val[0] + [val[1]] }
            | port               { result = [val[0]] }
-           ;
 
   port: INTEGER             { result = val[0][:value] }
       | IDENTIFIER          { result = val[0][:value] }
       | INTEGER ':' INTEGER { result = Range.new(val[0][:value], val[2][:value]) }
-      ;
 
   host: ADDRESS { result = val[0][:value] }
       | STRING  { result = val[0][:value] }
-      ;
 
   host_list: host_list ',' host { result = val[0] + [val[2]] }
            | host_list host     { result = val[0] + [val[1]] }
            | host               { result = [val[0]] }
-           ;
 
   filteropts: filteropts ',' filteropt  { result = val[0].merge(val[2]) }
             | filteropts filteropt      { result = val[0].merge(val[1]) }
             |                           { result = {} }
-            ;
 
   filteropt: RDR_TO ADDRESS PORT INTEGER { result = { rdr_to: [{ host: val[1][:value], port: val[3][:value] }] } }
            | RDR_TO ADDRESS              { result = { rdr_to: [{ host: val[1][:value], port: nil }] } }
            | NAT_TO ADDRESS              { result = { nat_to: val[1][:value] } }
-           ;
 end
 
 ---- header
@@ -285,6 +250,7 @@ require 'strscan'
       when s.scan(/nat-to\b/) then  emit(:NAT_TO, s.matched)
       when s.scan(/rdr-to\b/) then  emit(:RDR_TO, s.matched)
       when s.scan(/srv\b/) then     emit(:SRV, s.matched)
+      when s.scan(/apt-mirror\b/) then emit(:APT_MIRROR, s.matched)
 
       when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           emit(:ADDRESS, ip, s.matched_size)
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
