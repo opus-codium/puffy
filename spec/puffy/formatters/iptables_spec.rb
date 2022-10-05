@@ -6,7 +6,7 @@ require 'timecop'
 
 module Puffy
   module Formatters
-    RSpec.describe Netfilter::Rule do
+    RSpec.describe Iptables::Rule do
       it 'formats simple rules' do
         rule = Rule.new(action: :pass, dir: :in, proto: :tcp, to: { host: nil, port: 80 })
         expect(subject.emit_rule(rule)).to eq('-A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT')
@@ -60,7 +60,7 @@ module Puffy
       end
     end
 
-    RSpec.describe Netfilter::Ruleset do
+    RSpec.describe Iptables::Ruleset do
       context 'ruleset' do
         before do
           Timecop.freeze('2000-01-01 00:00:00')
