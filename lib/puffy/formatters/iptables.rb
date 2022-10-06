@@ -2,7 +2,7 @@
 
 module Puffy
   module Formatters
-    module Netfilter # :nodoc:
+    module Iptables # :nodoc:
       # Returns the target to jump to
       #
       # @return [String]
@@ -15,7 +15,7 @@ module Puffy
         end
       end
 
-      # Netfilter implementation of a Puffy Ruleset formatter.
+      # Iptables implementation of a Puffy Ruleset formatter.
       class Ruleset < Puffy::Formatters::Base::Ruleset # :nodoc:
         def self.known_conntrack_helpers
           {
@@ -27,7 +27,7 @@ module Puffy
           }
         end
 
-        # Returns a Netfilter String representation of the provided +rules+ Array of Puffy::Rule with the +policy+ policy.
+        # Returns a Iptables String representation of the provided +rules+ Array of Puffy::Rule with the +policy+ policy.
         def emit_ruleset(rules, policy = :block)
           parts = []
           parts << emit_header
@@ -74,7 +74,7 @@ module Puffy
         end
 
         def emit_chain_policies(policies)
-          policies.map { |chain, action| ":#{chain.upcase} #{Puffy::Formatters::Netfilter.iptables_action(action)} [0:0]" }
+          policies.map { |chain, action| ":#{chain.upcase} #{Puffy::Formatters::Iptables.iptables_action(action)} [0:0]" }
         end
 
         def input_filter_ruleset(rules)
@@ -114,9 +114,9 @@ module Puffy
         end
       end
 
-      # Netfilter implementation of a Puffy Rule formatter.
+      # Iptables implementation of a Puffy Rule formatter.
       class Rule < Puffy::Formatters::Base::Rule # :nodoc:
-        # Returns a Netfilter String representation of the provided +rule+ Puffy::Rule.
+        # Returns a Iptables String representation of the provided +rule+ Puffy::Rule.
         def emit_rule(rule)
           if rule.nat?
             emit_postrouting_rule(rule)
@@ -251,7 +251,7 @@ module Puffy
         end
 
         def emit_jump(rule)
-          "-j #{Puffy::Formatters::Netfilter.iptables_action(rule)}"
+          "-j #{Puffy::Formatters::Iptables.iptables_action(rule)}"
         end
 
         def pp_rule(parts)
