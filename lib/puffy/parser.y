@@ -21,7 +21,7 @@ rule
   service_name: IDENTIFIER { result = val[0][:value] }
               | STRING     { result = val[0][:value] }
 
-  node: NODE '{' node_name_list '}' block_with_policy { @nodes[val[2]] = val[4]; @saved_policies[val[2]] = @policy }
+  node: NODE '{' node_name_list '}' block_with_policy { val[2].each { |name| @nodes[name] = val[4]; @saved_policies[name] = @policy } }
       | NODE node_name block_with_policy              { @nodes[val[1]] = val[2]; @saved_policies[val[1]] = @policy }
 
   node_name_list: node_name_list ',' node_name { result = val[0] + [val[2]] }
