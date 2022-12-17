@@ -210,13 +210,6 @@ require 'strscan'
           end
           n += 1
         end
-      when s.scan(/=/) then         emit('=', s.matched)
-      when s.scan(/:/) then         emit(':', s.matched)
-      when s.scan(/,/) then         emit(',', s.matched)
-      when s.scan(/{/) then         emit('{', s.matched)
-      when s.scan(/}/) then         emit('}', s.matched)
-      when s.scan(/\(/) then        emit('(', s.matched)
-      when s.scan(/\)/) then        emit(')', s.matched)
       when s.scan(/service\b/) then emit(:SERVICE, s.matched)
       when s.scan(/client\b/) then  emit(:CLIENT, s.matched)
       when s.scan(/server\b/) then  emit(:SERVER, s.matched)
@@ -258,6 +251,14 @@ require 'strscan'
 
       when s.scan(/\d+/) then      emit(:INTEGER, s.matched.to_i, s.matched_size)
       when s.scan(/\w[\w-]+/) then emit(:IDENTIFIER, s.matched)
+
+      when s.scan(/=/) then         emit('=', s.matched)
+      when s.scan(/:/) then         emit(':', s.matched)
+      when s.scan(/,/) then         emit(',', s.matched)
+      when s.scan(/{/) then         emit('{', s.matched)
+      when s.scan(/}/) then         emit('}', s.matched)
+      when s.scan(/\(/) then        emit('(', s.matched)
+      when s.scan(/\)/) then        emit(')', s.matched)
       else
         raise SyntaxError.new('Syntax error', { filename: @filename, lineno: @lineno, position: @position, line: @line })
       end
