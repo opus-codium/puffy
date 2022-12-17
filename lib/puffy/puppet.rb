@@ -15,8 +15,8 @@ module Puffy
 
       @formatters = [
         Puffy::Formatters::Pf::Ruleset.new,
-        Puffy::Formatters::Netfilter4::Ruleset.new,
-        Puffy::Formatters::Netfilter6::Ruleset.new,
+        Puffy::Formatters::Iptables4::Ruleset.new,
+        Puffy::Formatters::Iptables6::Ruleset.new,
       ]
     end
 
