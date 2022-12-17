@@ -20,7 +20,7 @@ Feature: Generate firewall rules
     """
 
   Scenario: Generate IPv4 firewall rules for a Linux node
-    When I successfully run `puffy generate -f Netfilter4 network.puffy example.com`
+    When I successfully run `puffy generate -f Iptables4 network.puffy example.com`
     Then the stdout should contain:
     """
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
@@ -28,7 +28,7 @@ Feature: Generate firewall rules
     """
 
   Scenario: Generate IPv6 firewall rules for a Linux node
-    When I successfully run `puffy generate -f Netfilter6 network.puffy example.com`
+    When I successfully run `puffy generate -f Iptables6 network.puffy example.com`
     Then the stdout should contain:
     """
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT

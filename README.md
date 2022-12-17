@@ -7,7 +7,7 @@
 
 ## Features
 
-* Generate rules for [Netfilter](http://www.netfilter.org/) and [PF](http://www.openbsd.org/faq/pf/) (extensible);
+* Generate rules for [iptables](http://www.netfilter.org/) and [PF](http://www.openbsd.org/faq/pf/) (extensible);
 * IPv6 and IPv4 support;
 * Define the configuration of multiple *nodes* in a single file;
 * Define *services* as group of rules to mix-in in *nodes* rules definitions;
