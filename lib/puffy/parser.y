@@ -54,7 +54,7 @@ rule
 
   pf_rule: SERVICE service_name optional_hosts {
              begin
-               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(val[2]) }
+               result = constraint_service_to_hosts(val[1], val[2])
              rescue KeyError
                raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
              end
@@ -62,7 +62,7 @@ rule
          | CLIENT service_name optional_hosts  {
              begin
                raise "service #{val[1]} cannot be used as client" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
-               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :out).deep_merge(val[2]) }
+               result = constraint_service_to_hosts(val[1], val[2]).map { |item| item.merge(dir: :out) }
              rescue KeyError
                raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
              end
@@ -70,7 +70,7 @@ rule
          | SERVER service_name optional_hosts  {
              begin
                raise "service #{val[1]} cannot be used as server" if @services.fetch(val[1]).map { |x| x[:dir] }.compact.any?
-               result = @services.fetch(val[1]).deep_dup.map { |x| x.merge(dir: :in).deep_merge(val[2]) }
+               result = constraint_service_to_hosts(val[1], val[2]).map { |item| item.merge(dir: :in) }
              rescue KeyError
                raise ParseError.new("Parse error: service \"#{val[1]}\" is not defined", val[0])
              end
@@ -349,4 +349,24 @@ require 'strscan'
 
   def policy_for(hostname)
     prefered_value_for_hostname(@saved_policies, hostname) || @default_policy || :block
+  end
+
+  def constraint_service_to_hosts(service, hosts)
+    result = @services.fetch(service).deep_dup
+    result.map! do |item|
+      item[:from] = if item[:from]
+        item[:from].product(hosts.fetch(:from, [{}])).map { |parts| parts[0].merge(parts[1].compact) }
+      else
+        hosts.fetch(:from, [{}])
+      end
+
+      item[:to] = if item[:to]
+        item[:to].product(hosts.fetch(:to, [{}])).map { |parts| parts[0].merge(parts[1].compact) }
+      else
+        hosts.fetch(:to, [{}])
+      end
+
+      item
+    end
+    result
   end
