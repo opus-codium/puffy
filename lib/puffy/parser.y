@@ -158,6 +158,7 @@ end
 ---- header
 
 require 'deep_merge'
+require 'ipaddr'
 require 'strscan'
 
 ---- inner
