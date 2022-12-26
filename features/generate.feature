@@ -7,6 +7,7 @@ Feature: Generate firewall rules
     Given a file named "network.puffy" with:
     """
     node 'example.com' do
+      pass proto tcp from any to port ssh
       pass in proto tcp from any to port {http https}
     end
     """
@@ -15,6 +16,7 @@ Feature: Generate firewall rules
     When I successfully run `puffy generate -f Pf network.puffy example.com`
     Then the stdout should contain:
     """
+    pass quick proto tcp to any port 22
     pass in quick proto tcp to any port 80
     pass in quick proto tcp to any port 443
     """
@@ -23,14 +25,24 @@ Feature: Generate firewall rules
     When I successfully run `puffy generate -f Iptables4 network.puffy example.com`
     Then the stdout should contain:
     """
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    """
+    And the stdout should contain:
+    """
+    -A OUTPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
     """
 
   Scenario: Generate IPv6 firewall rules for a Linux node
     When I successfully run `puffy generate -f Iptables6 network.puffy example.com`
     Then the stdout should contain:
     """
+    -A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
+    """
+    And the stdout should contain:
+    """
+    -A OUTPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
     """
