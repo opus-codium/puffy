@@ -106,11 +106,19 @@ module Puffy
         end
 
         def input_filter_rules(rules)
-          rules.select { |r| r.filter? && r.in? }
+          rules.select { |r| r.filter? && r.in? }.map do |rule|
+            dup = rule.dup
+            dup.dir = :in
+            dup
+          end
         end
 
         def output_filter_rules(rules)
-          rules.select { |r| r.filter? && r.out? }
+          rules.select { |r| r.filter? && r.out? }.map do |rule|
+            dup = rule.dup
+            dup.dir = :out
+            dup
+          end
         end
       end
 
