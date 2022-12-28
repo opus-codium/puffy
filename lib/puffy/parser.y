@@ -6,15 +6,16 @@ rule
         | service target
         |
 
-  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].freeze }
+  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].flatten.freeze }
              | IDENTIFIER '=' variable_value               { @variables[val[0][:value]] = val[2].freeze }
 
   variable_value_list: variable_value_list ',' variable_value { result = val[0] + [val[2]] }
                      | variable_value_list variable_value     { result = val[0] + [val[1]] }
                      | variable_value                         { result = [val[0]] }
 
-  variable_value: ADDRESS { result = val[0][:value] }
-                | STRING  { result = val[0][:value] }
+  variable_value: ADDRESS  { result = val[0][:value] }
+                | STRING   { result = val[0][:value] }
+                | VARIABLE { result = @variables.fetch(val[0][:value]) }
 
   service: SERVICE service_name block { @services[val[1]] = val[2] }
 
