@@ -225,7 +225,7 @@ require 'strscan'
       when s.scan(/do\b/) then      emit(:DO, s.matched)
       when s.scan(/end\b/) then     emit(:END, s.matched)
 
-      when s.scan(/\$\S+/) then     emit(:VARIABLE, s.matched[1..-1], s.matched_size)
+      when s.scan(/\$\w[\w-]*/) then emit(:VARIABLE, s.matched[1..-1], s.matched_size)
 
       when s.scan(/pass\b/) then    emit(:PASS, s.matched)
       when s.scan(/block\b/) then   emit(:BLOCK, s.matched)
@@ -251,7 +251,7 @@ require 'strscan'
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
 
       when s.scan(/\d+/) then      emit(:INTEGER, s.matched.to_i, s.matched_size)
-      when s.scan(/\w[\w-]+/) then emit(:IDENTIFIER, s.matched)
+      when s.scan(/\w[\w-]*/) then emit(:IDENTIFIER, s.matched)
 
       when s.scan(/=/) then         emit('=', s.matched)
       when s.scan(/:/) then         emit(':', s.matched)
