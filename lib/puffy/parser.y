@@ -6,15 +6,16 @@ rule
         | service target
         |
 
-  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].freeze }
+  assignation: IDENTIFIER '=' '{' variable_value_list '}'  { @variables[val[0][:value]] = val[3].flatten.freeze }
              | IDENTIFIER '=' variable_value               { @variables[val[0][:value]] = val[2].freeze }
 
   variable_value_list: variable_value_list ',' variable_value { result = val[0] + [val[2]] }
                      | variable_value_list variable_value     { result = val[0] + [val[1]] }
                      | variable_value                         { result = [val[0]] }
 
-  variable_value: ADDRESS { result = val[0][:value] }
-                | STRING  { result = val[0][:value] }
+  variable_value: ADDRESS  { result = val[0][:value] }
+                | STRING   { result = val[0][:value] }
+                | VARIABLE { result = @variables.fetch(val[0][:value]) }
 
   service: SERVICE service_name block { @services[val[1]] = val[2] }
 
@@ -224,7 +225,7 @@ require 'strscan'
       when s.scan(/do\b/) then      emit(:DO, s.matched)
       when s.scan(/end\b/) then     emit(:END, s.matched)
 
-      when s.scan(/\$\S+/) then     emit(:VARIABLE, s.matched[1..-1], s.matched_size)
+      when s.scan(/\$\w[\w-]*/) then emit(:VARIABLE, s.matched[1..-1], s.matched_size)
 
       when s.scan(/pass\b/) then    emit(:PASS, s.matched)
       when s.scan(/block\b/) then   emit(:BLOCK, s.matched)
@@ -250,7 +251,7 @@ require 'strscan'
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
 
       when s.scan(/\d+/) then      emit(:INTEGER, s.matched.to_i, s.matched_size)
-      when s.scan(/\w[\w-]+/) then emit(:IDENTIFIER, s.matched)
+      when s.scan(/\w[\w-]*/) then emit(:IDENTIFIER, s.matched)
 
       when s.scan(/=/) then         emit('=', s.matched)
       when s.scan(/:/) then         emit(':', s.matched)
