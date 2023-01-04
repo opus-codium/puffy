@@ -1,6 +1,18 @@
 # Changelog
 
-## [v0.2.0](https://github.com/opus-codium/puffy/tree/v0.2.0) (2022-12-17)
+## [v0.3.0](https://github.com/opus-codium/puffy/tree/v0.3.0) (2023-01-04)
+
+[Full Changelog](https://github.com/opus-codium/puffy/compare/v0.2.0...v0.3.0)
+
+**Implemented enhancements:**
+
+- Add support for nested variables [\#29](https://github.com/opus-codium/puffy/pull/29) ([smortex](https://github.com/smortex))
+
+**Fixed bugs:**
+
+- Fix iptables rules without direction [\#28](https://github.com/opus-codium/puffy/pull/28) ([smortex](https://github.com/smortex))
+
+## [v0.2.0](https://github.com/opus-codium/puffy/tree/v0.2.0) (2022-12-18)
 
 [Full Changelog](https://github.com/opus-codium/puffy/compare/v0.1.0...v0.2.0)
 
