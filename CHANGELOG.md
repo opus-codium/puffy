@@ -1,5 +1,13 @@
 # Changelog
 
+## [v0.3.1](https://github.com/opus-codium/puffy/tree/v0.3.1) (2023-11-22)
+
+[Full Changelog](https://github.com/opus-codium/puffy/compare/v0.3.0...v0.3.1)
+
+**Fixed bugs:**
+
+- Ensure parser is up-to-date before build [\#31](https://github.com/opus-codium/puffy/pull/31) ([smortex](https://github.com/smortex))
+
 ## [v0.3.0](https://github.com/opus-codium/puffy/tree/v0.3.0) (2023-01-04)
 
 [Full Changelog](https://github.com/opus-codium/puffy/compare/v0.2.0...v0.3.0)
