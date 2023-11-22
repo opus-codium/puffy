@@ -3,7 +3,7 @@ AllCops:
   AllowSymlinksInCacheRootDirectory: true
   NewCops: enable
   Exclude:
-    - lib/melt/*.tab.rb
+    - lib/puffy/*.tab.rb
     - tmp/**/*.rb
     - vendor/bundle/**/*
 

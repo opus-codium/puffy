@@ -33,17 +33,4 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'cri'
   spec.add_runtime_dependency 'deep_merge'
-
-  spec.add_development_dependency 'aruba'
-  spec.add_development_dependency 'bundler'
-  spec.add_development_dependency 'cucumber'
-  spec.add_development_dependency 'github_changelog_generator'
-  spec.add_development_dependency 'racc'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'rubocop-rake'
-  spec.add_development_dependency 'rubocop-rspec'
-  spec.add_development_dependency 'simplecov'
-  spec.add_development_dependency 'timecop'
 end
