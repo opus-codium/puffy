@@ -18,12 +18,10 @@ Feature: Functions
     """
     pass out quick proto tcp to 2600:3c03::f03c:91ff:fedf:e379 port 80
     pass out quick proto tcp to 2a01:7e00::f03c:91ff:fedf:226a port 80
-    pass out quick proto tcp to 2a03:b0c0:2:d0::1012:5001 port 80
     pass out quick proto tcp to 66.228.41.18 port 80
-    pass out quick proto tcp to 128.199.57.137 port 80
+    pass out quick proto tcp to 144.76.99.150 port 80
     pass out quick proto tcp to 178.79.157.154 port 80
-    pass out quick proto tcp to 2a03:b0c0:2:d0::1012:5001 port 443
-    pass out quick proto tcp to 128.199.57.137 port 443
+    pass out quick proto tcp to 144.76.99.150 port 443
     pass out quick proto tcp to 2a01:7e00::f03c:91ff:fedf:226a port 443
     pass out quick proto tcp to 178.79.157.154 port 443
     pass out quick proto tcp to 2600:3c03::f03c:91ff:fedf:e379 port 443
