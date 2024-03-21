@@ -28,5 +28,5 @@ desc 'Generate the puffy language parser'
 task gen_parser: 'lib/puffy/parser.tab.rb'
 
 file 'lib/puffy/parser.tab.rb' => 'lib/puffy/parser.y' do
-  `racc -S lib/puffy/parser.y`
+  `racc --embedded --frozen --output-status lib/puffy/parser.y`
 end
