@@ -64,8 +64,7 @@ module Puffy
     def initialize(options = {})
       send_options(options)
 
-      @af = detect_af unless af
-
+      self.af ||= detect_af
       self.proto ||= from_proto_hint || to_proto_hint
 
       raise "unsupported action `#{options[:action]}'" unless valid_action?
