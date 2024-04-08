@@ -1,5 +1,14 @@
 # Changelog
 
+## [v1.0.0](https://github.com/opus-codium/puffy/tree/v1.0.0) (2024-04-09)
+
+[Full Changelog](https://github.com/opus-codium/puffy/compare/v0.3.1...v1.0.0)
+
+**Implemented enhancements:**
+
+- Setup dependabot [\#36](https://github.com/opus-codium/puffy/pull/36) ([smortex](https://github.com/smortex))
+- Add support for Ruby 3.3 [\#33](https://github.com/opus-codium/puffy/pull/33) ([smortex](https://github.com/smortex))
+
 ## [v0.3.1](https://github.com/opus-codium/puffy/tree/v0.3.1) (2023-11-22)
 
 [Full Changelog](https://github.com/opus-codium/puffy/compare/v0.3.0...v0.3.1)
