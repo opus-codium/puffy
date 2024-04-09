@@ -59,15 +59,13 @@ end
 
 class Array # :nodoc:
   def deep_dup
-    array = []
-    each do |value|
-      array << if value.respond_to?(:deep_dup)
-                 value.deep_dup
-               else
-                 value.dup
-               end
+    map do |value|
+      if value.respond_to?(:deep_dup)
+        value.deep_dup
+      else
+        value.dup
+      end
     end
-    array
   end
 end
 
