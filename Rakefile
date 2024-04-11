@@ -14,7 +14,7 @@ Cucumber::Rake::Task.new(:features)
 GitHubChangelogGenerator::RakeTask.new :changelog do |config|
   config.user = 'opus-codium'
   config.project = 'puffy'
-  config.exclude_labels = ['skip-changelog']
+  config.exclude_labels = %w[dependencies skip-changelog]
   config.future_release = "v#{Puffy::VERSION}"
 end
 
