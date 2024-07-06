@@ -56,6 +56,14 @@ module Puffy
       res
     end
 
+    def resolv_azure_ip_range(service_name)
+      # https://www.microsoft.com/en-us/download/details.aspx?id=56519
+      @azure_ip_range ||= JSON.parse(URI('https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_20240701.json').read)
+
+      res = @azure_ip_range['values'].select { |service| service['name'] == service_name }[0]['properties']['addressPrefixes']
+      res.map { |ip| IPAddr.new(ip) }
+    end
+
     private
 
     def parse_url(url)

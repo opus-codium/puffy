@@ -56,5 +56,15 @@ module Puffy
                                                                                        ])
       end
     end
+
+    describe '#resolv_azure_ip_range' do
+      it 'works' do
+        res = subject.resolv_azure_ip_range('ActionGroup')
+
+        expect(res).to be_an(Array)
+        expect(res).not_to be_empty
+        expect(res.first).to be_an(IPAddr)
+      end
+    end
   end
 end
