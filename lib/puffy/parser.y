@@ -16,6 +16,7 @@ rule
   variable_value: ADDRESS  { result = val[0][:value] }
                 | STRING   { result = val[0][:value] }
                 | VARIABLE { result = @variables.fetch(val[0][:value]) }
+                | port     { result = val[0] }
 
   service: SERVICE service_name block { @services[val[1]] = val[2] }
 
@@ -132,9 +133,12 @@ rule
             | PORT port              { result = val[1] }
             |
 
-  port_list: port_list ',' port { result = val[0] + [val[2]] }
-           | port_list port     { result = val[0] + [val[1]] }
-           | port               { result = [val[0]] }
+  port_list: port_list ',' port_list_item { result = val[0] + val[2] }
+           | port_list port_list_item     { result = val[0] + val[1] }
+           | port_list_item               { result = val[0] }
+
+  port_list_item: port     { result = [val[0]] }
+                | VARIABLE { result = @variables.fetch(val[0][:value]) }
 
   port: INTEGER             { result = val[0][:value] }
       | IDENTIFIER          { result = val[0][:value] }
@@ -143,9 +147,12 @@ rule
   host: ADDRESS { result = val[0][:value] }
       | STRING  { result = val[0][:value] }
 
-  host_list: host_list ',' host { result = val[0] + [val[2]] }
-           | host_list host     { result = val[0] + [val[1]] }
-           | host               { result = [val[0]] }
+  host_list: host_list ',' host_list_item { result = val[0] + val[2] }
+           | host_list host_list_item     { result = val[0] + val[1] }
+           | host_list_item               { result = val[0] }
+
+  host_list_item: host     { result = [val[0]] }
+                | VARIABLE { result = @variables.fetch(val[0][:value]) }
 
   filteropts: filteropts ',' filteropt  { result = val[0].merge(val[2]) }
             | filteropts filteropt      { result = val[0].merge(val[1]) }

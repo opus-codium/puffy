@@ -7,21 +7,32 @@ require 'puffy'
 # https://github.com/jordansissel/experiments/tree/master/ruby/dns-resolving-bug
 module Puffy
   RSpec.describe Resolver do
-    subject { Puffy::Resolver.instance }
+    before(:each) do
+      dns = Resolv::DNS.new
+      allow(dns).to receive(:getresources).with('example.com', Resolv::DNS::Resource::IN::A).and_return([Resolv::DNS::Resource::IN::A.new('203.0.113.42')])
+      allow(dns).to receive(:getresources).with('example.com', Resolv::DNS::Resource::IN::AAAA).and_return([Resolv::DNS::Resource::IN::AAAA.new('2001:db8:fa4e:adde::42')])
+      allow(dns).to receive(:getresources).with('host.invalid.', Resolv::DNS::Resource::IN::A).and_call_original
+      allow(dns).to receive(:getresources).with('host.invalid.', Resolv::DNS::Resource::IN::AAAA).and_call_original
+
+      allow(Resolv::DNS).to receive(:open).with(nil).and_return(dns)
+    end
+
+    subject { Puffy::Resolver.clone.instance }
+
     it 'resolves IPv4 and IPv6' do
-      expect(subject.resolv('example.com').collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946', '93.184.216.34'])
+      expect(subject.resolv('example.com').collect(&:to_s)).to eq(['2001:db8:fa4e:adde::42', '203.0.113.42'])
     end
 
     it 'resolves IPv4 only' do
-      expect(subject.resolv('example.com', :inet).collect(&:to_s)).to eq(['93.184.216.34'])
-      expect(subject.resolv(IPAddr.new('93.184.216.34'), :inet).collect(&:to_s)).to eq(['93.184.216.34'])
-      expect(subject.resolv(IPAddr.new('2606:2800:220:1:248:1893:25c8:1946'), :inet).collect(&:to_s)).to eq([])
+      expect(subject.resolv('example.com', :inet).collect(&:to_s)).to eq(['203.0.113.42'])
+      expect(subject.resolv(IPAddr.new('203.0.113.27'), :inet).collect(&:to_s)).to eq(['203.0.113.27'])
+      expect(subject.resolv(IPAddr.new('2001:db8:c0ff:ee::42'), :inet).collect(&:to_s)).to eq([])
     end
 
     it 'resolves IPv6 only' do
-      expect(subject.resolv('example.com', :inet6).collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946'])
-      expect(subject.resolv(IPAddr.new('93.184.216.34'), :inet6).collect(&:to_s)).to eq([])
-      expect(subject.resolv(IPAddr.new('2606:2800:220:1:248:1893:25c8:1946'), :inet6).collect(&:to_s)).to eq(['2606:2800:220:1:248:1893:25c8:1946'])
+      expect(subject.resolv('example.com', :inet6).collect(&:to_s)).to eq(['2001:db8:fa4e:adde::42'])
+      expect(subject.resolv(IPAddr.new('203.0.113.27'), :inet6).collect(&:to_s)).to eq([])
+      expect(subject.resolv(IPAddr.new('2001:db8:c0ff:ee::42'), :inet6).collect(&:to_s)).to eq(['2001:db8:c0ff:ee::42'])
     end
 
     it 'raises exceptions with unknown hosts' do

@@ -22,7 +22,9 @@ task test: %i[spec features]
 
 task default: :test
 
+task feature: :gen_parser
 task build: :gen_parser
+task spec: :gen_parser
 
 desc 'Generate the puffy language parser'
 task gen_parser: 'lib/puffy/parser.tab.rb'

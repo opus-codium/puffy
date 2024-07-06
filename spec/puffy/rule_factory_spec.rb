@@ -26,10 +26,10 @@ module Puffy
     end
 
     it 'passes addresses and networks' do
-      result = subject.build(to: [{ host: IPAddr.new('192.0.2.1') }])
+      result = subject.build(to: [{ host: IPAddr.new('203.0.113.42') }])
 
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.1'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('203.0.113.42'))
 
       result = subject.build(to: [{ host: IPAddr.new('192.0.2.0/24') }])
 
@@ -39,13 +39,13 @@ module Puffy
 
     it 'resolves hostnames' do
       expect(Rule).to receive(:new).twice.and_call_original
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
 
       result = subject.build(to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
-      expect(result[0].to[:host]).to eq(IPAddr.new('2001:DB8::1'))
-      expect(result[1].to[:host]).to eq(IPAddr.new('192.0.2.1'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::42'))
+      expect(result[1].to[:host]).to eq(IPAddr.new('203.0.113.42'))
     end
 
     it 'accepts service names' do
@@ -77,18 +77,18 @@ module Puffy
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'), IPAddr.new('198.51.100.1')])
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:DB8::1'), IPAddr.new('192.0.2.1')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:db8:fa4e:adde::27'), IPAddr.new('203.0.113.27')])
+      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
 
       expect(Rule).to receive(:new).exactly(4).times.and_call_original
 
       result = subject.build(from: [{ host: 'example.net' }], to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
-      expect(result[0].from[:host]).to eq(IPAddr.new('2001:DB8::FFFF:FFFF:FFFF'))
-      expect(result[0].to[:host]).to eq(IPAddr.new('2001:DB8::1'))
-      expect(result[1].from[:host]).to eq(IPAddr.new('198.51.100.1'))
-      expect(result[1].to[:host]).to eq(IPAddr.new('192.0.2.1'))
+      expect(result[0].from[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::27'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::42'))
+      expect(result[1].from[:host]).to eq(IPAddr.new('203.0.113.27'))
+      expect(result[1].to[:host]).to eq(IPAddr.new('203.0.113.42'))
     end
 
     it 'filters address family' do
@@ -100,19 +100,21 @@ module Puffy
     end
 
     it 'limits scope to IP version' do
+      expect(Puffy::Resolver.instance).to receive(:resolv).twice.with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
+
       result = []
 
       subject.ipv4 do
         result = subject.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddr.new('93.184.216.34'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('203.0.113.42'))
 
       subject.ipv6 do
         result = subject.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
-      expect(result[0].to[:host]).to eq(IPAddr.new('2606:2800:220:1:248:1893:25c8:1946'))
+      expect(result[0].to[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::42'))
     end
   end
 end
