@@ -148,8 +148,9 @@ rule
            | host_list host_list_item     { result = val[0] + val[1] }
            | host_list_item               { result = val[0] }
 
-  host_list_item: host     { result = [val[0]] }
-                | VARIABLE { result = @variables.fetch(val[0][:value]) }
+  host_list_item: host                          { result = [val[0]] }
+                | VARIABLE                      { result = @variables.fetch(val[0][:value]) }
+                | AZURE_IP_RANGE '(' STRING ')' { result = Resolver.instance.resolv_azure_ip_range(val[2][:value]) }
 
   filteropts: filteropts ',' filteropt  { result = val[0].merge(val[2]) }
             | filteropts filteropt      { result = val[0].merge(val[1]) }
@@ -164,6 +165,7 @@ end
 
 require 'deep_merge'
 require 'ipaddr'
+require 'json'
 require 'strscan'
 
 ---- inner
@@ -250,6 +252,7 @@ require 'strscan'
       when s.scan(/rdr-to\b/) then  emit(:RDR_TO, s.matched)
       when s.scan(/srv\b/) then     emit(:SRV, s.matched)
       when s.scan(/apt-mirror\b/) then emit(:APT_MIRROR, s.matched)
+      when s.scan(/azure-ip-range\b/) then emit(:AZURE_IP_RANGE, s.matched)
 
       when s.scan(/\d+\.\d+\.\d+\.\d+(\/\d+)?/) && ip = ipaddress?(s) then           emit(:ADDRESS, ip, s.matched_size)
       when s.scan(/[[:xdigit:]]*:[:[:xdigit:]]+(\/\d+)?/) && ip = ipaddress?(s) then emit(:ADDRESS, ip, s.matched_size)
