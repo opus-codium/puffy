@@ -94,8 +94,9 @@ rule
                 | direction_list direction     { result = val[0] + [val[1]] }
                 | direction                    { result = [val[0]] }
 
-  direction: IN  { result = :in }
-           | OUT { result = :out }
+  direction: IN      { result = :in }
+           | OUT     { result = :out }
+           | FORWARD { result = :fwd }
 
   rule_af:
          | INET   { result = { af: :inet } }
@@ -237,6 +238,7 @@ require 'strscan'
       when s.scan(/block\b/) then   emit(:BLOCK, s.matched)
       when s.scan(/in\b/) then      emit(:IN, s.matched)
       when s.scan(/out\b/) then     emit(:OUT, s.matched)
+      when s.scan(/forward\b/) then emit(:FORWARD, s.matched)
       when s.scan(/log\b/) then     emit(:LOG, s.matched)
       when s.scan(/inet\b/) then    emit(:INET, s.matched)
       when s.scan(/inet6\b/) then   emit(:INET6, s.matched)

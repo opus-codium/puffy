@@ -55,7 +55,13 @@ module Puffy
         end
 
         def emit_direction(rule)
-          rule.dir
+          if rule.fwd? && rule.in
+            'in'
+          elsif rule.fwd? && rule.out
+            'out'
+          else
+            rule.dir
+          end
         end
 
         def emit_quick(rule)
@@ -63,7 +69,13 @@ module Puffy
         end
 
         def emit_on(rule)
-          "on #{rule.on.gsub('!', '! ')}" if rule.on
+          if rule.on
+            "on #{rule.on.gsub('!', '! ')}"
+          elsif rule.fwd? && rule.in
+            "on #{rule.in}"
+          elsif rule.fwd? && rule.out
+            "on #{rule.out}"
+          end
         end
 
         def emit_what(rule)

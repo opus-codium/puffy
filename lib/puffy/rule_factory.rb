@@ -54,12 +54,24 @@ module Puffy
     end
 
     def instanciate_rules(options)
-      options.expand.map do |hash|
-        rule = Rule.new(hash)
-        rule if af_match_policy?(rule.af)
-      rescue AddressFamilyConflict
-        nil
-      end.compact
+      options.expand.flat_map do |hash|
+        # Handle forward rules with 'on' interface: create both -i and -o variants
+        if hash[:dir] == :fwd && hash[:on]
+          [
+            create_rule(hash.merge(in: hash[:on], on: nil)),
+            create_rule(hash.merge(out: hash[:on], on: nil))
+          ].compact
+        else
+          [create_rule(hash)].compact
+        end
+      end
+    end
+
+    def create_rule(hash)
+      rule = Rule.new(hash)
+      rule if af_match_policy?(rule.af)
+    rescue AddressFamilyConflict
+      nil
     end
 
     def load_services

@@ -1,0 +1,8 @@
+# Test configuration for forwarding traffic on podman1 interface
+# This uses the 'forward' direction to create FORWARD chain rules
+# A single forward rule with 'on' automatically creates both -i and -o variants
+
+node 'podman-host' do
+  # Allow forwarding on podman1 interface (creates both -i and -o rules)
+  pass forward on 'podman1' all
+end
