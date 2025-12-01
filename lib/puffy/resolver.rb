@@ -65,18 +65,10 @@ module Puffy
 
     def azure_ip_range
       @azure_ip_range ||= begin
-        d = Time.now.utc.to_date
-        d = d.prev_day until d.monday?
-        azure_ip_range_on(d)
-      rescue OpenURI::HTTPError
-        d -= 7
-        azure_ip_range_on(d)
+        page = URI('https://www.microsoft.com/en-us/download/details.aspx?id=56519').read
+        url = page.match(%r{https://download\.microsoft\.com/download/7/1/d/71d86715-5596-4529-9b13-da13a5de5b63/ServiceTags_Public_\d+\.json}).to_s
+        JSON.parse(URI(url).read)
       end
-    end
-
-    def azure_ip_range_on(date)
-      # https://www.microsoft.com/en-us/download/details.aspx?id=56519
-      JSON.parse(URI(date.strftime('https://download.microsoft.com/download/7/1/D/71D86715-5596-4529-9B13-DA13A5DE5B63/ServiceTags_Public_%Y%m%d.json')).read)
     end
 
     def parse_url(url)

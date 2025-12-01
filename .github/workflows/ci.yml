@@ -14,7 +14,7 @@ jobs:
   rubocop:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -36,7 +36,7 @@ jobs:
           - "3.3"
     name: Ruby ${{ matrix.ruby }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
@@ -45,12 +45,4 @@ jobs:
       - name: Generate the parser
         run: bundle exec rake gen_parser
       - name: Run tests without uploading code coverage
-        if: ${{ matrix.ruby != '3.0' }}
         run: bundle exec rake
-      - name: Run tests and upload coverage to Code Climate
-        if: ${{ matrix.ruby == '3.0' }}
-        uses: paambaati/codeclimate-action@v9.0.0
-        env:
-          CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_TOKEN }}
-        with:
-          coverageCommand: bundle exec rake
