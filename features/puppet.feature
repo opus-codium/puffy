@@ -47,9 +47,11 @@ Feature: Puppet
     :FORWARD DROP [0:0]
     :OUTPUT DROP [0:0]
     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate INVALID -j DROP
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A FORWARD -m conntrack --ctstate INVALID -j DROP
     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     COMMIT
 
@@ -61,9 +63,11 @@ Feature: Puppet
     :FORWARD DROP [0:0]
     :OUTPUT DROP [0:0]
     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A INPUT -m conntrack --ctstate INVALID -j DROP
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     -A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
     -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    -A FORWARD -m conntrack --ctstate INVALID -j DROP
     -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     COMMIT
 
@@ -80,16 +84,16 @@ Feature: Puppet
     -pass in quick proto tcp to any port 443
     --- a/example.com/iptables/rules.v4
     +++ b/example.com/iptables/rules.v4
-    @@ -5,4 +6,4 @@
-     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    @@ -6,4 +7,4 @@
+     -A INPUT -m conntrack --ctstate INVALID -j DROP
     +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
      -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT
      -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
     --- a/example.com/iptables/rules.v6
     +++ b/example.com/iptables/rules.v6
-    @@ -5,4 +6,4 @@
-     -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+    @@ -6,4 +7,4 @@
+     -A INPUT -m conntrack --ctstate INVALID -j DROP
     +-A INPUT -m conntrack --ctstate NEW -p tcp --dport 22 -j ACCEPT
      -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
     --A INPUT -m conntrack --ctstate NEW -p tcp --dport 443 -j ACCEPT

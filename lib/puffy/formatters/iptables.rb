@@ -78,12 +78,18 @@ module Puffy
         end
 
         def input_filter_ruleset(rules)
-          parts = ['-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
+          parts = [
+            '-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT',
+            '-A INPUT -m conntrack --ctstate INVALID -j DROP',
+          ]
           parts << input_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
         end
 
         def forward_filter_ruleset(rules)
-          parts = ['-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
+          parts = [
+            '-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT',
+            '-A FORWARD -m conntrack --ctstate INVALID -j DROP',
+          ]
           parts << rules.select(&:fwd?).map { |rule| @rule_formatter.emit_rule(rule) }
           parts << rules.select { |r| r.rdr? && !Puffy::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Puffy::Rule.fwd_rule(rule)) }
         end
