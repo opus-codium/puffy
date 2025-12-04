@@ -89,7 +89,9 @@ module Puffy
             :FORWARD DROP [0:0]
             :OUTPUT DROP [0:0]
             -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+            -A INPUT -m conntrack --ctstate INVALID -j DROP
             -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+            -A FORWARD -m conntrack --ctstate INVALID -j DROP
             -A FORWARD -m conntrack --ctstate NEW -i ppp0 -p tcp -d 192.168.1.80 --dport 80 -j ACCEPT
             -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
             -A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
@@ -104,8 +106,10 @@ module Puffy
             :FORWARD DROP [0:0]
             :OUTPUT DROP [0:0]
             -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+            -A INPUT -m conntrack --ctstate INVALID -j DROP
             -A INPUT -m conntrack --ctstate NEW -p tcp --dport 80 -j ACCEPT
             -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+            -A FORWARD -m conntrack --ctstate INVALID -j DROP
             -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
             -A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.0.53 --dport 53 -j ACCEPT
             -A OUTPUT -m conntrack --ctstate NEW -p udp -d 192.168.1.53 --dport 53 -j ACCEPT
