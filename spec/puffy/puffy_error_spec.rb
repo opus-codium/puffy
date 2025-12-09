@@ -3,6 +3,10 @@
 require 'puffy'
 
 RSpec.describe Puffy::PuffyError do
+  subject(:error) do
+    described_class.new('Message', token)
+  end
+
   let(:token) do
     {
       filename: 'filename.ext',
@@ -13,14 +17,11 @@ RSpec.describe Puffy::PuffyError do
     }
   end
 
-  subject do
-    Puffy::PuffyError.new('Message', token)
+  it 'reports the correct location in file' do
+    expect(error.to_s).to match(/^filename.ext:12:5: Message/)
   end
 
-  it 'reports the correct location in file' do
-    expect(subject.to_s).to match(/^filename.ext:12:5: Message/)
-  end
   it 'highlights the correct location in the line' do
-    expect(subject.to_s).to match(/^    \^~~$/)
+    expect(error.to_s).to match(/^    \^~~$/)
   end
 end

@@ -22,9 +22,11 @@ task test: %i[spec features]
 
 task default: :test
 
+# rubocop:disable Rake/Desc
 task feature: :gen_parser
 task build: :gen_parser
 task spec: :gen_parser
+# rubocop:enable Rake/Desc
 
 desc 'Generate the puffy language parser'
 task gen_parser: 'lib/puffy/parser.tab.rb'

@@ -7,6 +7,10 @@ AllCops:
     - tmp/**/*.rb
     - vendor/bundle/**/*
 
+plugins:
+  - rubocop-rake
+  - rubocop-rspec
+
 Layout/HashAlignment:
   EnforcedColonStyle: table
   EnforcedHashRocketStyle: table
@@ -25,6 +29,16 @@ Metrics/ClassLength:
 Metrics/ModuleLength:
   Exclude:
     - spec/**/*.rb
+
+RSpec/ExampleLength:
+  Max: 50
+
+RSpec/MultipleExpectations:
+  Max: 10
+
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - spec/core_ext_spec.rb
 
 Style/Documentation:
   Exclude:
