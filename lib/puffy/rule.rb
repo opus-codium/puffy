@@ -54,7 +54,7 @@ module Puffy
     # @!attribute no_quick
     #   Prevent the rule from being a quick one.
     #   @return [Boolean] Quick flag
-    attr_accessor :action, :return, :dir, :proto, :af, :on, :in, :out, :from, :to, :nat_to, :rdr_to, :no_quick
+    attr_accessor :action, :return, :dir, :log, :proto, :af, :on, :in, :out, :from, :to, :nat_to, :rdr_to, :no_quick
 
     # Instanciate a firewall Puffy::Rule.
     #

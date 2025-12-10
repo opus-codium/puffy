@@ -5,9 +5,9 @@ module Puffy
     module Iptables6 # :nodoc:
       # IPv6 Iptables implementation of a Puffy Ruleset formatter.
       class Ruleset < Puffy::Formatters::Iptables::Ruleset # :nodoc:
-        # Return an IPv6 Iptables String representation of the provided +rules+ Puffy::Rule with the +policy+ policy.
-        def emit_ruleset(rules, policy = :block)
-          super(rules.select(&:ipv6?), policy)
+        # Return an IPv6 Iptables String representation of the provided +rules+ Puffy::Rule with the +policies+ policies.
+        def emit_ruleset(rules, policies)
+          super(rules.select(&:ipv6?), policies)
         end
 
         def filename_fragment

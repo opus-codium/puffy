@@ -1,19 +1,24 @@
-policy pass
+policy pass in all
+policy pass out all
 
 node 'www1' do
-  policy block
+  policy block in all
+  policy block out all
 end
 
 node 'www2' do
-  policy pass
+  policy pass in all
+  policy pass out all
 end
 
 node /db\d+/ do
-  policy block
+  policy block in all
+  policy block out all
 end
 
 node 'log' do
   # Empty
 end
 
-policy log
+policy block in log all
+policy block out log all
