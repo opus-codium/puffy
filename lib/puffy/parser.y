@@ -279,7 +279,7 @@ require 'strscan'
 
     begin
       do_parse
-    rescue Racc::ParseError => e
+    rescue Racc::ParseError
       raise ParseError.new("Parse error: unexpected token: #{@current_token[0]}", @current_token[1])
     end
   end
