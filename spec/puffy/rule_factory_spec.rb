@@ -4,44 +4,52 @@ require 'puffy'
 
 module Puffy
   RSpec.describe RuleFactory do
-    it 'empty rules produce no rule' do
-      expect(Rule).not_to receive(:new)
+    subject(:factory) { described_class.new }
 
-      expect(subject.build).to eq([])
+    it 'empty rules produce no rule' do
+      allow(Rule).to receive(:new)
+
+      expect(factory.build).to eq([])
+
+      expect(Rule).not_to have_received(:new)
+    end
+
+    it 'accept a single value' do
+      allow(Rule).to receive(:new).and_call_original
+
+      result = factory.build(proto: :tcp)
+      expect(Rule).to have_received(:new)
+      expect(result.count).to eq(1)
+      expect(result.first.proto).to eq(:tcp)
     end
 
     it 'iterates over array values' do
-      expect(Rule).to receive(:new).and_call_original
+      allow(Rule).to receive(:new).and_call_original
 
-      result = subject.build(proto: :tcp)
-      expect(result.count).to eq(1)
-      expect(result.first.proto).to eq(:tcp)
-
-      expect(Rule).to receive(:new).twice.and_call_original
-
-      result = subject.build(proto: %i[tcp udp])
+      result = factory.build(proto: %i[tcp udp])
+      expect(Rule).to have_received(:new).twice
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
       expect(result[1].proto).to eq(:udp)
     end
 
     it 'passes addresses and networks' do
-      result = subject.build(to: [{ host: IPAddr.new('203.0.113.42') }])
+      result = factory.build(to: [{ host: IPAddr.new('203.0.113.42') }])
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('203.0.113.42'))
 
-      result = subject.build(to: [{ host: IPAddr.new('192.0.2.0/24') }])
+      result = factory.build(to: [{ host: IPAddr.new('192.0.2.0/24') }])
 
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('192.0.2.0/24'))
     end
 
     it 'resolves hostnames' do
-      expect(Rule).to receive(:new).twice.and_call_original
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
+      allow(Rule).to receive(:new).and_call_original
+      allow(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
 
-      result = subject.build(to: [{ host: 'example.com' }])
+      result = factory.build(to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
       expect(result[0].to[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::42'))
@@ -49,9 +57,9 @@ module Puffy
     end
 
     it 'accepts service names' do
-      expect(Rule).to receive(:new).twice.and_call_original
+      allow(Rule).to receive(:new).and_call_original
 
-      result = subject.build(proto: :tcp, to: [{ port: %w[http https] }])
+      result = factory.build(proto: :tcp, to: [{ port: %w[http https] }])
 
       expect(result.count).to eq(2)
       expect(result[0].proto).to eq(:tcp)
@@ -59,13 +67,13 @@ module Puffy
       expect(result[1].proto).to eq(:tcp)
       expect(result[1].to[:port]).to eq(443)
 
-      expect { subject.build(to: [{ port: 'invalid' }]) }.to raise_error('unknown service "invalid"')
+      expect { factory.build(to: [{ port: 'invalid' }]) }.to raise_error('unknown service "invalid"')
     end
 
     it 'accepts service alt-names' do
-      expect(Rule).to receive(:new).exactly(3).times.and_call_original
+      allow(Rule).to receive(:new).and_call_original
 
-      result = subject.build(proto: :tcp, to: [{ port: %w[auth tap ident] }])
+      result = factory.build(proto: :tcp, to: [{ port: %w[auth tap ident] }])
 
       expect(result.count).to eq(3)
       expect(result[0].proto).to eq(:tcp)
@@ -77,12 +85,12 @@ module Puffy
     end
 
     it 'does not mix IPv4 and IPv6' do
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:db8:fa4e:adde::27'), IPAddr.new('203.0.113.27')])
-      expect(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
+      allow(Puffy::Resolver.instance).to receive(:resolv).with('example.net').and_return([IPAddr.new('2001:db8:fa4e:adde::27'), IPAddr.new('203.0.113.27')])
+      allow(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
 
-      expect(Rule).to receive(:new).exactly(4).times.and_call_original
+      allow(Rule).to receive(:new).exactly(4).times.and_call_original
 
-      result = subject.build(from: [{ host: 'example.net' }], to: [{ host: 'example.com' }])
+      result = factory.build(from: [{ host: 'example.net' }], to: [{ host: 'example.com' }])
 
       expect(result.count).to eq(2)
       expect(result[0].from[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::27'))
@@ -92,26 +100,26 @@ module Puffy
     end
 
     it 'filters address family' do
-      result = subject.build(af: :inet, proto: :icmp)
+      result = factory.build(af: :inet, proto: :icmp)
       expect(result.count).to eq(1)
 
-      result = subject.build(af: :inet6, proto: :icmpv6)
+      result = factory.build(af: :inet6, proto: :icmpv6)
       expect(result.count).to eq(1)
     end
 
     it 'limits scope to IP version' do
-      expect(Puffy::Resolver.instance).to receive(:resolv).twice.with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
+      allow(Puffy::Resolver.instance).to receive(:resolv).with('example.com').and_return([IPAddr.new('2001:db8:fa4e:adde::42'), IPAddr.new('203.0.113.42')])
 
       result = []
 
-      subject.ipv4 do
-        result = subject.build(to: [{ host: 'example.com' }])
+      factory.ipv4 do
+        result = factory.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('203.0.113.42'))
 
-      subject.ipv6 do
-        result = subject.build(to: [{ host: 'example.com' }])
+      factory.ipv6 do
+        result = factory.build(to: [{ host: 'example.com' }])
       end
       expect(result.count).to eq(1)
       expect(result[0].to[:host]).to eq(IPAddr.new('2001:db8:fa4e:adde::42'))

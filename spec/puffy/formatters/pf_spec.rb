@@ -5,71 +5,75 @@ require 'puffy'
 module Puffy
   module Formatters
     RSpec.describe Pf::Rule do
+      subject(:formatter) { described_class.new }
+
       it 'formats simple rules' do
         rule = Rule.new(action: :pass, dir: :out, proto: :tcp)
-        expect(subject.emit_rule(rule)).to eq('pass out quick proto tcp')
+        expect(formatter.emit_rule(rule)).to eq('pass out quick proto tcp')
 
         rule = Rule.new(action: :pass, dir: :in, proto: :tcp, to: { host: nil, port: 80 })
-        expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp to any port 80')
+        expect(formatter.emit_rule(rule)).to eq('pass in quick proto tcp to any port 80')
 
         rule = Rule.new(action: :block, dir: :in, proto: :icmp)
-        expect(subject.emit_rule(rule)).to eq('block in quick proto icmp')
+        expect(formatter.emit_rule(rule)).to eq('block in quick proto icmp')
 
         rule = Rule.new(action: :pass, dir: :in, proto: :udp, from: { port: 123 }, to: { port: 123 })
-        expect(subject.emit_rule(rule)).to eq('pass in quick proto udp from any port 123 to any port 123')
+        expect(formatter.emit_rule(rule)).to eq('pass in quick proto udp from any port 123 to any port 123')
 
         rule = Rule.new(action: :pass, dir: :in, proto: :tcp, from: { port: 67..68 }, to: { port: 67..68 })
-        expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp from any port 67:68 to any port 67:68')
+        expect(formatter.emit_rule(rule)).to eq('pass in quick proto tcp from any port 67:68 to any port 67:68')
       end
 
       it 'generates non-quick rules' do
         rule = Rule.new(action: :block, dir: :in, no_quick: true)
-        expect(subject.emit_rule(rule)).to eq('block in all')
+        expect(formatter.emit_rule(rule)).to eq('block in all')
       end
 
       it 'returns packets when instructed so' do
         rule = Rule.new(action: :block, return: true, dir: :in, proto: :icmp)
-        expect(subject.emit_rule(rule)).to eq('block return in quick proto icmp')
+        expect(formatter.emit_rule(rule)).to eq('block return in quick proto icmp')
       end
 
-      context 'redirect rules' do
+      context 'when formatting redirect rules' do
         it 'formats redirect rules' do
           rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { host: IPAddr.new('127.0.0.1/32'), port: 3128 })
-          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
         end
 
         it 'fails on ambiguous redirect rule' do
           rule = Rule.new(action: :pass, dir: :in, on: 'eth0', proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
-          expect { subject.emit_rule(rule) }.to raise_exception('Unspecified address family')
+          expect { formatter.emit_rule(rule) }.to raise_exception('Unspecified address family')
         end
 
         it 'formats implicit IPv4 destination' do
           rule = Rule.new(action: :pass, dir: :in, on: 'eth0', af: :inet, proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
-          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to 127.0.0.1 port 3128')
         end
 
         it 'formats implicit IPv6 destination' do
           rule = Rule.new(action: :pass, dir: :in, on: 'eth0', af: :inet6, proto: :tcp, to: { port: 80 }, rdr_to: { port: 3128 })
-          expect(subject.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to ::1 port 3128')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick on eth0 proto tcp to any port 80 divert-to ::1 port 3128')
         end
       end
 
-      context 'implicit address family' do
+      context 'when using an implicit address family' do
         it 'skips redundant address family' do
           rule = Rule.new(action: :pass, dir: :in, af: :inet, proto: :tcp, to: { host: IPAddr.new('127.0.0.1') })
-          expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp to 127.0.0.1')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick proto tcp to 127.0.0.1')
           rule = Rule.new(action: :pass, dir: :in, af: :inet6, proto: :tcp, to: { host: IPAddr.new('::1') })
-          expect(subject.emit_rule(rule)).to eq('pass in quick proto tcp to ::1')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick proto tcp to ::1')
           rule = Rule.new(action: :pass, dir: :in, af: :inet, proto: :tcp, to: { port: 80 })
-          expect(subject.emit_rule(rule)).to eq('pass in quick inet proto tcp to any port 80')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick inet proto tcp to any port 80')
           rule = Rule.new(action: :pass, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 })
-          expect(subject.emit_rule(rule)).to eq('pass in quick inet6 proto tcp to any port 80')
+          expect(formatter.emit_rule(rule)).to eq('pass in quick inet6 proto tcp to any port 80')
         end
       end
     end
 
     RSpec.describe Pf::Ruleset do
-      context 'ruleset' do
+      subject(:formatter) { described_class.new }
+
+      context 'with a ruleset' do
         let(:parser) do
           parser = Puffy::Parser.new
           parser.parse(File.read(File.join('spec', 'fixtures', 'simple_lan_network.puffy')))
@@ -84,9 +88,9 @@ module Puffy
           Timecop.return
         end
 
-        it 'formats a simple lan network rules' do
+        it 'generates the correct gw rules' do
           rules = parser.ruleset_for('gw')
-          expect(subject.emit_ruleset(rules, :block)).to eq <<~PF
+          expect(formatter.emit_ruleset(rules, :block)).to eq <<~PF
             # Generated by puffy v#{Puffy::VERSION} on Sat Jan  1 00:00:00 2000
             match in all scrub (no-df)
             set skip on lo
@@ -99,9 +103,9 @@ module Puffy
           PF
         end
 
-        it 'formats a simple lan network rules' do
+        it 'generates tE correct www rules' do
           rules = parser.ruleset_for('www')
-          expect(subject.emit_ruleset(rules, :block)).to eq <<~PF
+          expect(formatter.emit_ruleset(rules, :block)).to eq <<~PF
             # Generated by puffy v#{Puffy::VERSION} on Sat Jan  1 00:00:00 2000
             match in all scrub (no-df)
             set skip on lo

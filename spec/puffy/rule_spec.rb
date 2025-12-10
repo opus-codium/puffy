@@ -5,78 +5,78 @@ require 'puffy'
 module Puffy
   RSpec.describe Rule do
     it 'reports invalid rules' do
-      expect { Rule.new(action: :moin) }.to raise_error("unsupported action `moin'")
-      expect { Rule.new(action: :pass, moin: :moin) }.to raise_error(NoMethodError, /undefined method `moin='/)
+      expect { described_class.new(action: :moin) }.to raise_error("unsupported action `moin'")
+      expect { described_class.new(action: :pass, moin: :moin) }.to raise_error(NoMethodError, /undefined method `moin='/)
     end
 
     it 'detects IPv4 rules' do
-      expect(Rule.new.ipv4?).to be_truthy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { port: 80 }).ipv4?).to be_truthy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('203.0.113.42'), port: 80 }).ipv4?).to be_truthy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('2001:db8:fa4e:adde::42'), port: 80 }).ipv4?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').ipv4?).to be_truthy
+      expect(described_class.new).to be_ipv4
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { port: 80 })).to be_ipv4
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('203.0.113.42'), port: 80 })).to be_ipv4
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('2001:db8:fa4e:adde::42'), port: 80 })).not_to be_ipv4
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).to be_ipv4
     end
 
     it 'detects IPv6 rules' do
-      expect(Rule.new.ipv6?).to be_truthy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { port: 80 }).ipv6?).to be_truthy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('203.0.113.42'), port: 80 }).ipv6?).to be_falsy
-      expect(Rule.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('2001:db8:fa4e:adde::42'), port: 80 }).ipv6?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').ipv6?).to be_truthy
+      expect(described_class.new).to be_ipv6
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { port: 80 })).to be_ipv6
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('203.0.113.42'), port: 80 })).not_to be_ipv6
+      expect(described_class.new(action: :block, dir: :out, proto: :tcp, to: { host: IPAddr.new('2001:db8:fa4e:adde::42'), port: 80 })).to be_ipv6
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).to be_ipv6
     end
 
     it 'detects implicit IPv4 rules' do
-      expect(Rule.new.implicit_ipv4?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddr.new('192.168.0.0/24') }).implicit_ipv4?).to be_truthy
-      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddr.new('fe80::/16') }).implicit_ipv4?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 }).implicit_ipv4?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 }).implicit_ipv4?).to be_falsy
+      expect(described_class.new).not_to be_implicit_ipv4
+      expect(described_class.new(action: :block, dir: :in, from: { host: IPAddr.new('192.168.0.0/24') })).to be_implicit_ipv4
+      expect(described_class.new(action: :block, dir: :in, from: { host: IPAddr.new('fe80::/16') })).not_to be_implicit_ipv4
+      expect(described_class.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 })).not_to be_implicit_ipv4
+      expect(described_class.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 })).not_to be_implicit_ipv4
     end
 
     it 'detects implicit IPv6 rules' do
-      expect(Rule.new.implicit_ipv6?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddr.new('192.168.0.0/24') }).implicit_ipv6?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, from: { host: IPAddr.new('fe80::/16') }).implicit_ipv6?).to be_truthy
-      expect(Rule.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 }).implicit_ipv6?).to be_falsy
-      expect(Rule.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 }).implicit_ipv6?).to be_falsy
+      expect(described_class.new).not_to be_implicit_ipv6
+      expect(described_class.new(action: :block, dir: :in, from: { host: IPAddr.new('192.168.0.0/24') })).not_to be_implicit_ipv6
+      expect(described_class.new(action: :block, dir: :in, from: { host: IPAddr.new('fe80::/16') })).to be_implicit_ipv6
+      expect(described_class.new(action: :block, dir: :in, af: :inet, proto: :tcp, to: { port: 80 })).not_to be_implicit_ipv6
+      expect(described_class.new(action: :block, dir: :in, af: :inet6, proto: :tcp, to: { port: 80 })).not_to be_implicit_ipv6
     end
 
     it 'detects redirect rules' do
-      expect(Rule.new.rdr?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).rdr?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72')).rdr?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') }).rdr?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').rdr?).to be_falsy
+      expect(described_class.new).not_to be_rdr
+      expect(described_class.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 })).not_to be_rdr
+      expect(described_class.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72'))).not_to be_rdr
+      expect(described_class.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') })).to be_rdr
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).not_to be_rdr
     end
 
     it 'detects NAT rules' do
-      expect(Rule.new.nat?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, proto: :tcp, to: { port: 80 }).nat?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72')).nat?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') }).nat?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').nat?).to be_falsy
+      expect(described_class.new).not_to be_nat
+      expect(described_class.new(action: :pass, dir: :out, proto: :tcp, to: { port: 80 })).not_to be_nat
+      expect(described_class.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72'))).to be_nat
+      expect(described_class.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') })).not_to be_nat
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).not_to be_nat
     end
 
     it 'detects forward rules' do
-      expect(Rule.new.fwd?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, proto: :tcp, to: { port: 80 }).fwd?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72')).fwd?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') }).fwd?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').fwd?).to be_truthy
+      expect(described_class.new).not_to be_fwd
+      expect(described_class.new(action: :pass, dir: :out, proto: :tcp, to: { port: 80 })).not_to be_fwd
+      expect(described_class.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72'))).not_to be_fwd
+      expect(described_class.new(action: :pass, dir: :in, on: 'eth0', rdr_to: { host: IPAddr.new('203.0.113.42') })).not_to be_fwd
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).to be_fwd
     end
 
     it 'detects in rules' do
-      expect(Rule.new.in?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).in?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72')).in?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').in?).to be_falsy
+      expect(described_class.new).to be_in
+      expect(described_class.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 })).to be_in
+      expect(described_class.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72'))).not_to be_in
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).not_to be_in
     end
 
     it 'detects out rules' do
-      expect(Rule.new.out?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 }).out?).to be_falsy
-      expect(Rule.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72')).out?).to be_truthy
-      expect(Rule.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1').out?).to be_falsy
+      expect(described_class.new).to be_out
+      expect(described_class.new(action: :pass, dir: :in, proto: :tcp, to: { port: 80 })).not_to be_out
+      expect(described_class.new(action: :pass, dir: :out, on: 'eth0', nat_to: IPAddr.new('198.51.100.72'))).to be_out
+      expect(described_class.new(action: :pass, dir: :fwd, in: 'eth0', out: 'eth1')).not_to be_out
     end
   end
 end
