@@ -25,6 +25,13 @@ Rules must appear in either a *node* or *service* definition, *services* being
 reusable blocks of related rules:
 
 ~~~
+policy block in all
+policy block out log all
+
+service dns do
+  pass proto {tcp udp} to port domain
+end
+
 service ntp do
   pass proto udp to port ntp
 end
@@ -42,6 +49,7 @@ service www do
 end
 
 service base do
+  client dns
   client ntp
   server ssh
 end

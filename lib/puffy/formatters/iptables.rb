@@ -27,13 +27,13 @@ module Puffy
           }
         end
 
-        # Returns a Iptables String representation of the provided +rules+ Array of Puffy::Rule with the +policy+ policy.
-        def emit_ruleset(rules, policy = :block)
+        # Returns a Iptables String representation of the provided +rules+ Array of Puffy::Rule with the +policies+ policies.
+        def emit_ruleset(rules, policies)
           parts = []
           parts << emit_header
           parts << raw_ruleset(raw_rules(rules))
           parts << nat_ruleset(nat_rules(rules))
-          parts << filter_ruleset(filter_rules(rules), policy)
+          parts << filter_ruleset(filter_rules(rules), policies)
           ruleset = parts.flatten.compact.join("\n")
           "#{ruleset}\n"
         end
@@ -61,14 +61,14 @@ module Puffy
           parts
         end
 
-        def filter_ruleset(rules, policy)
+        def filter_ruleset(rules, policies)
           return unless rules.any?
 
           parts = ['*filter']
-          parts << emit_chain_policies(input: policy, forward: policy, output: policy)
-          parts << input_filter_ruleset(rules)
-          parts << forward_filter_ruleset(rules)
-          parts << output_filter_rulset(rules)
+          parts << emit_chain_policies(input: policies.dig(:in, :action), forward: policies.dig(:in, :action), output: policies.dig(:out, :action))
+          parts << input_filter_ruleset(rules, policies)
+          parts << forward_filter_ruleset(rules, policies)
+          parts << output_filter_rulset(rules, policies)
           parts << 'COMMIT'
           parts
         end
@@ -77,26 +77,32 @@ module Puffy
           policies.map { |chain, action| ":#{chain.upcase} #{Puffy::Formatters::Iptables.iptables_action(action)} [0:0]" }
         end
 
-        def input_filter_ruleset(rules)
+        def input_filter_ruleset(rules, policies)
           parts = [
             '-A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT',
             '-A INPUT -m conntrack --ctstate INVALID -j DROP',
           ]
           parts << input_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
+          parts << '-A INPUT -j LOG' if policies.dig(:in, :log)
+          parts
         end
 
-        def forward_filter_ruleset(rules)
+        def forward_filter_ruleset(rules, policies)
           parts = [
             '-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT',
             '-A FORWARD -m conntrack --ctstate INVALID -j DROP',
           ]
-          parts << rules.select(&:fwd?).map { |rule| @rule_formatter.emit_rule(rule) }
-          parts << rules.select { |r| r.rdr? && !Puffy::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }.map { |rule| @rule_formatter.emit_rule(Puffy::Rule.fwd_rule(rule)) }
+          parts << fwd_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
+          parts << rdr_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(Puffy::Rule.fwd_rule(rule)) }
+          parts << '-A FORWARD -j LOG' if policies.dig(:in, :log)
+          parts
         end
 
-        def output_filter_rulset(rules)
+        def output_filter_rulset(rules, policies)
           parts = ['-A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT']
           parts << output_filter_rules(rules).map { |rule| @rule_formatter.emit_rule(rule) }
+          parts << '-A OUTPUT -j LOG' if policies.dig(:out, :log)
+          parts
         end
 
         def raw_rules(rules)
@@ -117,6 +123,14 @@ module Puffy
             dup.dir = :in
             dup
           end
+        end
+
+        def fwd_filter_rules(rules)
+          rules.select(&:fwd?)
+        end
+
+        def rdr_filter_rules(rules)
+          rules.select { |r| r.rdr? && !Puffy::Formatters::Base.loopback_addresses.include?(r.rdr_to_host) }
         end
 
         def output_filter_rules(rules)

@@ -53,11 +53,11 @@ module Puffy
     def each_fragment
       @parser.nodes.each do |hostname|
         rules = @parser.ruleset_for(hostname)
-        policy = @parser.policy_for(hostname)
+        policies = @parser.policies_for(hostname)
 
         @formatters.each do |formatter|
           filename = File.join(@path, hostname, formatter.filename_fragment)
-          yield filename, formatter.emit_ruleset(rules, policy)
+          yield filename, formatter.emit_ruleset(rules, policies)
         end
       end
     end

@@ -5,9 +5,9 @@ module Puffy
     module Iptables4 # :nodoc:
       # IPv4 Iptables implementation of a Puffy Ruleset formatter.
       class Ruleset < Puffy::Formatters::Iptables::Ruleset # :nodoc:
-        # Return an IPv4 Iptables String representation of the provided +rules+ Puffy::Rule with the +policy+ policy.
-        def emit_ruleset(rules, policy = :block)
-          super(rules.select(&:ipv4?), policy)
+        # Return an IPv4 Iptables String representation of the provided +rules+ Puffy::Rule with the +policies+ policies.
+        def emit_ruleset(rules, policies)
+          super(rules.select(&:ipv4?), policies)
         end
 
         def filename_fragment

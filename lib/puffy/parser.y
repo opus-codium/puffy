@@ -2,7 +2,7 @@ class Puffy::Parser
 rule
   target: assignation target
         | node target
-        | policy target { @default_policy = val[0] }
+        | policies target { @default_policies = val[0] }
         | service target
         |
 
@@ -21,8 +21,8 @@ rule
   service_name: IDENTIFIER { result = val[0][:value] }
               | STRING     { result = val[0][:value] }
 
-  node: NODE '{' node_name_list '}' block_with_policy { val[2].each { |name| @nodes[name] = val[4]; @saved_policies[name] = @policy } }
-      | NODE node_name block_with_policy              { @nodes[val[1]] = val[2]; @saved_policies[val[1]] = @policy }
+  node: NODE '{' node_name_list '}' block_with_policies { val[2].each { |name| @nodes[name] = val[4]; @saved_policies[name] = @current_policies } }
+      | NODE node_name block_with_policies              { @nodes[val[1]] = val[2]; @saved_policies[val[1]] = @current_policies }
 
   node_name_list: node_name_list ',' node_name { result = val[0] + [val[2]] }
                 | node_name_list node_name     { result = val[0] + [val[1]] }
@@ -31,9 +31,8 @@ rule
   node_name: STRING { result = val[0][:value] }
            | REGEX  { result = val[0][:value] }
 
-  block_with_policy: '{' policy rules '}' { @policy = val[1]; result = val[2] }
-                   | DO policy rules END  { @policy = val[1]; result = val[2] }
-                   | block                { @policy = nil; result = val[0] }
+  block_with_policies: '{' policies rules '}' { @current_policies = val[1]; result = val[2] }
+                     | DO policies rules END  { @current_policies = val[1]; result = val[2] }
 
   block: '{' rules '}' { result = val[1].freeze }
        | DO rules END  { result = val[1].freeze }
@@ -43,8 +42,13 @@ rule
        | ipv6_block rules { result = val[0] + val[1] }
        |                  { result = [] }
 
-  policy: POLICY action { result = val[1][:action] }
-        | POLICY LOG    { result = 'log' }
+  policies: policy_list   { result = val[0] }
+          | POLICY action { warn("#{val[0][:filename]}:#{val[0][:lineno]}:#{val[0][:position]}: deprecated policy syntax:\n\t#{val[0][:line]}\n\t#{' ' * val[0][:position]}^#{'~' * (val[0][:line].length - 1 - val[0][:position])}\n\tUse explicit 'in' and 'out' policies, with optional logging:\n\tpolicy #{val[1][:action]} in all\n\tpolicy #{val[1][:action]} out all") ; result = { in: { action: val[1][:action] }, out: { action: val[1][:action] } } }
+
+  policy_list: policy policy_list { result = val[1].merge(val[0][:dir] => val[0]) }
+             |                    { result = {} }
+
+  policy: POLICY action direction log ALL { result = { action: val[1][:action], dir: val[2], log: val[3].any? } }
 
   ipv4_block: IPV4 DO rules END  { result = val[2].reject { |x| x[:af] == :inet6 }.map { |x| x[:af] = :inet ; x } }
             | IPV4 '{' rules '}' { result = val[2].reject { |x| x[:af] == :inet6 }.map { |x| x[:af] = :inet ; x } }
@@ -77,8 +81,8 @@ rule
            }
          | action rule_direction log on_interface rule_af protospec hosts filteropts { result = [val.compact.inject(:merge)] }
 
-  log: LOG
-     |
+  log: LOG { result = { log: true } }
+     |     { result = {} }
 
   on_interface:
               | ON STRING { result = { on: val[1][:value] } }
@@ -171,7 +175,7 @@ require 'strscan'
 ---- inner
 
   attr_accessor :yydebug
-  attr_reader :policy, :filename
+  attr_reader :current_policies, :filename
   #attr_accessor :variables, :nodes, :services
 
   def ipaddress?(s)
@@ -275,7 +279,7 @@ require 'strscan'
 
     begin
       do_parse
-    rescue Racc::ParseError => e
+    rescue Racc::ParseError
       raise ParseError.new("Parse error: unexpected token: #{@current_token[0]}", @current_token[1])
     end
   end
@@ -309,6 +313,10 @@ require 'strscan'
     @saved_policies = {}
     @services = {} 
     @rule_factory = Puffy::RuleFactory.new
+    @default_policies = {
+      in: { action: :block, log: false },
+      out: { action: :block, log: false },
+    }
   end
 
   def nodes
@@ -355,8 +363,8 @@ require 'strscan'
     end.flatten
   end
 
-  def policy_for(hostname)
-    prefered_value_for_hostname(@saved_policies, hostname) || @default_policy || :block
+  def policies_for(hostname)
+    return @default_policies.merge(prefered_value_for_hostname(@saved_policies, hostname))
   end
 
   def constraint_service_to_hosts(service, hosts)

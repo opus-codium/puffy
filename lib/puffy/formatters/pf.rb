@@ -6,10 +6,10 @@ module Puffy
       # Pf implementation of a Puffy Ruleset formatter.
       class Ruleset < Puffy::Formatters::Base::Ruleset # :nodoc:
         # Returns a Pf String representation of the provided +rules+ Array of Puffy::Rule.
-        def emit_ruleset(rules, policy = :block)
+        def emit_ruleset(rules, policies)
           parts = []
 
-          parts << emit_header(policy)
+          parts << emit_header(policies)
 
           parts << super(rules.select(&:nat?))
           parts << super(rules.select(&:rdr?))
@@ -23,12 +23,14 @@ module Puffy
           ['pf', 'pf.conf']
         end
 
-        def emit_header(policy)
+        def emit_header(policies)
           parts = super()
           parts << 'match in all scrub (no-df)'
           parts << 'set skip on lo'
-          parts << @rule_formatter.emit_rule(Puffy::Rule.new(action: policy, dir: :in, no_quick: true))
-          parts << @rule_formatter.emit_rule(Puffy::Rule.new(action: policy, dir: :out, no_quick: true))
+          %i[in out].each do |direction|
+            policy = policies[direction]
+            parts << @rule_formatter.emit_rule(Puffy::Rule.new(action: policy[:action], log: policy[:log], dir: direction, no_quick: true))
+          end
           parts
         end
       end
@@ -40,6 +42,7 @@ module Puffy
           parts = []
           parts << emit_action(rule)
           parts << emit_direction(rule)
+          parts << emit_log(rule)
           parts << emit_quick(rule)
           parts << emit_on(rule)
           parts << emit_what(rule)
@@ -60,6 +63,10 @@ module Puffy
 
         def emit_quick(rule)
           'quick' unless rule.no_quick
+        end
+
+        def emit_log(rule)
+          'log' if rule.log
         end
 
         def emit_on(rule)

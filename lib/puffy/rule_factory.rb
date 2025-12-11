@@ -56,7 +56,7 @@ module Puffy
     def instanciate_rules(options)
       options.expand.map do |hash|
         rule = Rule.new(hash)
-        rule if af_match_policy?(rule.af)
+        rule if af_match_scope?(rule.af)
       rescue AddressFamilyConflict
         nil
       end.compact
@@ -76,7 +76,7 @@ module Puffy
       end
     end
 
-    def af_match_policy?(address_family)
+    def af_match_scope?(address_family)
       @af.nil? || address_family.nil? || address_family == @af
     end
 

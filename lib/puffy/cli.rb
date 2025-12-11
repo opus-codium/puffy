@@ -49,10 +49,10 @@ module Puffy
         run do |opts, args|
           parser = cli.load_network(args[:network])
           rules = parser.ruleset_for(args[:hostname])
-          policy = parser.policy_for(args[:hostname])
+          policies = parser.policies_for(args[:hostname])
 
           formatter = Object.const_get("Puffy::Formatters::#{opts[:formatter]}::Ruleset").new
-          puts formatter.emit_ruleset(rules, policy)
+          puts formatter.emit_ruleset(rules, policies)
         end
       end
 
