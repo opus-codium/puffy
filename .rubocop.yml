@@ -45,6 +45,10 @@ Style/Documentation:
     - features/support/env.rb
     - spec/**/*.rb
 
+Style/OneClassPerFile:
+  Exclude:
+    - lib/core_ext.rb
+
 Style/TrailingCommaInArrayLiteral:
   EnforcedStyleForMultiline: comma
 
