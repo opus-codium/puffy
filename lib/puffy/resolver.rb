@@ -40,7 +40,7 @@ module Puffy
     # @return [Array<Hash>]
     def resolv_srv(service)
       proto = service.split('.')[1][1..-1].to_sym
-      @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port, proto_hint: proto } }.sort
+      @dns.getresources(service, Resolv::DNS::Resource::IN::SRV).collect { |r| { host: r.target.to_s, port: r.port, proto_hint: proto } }.sort { |a, b| [a[:host], a[:port]] <=> [b[:host], b[:port]] }
     end
 
     def resolv_apt_mirror(url)

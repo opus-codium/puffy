@@ -13,6 +13,7 @@ module Puffy
       allow(dns).to receive(:getresources).with('example.com', Resolv::DNS::Resource::IN::AAAA).and_return([Resolv::DNS::Resource::IN::AAAA.new('2001:db8:fa4e:adde::42')])
       allow(dns).to receive(:getresources).with('host.invalid.', Resolv::DNS::Resource::IN::A).and_call_original
       allow(dns).to receive(:getresources).with('host.invalid.', Resolv::DNS::Resource::IN::AAAA).and_call_original
+      allow(dns).to receive(:getresources).with('_fuzzy._tcp.rspamd.com', Resolv::DNS::Resource::IN::SRV).and_return([Resolv::DNS::Resource::IN::SRV.new(10, 100, 11_335, 'fuzzy-b.rspamd.com.'), Resolv::DNS::Resource::IN::SRV.new(10, 100, 11_335, 'fuzzy-a.rspamd.com.')])
 
       allow(Resolv::DNS).to receive(:open).with(nil).and_return(dns)
     end
@@ -64,6 +65,19 @@ module Puffy
         expect(res).to be_an(Array)
         expect(res).not_to be_empty
         expect(res.first).to be_an(IPAddr)
+      end
+    end
+
+    describe '#resolv_srv' do
+      it 'works as expected' do
+        res = resolver.resolv_srv('_fuzzy._tcp.rspamd.com')
+
+        expect(res).to be_an(Array)
+        expect(res).not_to be_empty
+        expect(res).to eq([
+                            { host: 'fuzzy-a.rspamd.com', port: 11_335, proto_hint: :tcp },
+                            { host: 'fuzzy-b.rspamd.com', port: 11_335, proto_hint: :tcp },
+                          ])
       end
     end
   end
