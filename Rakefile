@@ -16,6 +16,7 @@ GitHubChangelogGenerator::RakeTask.new :changelog do |config|
   config.project = 'puffy'
   config.exclude_labels = %w[dependencies skip-changelog]
   config.future_release = "v#{Puffy::VERSION}"
+  config.exclude_tags_regex = '\.pre\.'
 end
 
 task test: %i[spec features]

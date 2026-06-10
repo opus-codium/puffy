@@ -1,6 +1,25 @@
 # Changelog
 
-## [v1.0.0](https://github.com/opus-codium/puffy/tree/v1.0.0) (2024-04-09)
+## [v1.1.0](https://github.com/opus-codium/puffy/tree/v1.1.0) (2026-06-10)
+
+[Full Changelog](https://github.com/opus-codium/puffy/compare/v1.0.0...v1.1.0)
+
+**Implemented enhancements:**
+
+- Drop invalid traffic in iptables [\#47](https://github.com/opus-codium/puffy/pull/47) ([smortex](https://github.com/smortex))
+- Add an `azure-ip-range()` function [\#42](https://github.com/opus-codium/puffy/pull/42) ([smortex](https://github.com/smortex))
+- Add support for variables in host/port lists [\#41](https://github.com/opus-codium/puffy/pull/41) ([smortex](https://github.com/smortex))
+
+**Fixed bugs:**
+
+- Fix `srv()` when multiple SRV records are found [\#50](https://github.com/opus-codium/puffy/pull/50) ([smortex](https://github.com/smortex))
+- Dynamically construct Azure ServiceTags URI [\#43](https://github.com/opus-codium/puffy/pull/43) ([smortex](https://github.com/smortex))
+
+**Merged pull requests:**
+
+- Improve support for policies [\#49](https://github.com/opus-codium/puffy/pull/49) ([smortex](https://github.com/smortex))
+
+## [v1.0.0](https://github.com/opus-codium/puffy/tree/v1.0.0) (2024-04-11)
 
 [Full Changelog](https://github.com/opus-codium/puffy/compare/v0.3.1...v1.0.0)
 
